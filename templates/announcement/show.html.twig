@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Announcement{% endblock %}
+
+{% block body %}
+    <h1>Announcement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ announcement.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ announcement.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ announcement.description }}</td>
+            </tr>
+            <tr>
+                <th>Price</th>
+                <td>{{ announcement.price }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ announcement.status }}</td>
+            </tr>
+            <tr>
+                <th>PublishedAt</th>
+                <td>{{ announcement.publishedAt ? announcement.publishedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>IsSponsored</th>
+                <td>{{ announcement.isSponsored ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>StartDate</th>
+                <td>{{ announcement.startDate ? announcement.startDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>EndDate</th>
+                <td>{{ announcement.endDate ? announcement.endDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Budget</th>
+                <td>{{ announcement.budget }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_announcement_index') }}">back to list</a>
+
+    <a href="{{ path('app_announcement_edit', {'id': announcement.id}) }}">edit</a>
+
+    {{ include('announcement/_delete_form.html.twig') }}
+{% endblock %}
