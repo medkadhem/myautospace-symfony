@@ -3,82 +3,174 @@
 {% block title %}Admin Dashboard - MyAutoSpace{% endblock %}
 
 {% block body %}
-<div class="dashboard-container">
-  <div class="dashboard-header">
+<div class="dashboard-container admin-enhanced">
+  <div class="dashboard-header admin-header-enhanced">
     <div>
-      <h1>Admin Dashboard</h1>
-      <p style="color: var(--muted); margin: 8px 0 0;">Platform management and moderation</p>
+      <div class="admin-badge">🛡️ ADMIN PANEL</div>
+      <h1 class="admin-title">Dashboard Overview</h1>
+      <p class="admin-subtitle">Platform management and moderation center</p>
+    </div>
+    <div class="admin-header-actions">
+      <div class="quick-stat-pill">
+        <span class="pill-icon">👥</span>
+        <span class="pill-value">{{ activeUsers }}</span>
+        <span class="pill-label">Online</span>
+      </div>
+      <div class="quick-stat-pill pending">
+        <span class="pill-icon">⏳</span>
+        <span class="pill-value">{{ pendingReservations }}</span>
+        <span class="pill-label">Pending</span>
+      </div>
     </div>
   </div>
 
-  <div class="dashboard-stats">
-    <div class="stat-card">
-      <div class="stat-icon">👥</div>
-      <div class="stat-label">Total Users</div>
+  <div class="dashboard-stats admin-stats-enhanced">
+    <div class="stat-card admin-stat-card gradient-blue">
+      <div class="stat-card-header">
+        <div class="stat-icon">👥</div>
+        <div class="stat-trend positive">↗ +{{ ((activeUsers / totalUsers) * 100)|number_format(0) }}%</div>
+      </div>
       <div class="stat-value">{{ totalUsers }}</div>
-      <div class="stat-change">{{ activeUsers }} active</div>
+      <div class="stat-label">Total Users</div>
+      <div class="stat-change">
+        <span class="change-badge success">{{ activeUsers }} active</span>
+      </div>
+      <div class="stat-progress">
+        <div class="progress-bar" style="width: {{ totalUsers > 0 ? ((activeUsers / totalUsers) * 100)|number_format(0) : 0 }}%"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">📋</div>
-      <div class="stat-label">Active Listings</div>
+    <div class="stat-card admin-stat-card gradient-yellow">
+      <div class="stat-card-header">
+        <div class="stat-icon">📋</div>
+        <div class="stat-trend positive">↗ {{ ((activeListings / allAnnouncements) * 100)|number_format(0) }}%</div>
+      </div>
       <div class="stat-value">{{ activeListings }}</div>
-      <div class="stat-change">of {{ allAnnouncements }} total</div>
+      <div class="stat-label">Active Listings</div>
+      <div class="stat-change">
+        <span class="change-badge info">{{ allAnnouncements }} total</span>
+      </div>
+      <div class="stat-progress">
+        <div class="progress-bar yellow" style="width: {{ allAnnouncements > 0 ? ((activeListings / allAnnouncements) * 100)|number_format(0) : 0 }}%"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">🔧</div>
-      <div class="stat-label">Active Services</div>
+    <div class="stat-card admin-stat-card gradient-purple">
+      <div class="stat-card-header">
+        <div class="stat-icon">🔧</div>
+        <div class="stat-trend positive">↗ {{ ((activeServices / allServices) * 100)|number_format(0) }}%</div>
+      </div>
       <div class="stat-value">{{ activeServices }}</div>
-      <div class="stat-change">of {{ allServices }} total</div>
+      <div class="stat-label">Active Services</div>
+      <div class="stat-change">
+        <span class="change-badge info">{{ allServices }} total</span>
+      </div>
+      <div class="stat-progress">
+        <div class="progress-bar purple" style="width: {{ allServices > 0 ? ((activeServices / allServices) * 100)|number_format(0) : 0 }}%"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">📅</div>
-      <div class="stat-label">Total Reservations</div>
+    <div class="stat-card admin-stat-card gradient-orange">
+      <div class="stat-card-header">
+        <div class="stat-icon">📅</div>
+        <div class="stat-trend warning">⏳ {{ pendingReservations }}</div>
+      </div>
       <div class="stat-value">{{ totalReservations }}</div>
-      <div class="stat-change">{{ pendingReservations }} pending</div>
+      <div class="stat-label">Total Reservations</div>
+      <div class="stat-change">
+        <span class="change-badge warning">{{ pendingReservations }} pending</span>
+      </div>
+      <div class="stat-progress">
+        <div class="progress-bar orange" style="width: {{ totalReservations > 0 ? ((confirmedReservations / totalReservations) * 100)|number_format(0) : 0 }}%"></div>
+      </div>
     </div>
   </div>
 
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
+  <div class="dashboard-grid admin-grid-enhanced">
+    <div class="dashboard-card admin-action-card priority-card">
+      <div class="card-status-badge">🔥 High Priority</div>
       <span class="card-icon">👥</span>
       <h3>Manage Users</h3>
       <p>Create, edit, and remove user accounts</p>
-      <a href="{{ path('app_admin_user_index') }}" class="btn yellow btn-block">View Users</a>
+      <div class="card-stats">
+        <span>{{ totalUsers }} users</span>
+        <span class="card-divider">•</span>
+        <span class="stat-highlight">{{ activeUsers }} active</span>
+      </div>
+      <a href="{{ path('app_admin_user_index') }}" class="btn yellow btn-block btn-enhanced">
+        <span>View Users</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-action-card priority-card">
+      <div class="card-status-badge">🔥 High Priority</div>
       <span class="card-icon">📋</span>
       <h3>Announcements</h3>
       <p>Moderate and manage vehicle listings</p>
-      <a href="{{ path('app_admin_announcement_index') }}" class="btn yellow btn-block">Manage</a>
+      <div class="card-stats">
+        <span>{{ allAnnouncements }} total</span>
+        <span class="card-divider">•</span>
+        <span class="stat-highlight">{{ activeListings }} active</span>
+      </div>
+      <a href="{{ path('app_admin_announcement_index') }}" class="btn yellow btn-block btn-enhanced">
+        <span>Manage</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-action-card priority-card">
+      <div class="card-status-badge">🔥 High Priority</div>
       <span class="card-icon">🔧</span>
       <h3>Services</h3>
       <p>Review and manage service listings</p>
-      <a href="{{ path('app_admin_service_index') }}" class="btn yellow btn-block">Manage</a>
+      <div class="card-stats">
+        <span>{{ allServices }} total</span>
+        <span class="card-divider">•</span>
+        <span class="stat-highlight">{{ activeServices }} active</span>
+      </div>
+      <a href="{{ path('app_admin_service_index') }}" class="btn yellow btn-block btn-enhanced">
+        <span>Manage</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-action-card">
       <span class="card-icon">⭐</span>
       <h3>Reviews</h3>
       <p>Monitor and moderate user reviews</p>
-      <a href="{{ path('app_admin_review_index') }}" class="btn secondary btn-block">View</a>
+      <div class="card-stats">
+        <span class="stat-muted">Moderation required</span>
+      </div>
+      <a href="{{ path('app_admin_review_index') }}" class="btn secondary btn-block btn-enhanced">
+        <span>View</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-action-card">
       <span class="card-icon">📅</span>
       <h3>Reservations</h3>
       <p>Track and manage reservations</p>
-      <a href="{{ path('app_admin_reservation_index') }}" class="btn secondary btn-block">View</a>
+      <div class="card-stats">
+        <span>{{ totalReservations }} total</span>
+        <span class="card-divider">•</span>
+        <span class="stat-warning">{{ pendingReservations }} pending</span>
+      </div>
+      <a href="{{ path('app_admin_reservation_index') }}" class="btn secondary btn-block btn-enhanced">
+        <span>View</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-action-card">
       <span class="card-icon">📂</span>
       <h3>Categories</h3>
       <p>Manage service and product categories</p>
-      <a href="{{ path('app_admin_category_index') }}" class="btn secondary btn-block">Manage</a>
+      <div class="card-stats">
+        <span class="stat-muted">Organize content</span>
+      </div>
+      <a href="{{ path('app_admin_category_index') }}" class="btn secondary btn-block btn-enhanced">
+        <span>Manage</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
   </div>
 
@@ -233,18 +325,422 @@
   {% endif %}
 
   <div class="dashboard-section">
-    <h2>Quick Actions</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-      <a href="{{ path('app_admin_user_new') }}" class="btn yellow btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
-        ➕ Add New User
+    <h2>
+      <span class="section-icon">⚡</span>
+      Quick Actions
+    </h2>
+    <div class="quick-actions-grid">
+      <a href="{{ path('app_admin_user_new') }}" class="quick-action-btn primary-action">
+        <div class="action-icon">➕</div>
+        <div class="action-content">
+          <div class="action-title">Add New User</div>
+          <div class="action-desc">Create admin or seller account</div>
+        </div>
+        <div class="action-arrow">→</div>
       </a>
-      <a href="{{ path('app_admin_category_new') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
-        ➕ Add Category
+      <a href="{{ path('app_admin_category_new') }}" class="quick-action-btn">
+        <div class="action-icon">📂</div>
+        <div class="action-content">
+          <div class="action-title">Add Category</div>
+          <div class="action-desc">Create new category</div>
+        </div>
+        <div class="action-arrow">→</div>
       </a>
-      <a href="{{ path('app_admin_service_index') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
-        🔍 Review Services
+      <a href="{{ path('app_admin_service_index') }}" class="quick-action-btn">
+        <div class="action-icon">🔍</div>
+        <div class="action-content">
+          <div class="action-title">Review Services</div>
+          <div class="action-desc">Moderate service listings</div>
+        </div>
+        <div class="action-arrow">→</div>
       </a>
     </div>
   </div>
 </div>
+
+<style>
+/* Enhanced Admin Panel Styles */
+.admin-enhanced {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-header-enhanced {
+  background: linear-gradient(135deg, rgba(248, 231, 28, 0.08) 0%, transparent 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(248, 231, 28, 0.15);
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--yellow);
+  color: #000;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.admin-title {
+  font-size: 42px !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #fff 0%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px !important;
+}
+
+.admin-subtitle {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 10px 20px;
+  transition: all 0.3s;
+}
+
+.quick-stat-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--yellow);
+  transform: translateY(-2px);
+}
+
+.quick-stat-pill.pending {
+  border-color: rgba(243, 156, 18, 0.3);
+}
+
+.pill-icon {
+  font-size: 20px;
+}
+
+.pill-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--yellow);
+}
+
+.pill-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.admin-stats-enhanced {
+  margin-bottom: 40px;
+}
+
+.admin-stat-card {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--yellow), var(--primary-dark));
+}
+
+.gradient-blue::before {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.gradient-yellow::before {
+  background: linear-gradient(90deg, var(--yellow), #ffd700);
+}
+
+.gradient-purple::before {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
+}
+
+.gradient-orange::before {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.stat-trend {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.stat-trend.warning {
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.stat-trend.positive {
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-stat-card .stat-value {
+  font-size: 36px !important;
+  margin: 10px 0;
+}
+
+.change-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.change-badge.success {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.change-badge.info {
+  background: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+}
+
+.change-badge.warning {
+  background: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
+}
+
+.stat-progress {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  border-radius: 10px;
+  transition: width 1s ease-out;
+  animation: progressLoad 1.5s ease-out;
+}
+
+.progress-bar.yellow {
+  background: linear-gradient(90deg, var(--yellow), #ffd700);
+}
+
+.progress-bar.purple {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
+}
+
+.progress-bar.orange {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+@keyframes progressLoad {
+  from { width: 0%; }
+}
+
+.admin-grid-enhanced {
+  gap: 24px !important;
+}
+
+.admin-action-card {
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.admin-action-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 60px rgba(248, 231, 28, 0.2) !important;
+}
+
+.priority-card {
+  border-color: rgba(248, 231, 28, 0.3) !important;
+}
+
+.card-status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 10px;
+  padding: 4px 10px;
+  background: rgba(248, 231, 28, 0.2);
+  color: var(--yellow);
+  border-radius: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-action-card .card-icon {
+  font-size: 56px !important;
+  margin-bottom: 20px !important;
+}
+
+.card-stats {
+  font-size: 12px;
+  margin: 16px 0;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+
+.card-divider {
+  margin: 0 8px;
+  opacity: 0.3;
+}
+
+.stat-highlight {
+  color: var(--yellow);
+  font-weight: 700;
+}
+
+.stat-warning {
+  color: #f39c12;
+  font-weight: 700;
+}
+
+.stat-muted {
+  font-style: italic;
+}
+
+.btn-enhanced {
+  position: relative;
+  overflow: hidden;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.btn-arrow {
+  font-size: 18px;
+  transition: transform 0.3s;
+}
+
+.btn-enhanced:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.section-icon {
+  font-size: 28px;
+  margin-right: 8px;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s;
+  color: var(--text);
+}
+
+.quick-action-btn:hover {
+  border-color: var(--yellow);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(4px);
+}
+
+.quick-action-btn.primary-action {
+  border-color: var(--yellow);
+  background: linear-gradient(135deg, rgba(248, 231, 28, 0.08) 0%, var(--surface) 100%);
+}
+
+.action-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.action-content {
+  flex: 1;
+}
+
+.action-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.action-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.action-arrow {
+  font-size: 24px;
+  color: var(--yellow);
+  transition: transform 0.3s;
+}
+
+.quick-action-btn:hover .action-arrow {
+  transform: translateX(4px);
+}
+</style>
 {% endblock %}

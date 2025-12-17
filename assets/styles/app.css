@@ -66,10 +66,13 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 .main-content{padding:40px 20px;margin:0 auto;max-width:1400px;width:100%}
 
 /* Dashboard */
-.dashboard-container{padding:20px;max-width:1400px;margin:0 auto;width:100%}
+.dashboard-container{padding:0;max-width:1600px;margin:0 auto;width:100%}
 .dashboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;flex-wrap:wrap;gap:20px}
 .dashboard-header h1{margin:0;font-size:32px;font-weight:800}
-.dashboard-header-actions{display:flex;gap:12px;flex-wrap:wrap}
+.dashboard-header-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.dashboard-stats{width:100%}
+.dashboard-grid{width:100%}
+.dashboard-section{width:100%}
 .dashboard-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:40px}
 .stat-card{background:linear-gradient(135deg,var(--surface) 0%,var(--surface-2) 100%);border:1px solid rgba(248,231,28,.1);border-radius:12px;padding:24px;transition:all .3s ease;position:relative}
 .stat-card::after{content:'';position:absolute;inset:0;border-radius:12px;opacity:0;transition:opacity .3s ease;background:linear-gradient(135deg,rgba(248,231,28,.05) 0%,transparent 100%);pointer-events:none}
@@ -255,15 +258,16 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 .alert.warning{border-left-color:var(--warning);background:rgba(243,156,18,.1);color:#fff}
 
 /* Admin */
-.admin-layout{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:100vh}
-.admin-sidebar{background:linear-gradient(180deg,var(--surface-2) 0%,#0a0a0a 100%);border-right:1px solid rgba(255,255,255,.08);padding:24px 0;position:fixed;width:280px;height:100vh;overflow-y:auto;z-index:50}
+.admin-layout{display:flex;min-height:100vh}
+.admin-sidebar{background:linear-gradient(180deg,var(--surface-2) 0%,#0a0a0a 100%);border-right:1px solid rgba(255,255,255,.08);padding:24px 0;position:fixed;width:280px;height:100vh;overflow-y:auto;z-index:50;left:0;top:0}
 .admin-sidebar h3{color:var(--yellow);margin:0 0 20px 24px;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
 .admin-sidebar a{display:block;padding:12px 24px;color:var(--muted);text-decoration:none;border-radius:0;margin:0;transition:all .2s;font-weight:600;font-size:14px;border-left:3px solid transparent}
 .admin-sidebar a:hover,.admin-sidebar a.active{background:rgba(248,231,28,.08);color:var(--yellow);border-left-color:var(--yellow)}
-.admin-content{padding:32px;margin-left:280px;min-height:100vh;background:var(--bg)}
-.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.05)}
+.admin-content{flex:1;padding:40px;margin-left:280px;min-height:100vh;background:var(--bg);width:calc(100% - 280px);box-sizing:border-box}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.05);width:100%}
 .admin-header h1{margin:0;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--yellow) 0%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .admin-header .btn{box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.admin-header .dashboard-header-actions{margin-left:auto}
 .table-container{background:var(--surface);border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.3);overflow-x:auto}
 .admin-table{width:100%;border-collapse:collapse;min-width:800px}
 .admin-table thead{background:var(--surface-2);border-bottom:2px solid var(--yellow)}
@@ -392,9 +396,9 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 /* Responsive */
 @media (max-width:1200px){
   .hero-section{grid-template-columns:1fr}
-  .admin-layout{grid-template-columns:1fr}
-  .admin-content{margin-left:0}
-  .admin-sidebar{position:absolute;width:100%}
+  .admin-layout{flex-direction:column}
+  .admin-content{margin-left:0;width:100%}
+  .admin-sidebar{position:relative;width:100%;height:auto}
   .vehicles-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
   .nav-links{position:absolute;left:0;right:0;top:70px;background:rgba(0,0,0,.99);padding:12px 16px;display:none;flex-direction:column;gap:6px;border-bottom:1px solid rgba(255,255,255,.1)}
   .nav-links.open{display:flex}
@@ -412,8 +416,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
   .dashboard-header{flex-direction:column;align-items:flex-start}
   .footer-content{grid-template-columns:repeat(2,1fr);gap:24px}
   .partners-grid{grid-template-columns:repeat(2,1fr)}
-  .admin-sidebar{position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
-  .admin-content{margin-left:0;padding:20px}
+  .admin-sidebar{position:relative;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
+  .admin-content{margin-left:0;padding:20px;width:100%}
   .admin-header{flex-direction:column;gap:16px}
   .admin-header-actions{width:100%}
   .admin-header-actions .btn{width:100%}
@@ -641,19 +645,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 .alert.error{border-color:rgba(231,76,60,.5);background:rgba(231,76,60,.1)}
 .alert.warning{border-color:rgba(243,156,18,.5);background:rgba(243,156,18,.1)}
 
-/* Admin */
-.admin-layout{display:grid;grid-template-columns:250px 1fr;gap:0;min-height:100vh}
-.admin-sidebar{background:var(--surface-2);border-right:1px solid #333;padding:20px}
-.admin-sidebar h3{color:var(--yellow);margin:0 0 16px;font-size:18px}
-.admin-sidebar a{display:block;padding:10px 14px;color:var(--muted);text-decoration:none;border-radius:8px;margin-bottom:4px;transition:all .2s}
-.admin-sidebar a:hover,.admin-sidebar a.active{background:var(--surface);color:var(--text);border-left:2px solid var(--yellow)}
-.admin-content{padding:24px}
-.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.admin-header h1{margin:0;font-size:28px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:32px}
-.stat-card{background:var(--surface);padding:20px;border-radius:12px;border:1px solid #333}
-.stat-card h3{margin:0 0 8px;font-size:14px;color:var(--muted);text-transform:uppercase}
-.stat-card .stat-value{font-size:32px;font-weight:700;color:var(--yellow)}
+/* Admin - Removed duplicate, main styles at line 258 */
 
 /* Responsive */
 @media (max-width:800px){
