@@ -1,39 +1,262 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Review index{% endblock %}
+{% block title %}My Reviews - MyAutoSpace{% endblock %}
 
 {% block body %}
-    <h1>Review index</h1>
+<div class="reviews-container">
+  <div class="reviews-header">
+    <div>
+      <h1>⭐ My Reviews</h1>
+      <p style="color: var(--muted); margin: 8px 0 0;">Reviews you've written for services and listings</p>
+    </div>
+    <a href="{{ path('app_reservation_index') }}" class="btn secondary">← Back to Bookings</a>
+  </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>CreatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for review in reviews %}
-            <tr>
-                <td>{{ review.id }}</td>
-                <td>{{ review.rating }}</td>
-                <td>{{ review.comment }}</td>
-                <td>{{ review.createdAt ? review.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_review_show', {'id': review.id}) }}">show</a>
-                    <a href="{{ path('app_review_edit', {'id': review.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+  {% if reviews|length > 0 %}
+  <div class="reviews-list">
+    {% for review in reviews %}
+    <div class="review-card">
+      <div class="review-card-header">
+        <div class="reviewed-item">
+          <div class="item-icon">
+            {% if review.service %}🔧{% else %}🚗{% endif %}
+          </div>
+          <div class="item-info">
+            <h3>
+              {% if review.service %}
+                {{ review.service.title }}
+              {% else %}
+                {{ review.announcement.title }}
+              {% endif %}
+            </h3>
+            <p class="provider-name">
+              {% if review.service %}
+                Provider: {{ review.service.provider.fullName ? review.service.provider.fullName : review.service.provider.email }}
+              {% else %}
+                Seller: {{ review.announcement.vendor.fullName ? review.announcement.vendor.fullName : review.announcement.vendor.email }}
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        <div class="review-meta">
+          <div class="star-display">
+            {% for i in 1..5 %}
+              <span class="star {% if i <= review.rating %}filled{% endif %}">★</span>
+            {% endfor %}
+          </div>
+          <div class="review-date">{{ review.createdAt|date('M d, Y') }}</div>
+        </div>
+      </div>
 
-    <a href="{{ path('app_review_new') }}">Create new</a>
+      {% if review.comment %}
+      <div class="review-card-body">
+        <p class="review-comment">{{ review.comment }}</p>
+      </div>
+      {% endif %}
+
+      <div class="review-card-footer">
+        <a href="{{ path('app_review_edit', {id: review.id}) }}" class="btn secondary btn-sm">✏️ Edit</a>
+        <form method="post" action="{{ path('app_review_delete', {id: review.id}) }}" onsubmit="return confirm('Delete this review?');" style="display: inline;">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ review.id) }}">
+          <button type="submit" class="btn danger btn-sm">🗑️ Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">⭐</div>
+    <h3>No Reviews Yet</h3>
+    <p>You haven't written any reviews. Complete a booking to leave your first review!</p>
+    <a href="{{ path('app_reservation_index') }}" class="btn yellow">View Your Bookings</a>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .reviews-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .reviews-header h1 {
+    font-size: 32px;
+    margin: 0 0 8px;
+  }
+
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .review-card {
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+  }
+
+  .review-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .review-card-header {
+    padding: 20px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .reviewed-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .item-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+
+  .item-info h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .provider-name {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .review-meta {
+    text-align: right;
+  }
+
+  .star-display {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .star {
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  .star.filled {
+    color: var(--accent);
+  }
+
+  .review-date {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .review-card-body {
+    padding: 24px;
+  }
+
+  .review-comment {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .review-card-footer {
+    padding: 16px 24px;
+    background: var(--bg-secondary);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 12px;
+  }
+
+  .review-card-footer form {
+    margin: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--card);
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    font-size: 24px;
+    margin: 0 0 12px;
+  }
+
+  .empty-state p {
+    color: var(--muted);
+    margin: 0 0 24px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .reviews-container {
+      padding: 20px 12px;
+    }
+
+    .reviews-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .reviews-header h1 {
+      font-size: 24px;
+    }
+
+    .review-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .review-meta {
+      text-align: left;
+    }
+
+    .reviewed-item {
+      width: 100%;
+    }
+
+    .review-card-footer {
+      flex-direction: column;
+    }
+
+    .review-card-footer .btn,
+    .review-card-footer form {
+      width: 100%;
+    }
+
+    .review-card-footer .btn {
+      width: 100%;
+    }
+  }
+</style>
 {% endblock %}

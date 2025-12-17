@@ -249,4 +249,27 @@ class Service
 
         return $this;
     }
+
+    public function getAverageRating(): float
+    {
+        if ($this->reviews->isEmpty()) {
+            return 0.0;
+        }
+
+        $total = 0;
+        $count = 0;
+        foreach ($this->reviews as $review) {
+            if ($review->getRating()) {
+                $total += $review->getRating();
+                $count++;
+            }
+        }
+
+        return $count > 0 ? round($total / $count, 1) : 0.0;
+    }
+
+    public function getReviewCount(): int
+    {
+        return $this->reviews->count();
+    }
 }

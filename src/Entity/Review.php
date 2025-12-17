@@ -32,8 +32,16 @@ class Review
     private ?User $reviewer = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Service $service = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Announcement $announcement = null;
+
+    #[ORM\OneToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Reservation $reservation = null;
 
     public function getId(): ?int
     {
@@ -110,5 +118,56 @@ class Review
         $this->service = $service;
 
         return $this;
+    }
+
+    public function getAnnouncement(): ?Announcement
+    {
+        return $this->announcement;
+    }
+
+    public function setAnnouncement(?Announcement $announcement): static
+    {
+        $this->announcement = $announcement;
+
+        return $this;
+    }
+
+    public function getReservation(): ?Reservation
+    {
+        return $this->reservation;
+    }
+
+    public function setReservation(?Reservation $reservation): static
+    {
+        $this->reservation = $reservation;
+
+        return $this;
+    }
+
+    public function getReviewedItem(): Service|Announcement|null
+    {
+        return $this->service ?? $this->announcement;
+    }
+
+    public function getReviewedItemType(): ?string
+    {
+        if ($this->service) {
+            return 'service';
+        }
+        if ($this->announcement) {
+            return 'announcement';
+        }
+        return null;
+    }
+
+    public function getProvider(): ?User
+    {
+        if ($this->service) {
+            return $this->service->getProvider();
+        }
+        if ($this->announcement) {
+            return $this->announcement->getVendor();
+        }
+        return null;
     }
 }

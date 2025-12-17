@@ -102,8 +102,8 @@
         </form>
         {% endif %}
 
-        {% if reservation.status == 'completed' and not reservation.rating %}
-        <a href="{{ path('app_review_new', {reservationId: reservation.id}) }}" class="btn yellow btn-sm">Leave Review</a>
+        {% if reservation.status == 'completed' and not reservation.hasReview %}
+        <a href="{{ path('app_review_create_from_reservation', {reservationId: reservation.id}) }}" class="btn yellow btn-sm">⭐ Leave Review</a>
         {% endif %}
       </div>
     </div>

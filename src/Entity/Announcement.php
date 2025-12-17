@@ -92,10 +92,17 @@ class Announcement
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'announcement')]
     private Collection $reservations;
 
+    /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'announcement')]
+    private Collection $reviews;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
         $this->photos = [];
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -415,5 +422,57 @@ class Announcement
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setAnnouncement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            if ($review->getAnnouncement() === $this) {
+                $review->setAnnouncement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAverageRating(): float
+    {
+        if ($this->reviews->isEmpty()) {
+            return 0.0;
+        }
+
+        $total = 0;
+        $count = 0;
+        foreach ($this->reviews as $review) {
+            if ($review->getRating()) {
+                $total += $review->getRating();
+                $count++;
+            }
+        }
+
+        return $count > 0 ? round($total / $count, 1) : 0.0;
+    }
+
+    public function getReviewCount(): int
+    {
+        return $this->reviews->count();
     }
 }
