@@ -1,13 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Announcement{% endblock %}
+{% block title %}Edit Listing - MyAutoSpace{% endblock %}
 
 {% block body %}
-    <h1>Edit Announcement</h1>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div>
+      <h1><i class="fas fa-edit" style="margin-right: 12px; color: var(--accent);"></i>Edit Listing</h1>
+      <p style="color: var(--muted); margin: 8px 0 0;">Update your vehicle details</p>
+    </div>
+    <a href="{{ path('app_announcement_show', {'id': announcement.id}) }}" class="btn secondary">
+      <i class="fas fa-eye"></i>
+      View Listing
+    </a>
+  </div>
 
-    {{ include('announcement/_form.html.twig', {'button_label': 'Update'}) }}
+  {{ include('announcement/_form.html.twig') }}
 
-    <a href="{{ path('app_announcement_index') }}">back to list</a>
-
+  <div style="max-width: 900px; margin: 40px auto; padding: 28px; background: rgba(231,76,60,.08); border: 1px solid rgba(231,76,60,.25); border-radius: 12px;">
+    <h3 style="margin: 0 0 12px; color: #e74c3c; display: flex; align-items: center; gap: 8px;">
+      <i class="fas fa-exclamation-triangle"></i>
+      Danger Zone
+    </h3>
+    <p style="color: var(--muted); margin: 0 0 16px; font-size: 14px;">Once you delete this listing, there is no going back. Please be certain.</p>
     {{ include('announcement/_delete_form.html.twig') }}
+  </div>
+</div>
 {% endblock %}

@@ -26,9 +26,8 @@ class RegistrationFormType extends AbstractType
             ->add('role', ChoiceType::class, [
                 'mapped' => false,
                 'choices' => [
-                    'Client' => 'ROLE_CLIENT',
-                    'Seller' => 'ROLE_SELLER',
-                    'Service Provider' => 'ROLE_PROVIDER',
+                    'I want to use services & buy listings' => 'ROLE_USER',
+                    'I want to provide services & sell listings' => 'ROLE_PROVIDER',
                 ],
                 'placeholder' => 'Choose your account type',
             ]);

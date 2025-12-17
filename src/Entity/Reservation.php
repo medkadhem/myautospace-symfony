@@ -17,22 +17,47 @@ class Reservation
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private ?\DateTimeImmutable $reservationDate = null;
 
-    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::TIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $startTime = null;
 
-    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::TIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $endTime = null;
 
     #[ORM\Column(length: 50)]
     private ?string $status = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 3, nullable: true)]
+    private ?float $price = null;
+
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $rating = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $comment = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $provider = null;
+
     #[ORM\ManyToOne(inversedBy: 'reservations')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Service $service = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Announcement $announcement = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -56,7 +81,7 @@ class Reservation
         return $this->startTime;
     }
 
-    public function setStartTime(\DateTimeImmutable $startTime): static
+    public function setStartTime(?\DateTimeImmutable $startTime): static
     {
         $this->startTime = $startTime;
 
@@ -68,7 +93,7 @@ class Reservation
         return $this->endTime;
     }
 
-    public function setEndTime(\DateTimeImmutable $endTime): static
+    public function setEndTime(?\DateTimeImmutable $endTime): static
     {
         $this->endTime = $endTime;
 
@@ -87,6 +112,54 @@ class Reservation
         return $this;
     }
 
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?float $price): static
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?int $rating): static
+    {
+        $this->rating = $rating;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): static
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function getClient(): ?User
     {
         return $this->client;
@@ -99,6 +172,18 @@ class Reservation
         return $this;
     }
 
+    public function getProvider(): ?User
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(?User $provider): static
+    {
+        $this->provider = $provider;
+
+        return $this;
+    }
+
     public function getService(): ?Service
     {
         return $this->service;
@@ -107,6 +192,18 @@ class Reservation
     public function setService(?Service $service): static
     {
         $this->service = $service;
+
+        return $this;
+    }
+
+    public function getAnnouncement(): ?Announcement
+    {
+        return $this->announcement;
+    }
+
+    public function setAnnouncement(?Announcement $announcement): static
+    {
+        $this->announcement = $announcement;
 
         return $this;
     }

@@ -36,7 +36,6 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/dashboard/admin, roles: ROLE_ADMIN }
-        - { path: ^/dashboard/seller, roles: ROLE_SELLER }
         - { path: ^/dashboard/provider, roles: ROLE_PROVIDER }
         - { path: ^/dashboard, roles: ROLE_USER }
 

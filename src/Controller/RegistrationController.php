@@ -28,12 +28,17 @@ final class RegistrationController extends AbstractController
                 $hashed = $hasher->hashPassword($user, $plainPassword);
                 $user->setPassword($hashed);
 
-                // role selection
+                // Role selection: Provider or Client
                 $role = (string) $form->get('role')->getData();
                 $roles = ['ROLE_USER'];
-                if (in_array($role, ['ROLE_CLIENT','ROLE_SELLER','ROLE_PROVIDER','ROLE_ADMIN'], true)) {
-                    $roles[] = $role;
+                
+                if ($role === 'ROLE_PROVIDER') {
+                    $roles[] = 'ROLE_PROVIDER';
+                    $user->setUserType('provider');
+                } else {
+                    $user->setUserType('client');
                 }
+                
                 $user->setRoles(array_values(array_unique($roles)));
 
                 $em->persist($user);

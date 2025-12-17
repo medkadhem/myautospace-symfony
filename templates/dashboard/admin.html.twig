@@ -1,10 +1,250 @@
 {% extends 'base.html.twig' %}
-{% block title %}Admin Dashboard{% endblock %}
+
+{% block title %}Admin Dashboard - MyAutoSpace{% endblock %}
+
 {% block body %}
-  <h2>Admin Dashboard</h2>
-  <div class="cards">
-    <div class="card"><strong>Users</strong><p>Manage users and roles.</p></div>
-    <div class="card"><strong>Announcements</strong><p>Moderate listings.</p></div>
-    <div class="card"><strong>Services</strong><p>Moderate services and reviews.</p></div>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p style="color: var(--muted); margin: 8px 0 0;">Platform management and moderation</p>
+    </div>
   </div>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value">{{ totalUsers }}</div>
+      <div class="stat-change">{{ activeUsers }} active</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-label">Active Listings</div>
+      <div class="stat-value">{{ activeListings }}</div>
+      <div class="stat-change">of {{ allAnnouncements }} total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔧</div>
+      <div class="stat-label">Active Services</div>
+      <div class="stat-value">{{ activeServices }}</div>
+      <div class="stat-change">of {{ allServices }} total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-label">Total Reservations</div>
+      <div class="stat-value">{{ totalReservations }}</div>
+      <div class="stat-change">{{ pendingReservations }} pending</div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card">
+      <span class="card-icon">👥</span>
+      <h3>Manage Users</h3>
+      <p>Create, edit, and remove user accounts</p>
+      <a href="{{ path('app_admin_user_index') }}" class="btn yellow btn-block">View Users</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">📋</span>
+      <h3>Announcements</h3>
+      <p>Moderate and manage vehicle listings</p>
+      <a href="{{ path('app_admin_announcement_index') }}" class="btn yellow btn-block">Manage</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">🔧</span>
+      <h3>Services</h3>
+      <p>Review and manage service listings</p>
+      <a href="{{ path('app_admin_service_index') }}" class="btn yellow btn-block">Manage</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">⭐</span>
+      <h3>Reviews</h3>
+      <p>Monitor and moderate user reviews</p>
+      <a href="{{ path('app_admin_review_index') }}" class="btn secondary btn-block">View</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">📅</span>
+      <h3>Reservations</h3>
+      <p>Track and manage reservations</p>
+      <a href="{{ path('app_admin_reservation_index') }}" class="btn secondary btn-block">View</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">📂</span>
+      <h3>Categories</h3>
+      <p>Manage service and product categories</p>
+      <a href="{{ path('app_admin_category_index') }}" class="btn secondary btn-block">Manage</a>
+    </div>
+  </div>
+
+  <div class="dashboard-section">
+    <h2>System Overview</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Status</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Total Users</strong></td>
+            <td>{{ totalUsers }}</td>
+            <td><span class="badge success">Active</span></td>
+            <td>100%</td>
+          </tr>
+          <tr>
+            <td><strong>Active Users</strong></td>
+            <td>{{ activeUsers }}</td>
+            <td><span class="badge success">Active</span></td>
+            <td>{{ totalUsers > 0 ? ((activeUsers / totalUsers) * 100)|number_format(0) : 0 }}%</td>
+          </tr>
+          <tr>
+            <td><strong>Active Listings</strong></td>
+            <td>{{ activeListings }}</td>
+            <td><span class="badge success">Active</span></td>
+            <td>{{ allAnnouncements > 0 ? ((activeListings / allAnnouncements) * 100)|number_format(0) : 0 }}%</td>
+          </tr>
+          <tr>
+            <td><strong>All Announcements</strong></td>
+            <td>{{ allAnnouncements }}</td>
+            <td><span class="badge info">Total</span></td>
+            <td>100%</td>
+          </tr>
+          <tr>
+            <td><strong>Active Services</strong></td>
+            <td>{{ activeServices }}</td>
+            <td><span class="badge success">Active</span></td>
+            <td>{{ allServices > 0 ? ((activeServices / allServices) * 100)|number_format(0) : 0 }}%</td>
+          </tr>
+          <tr>
+            <td><strong>All Services</strong></td>
+            <td>{{ allServices }}</td>
+            <td><span class="badge info">Total</span></td>
+            <td>100%</td>
+          </tr>
+          <tr>
+            <td><strong>Confirmed Reservations</strong></td>
+            <td>{{ confirmedReservations }}</td>
+            <td><span class="badge success">Confirmed</span></td>
+            <td>{{ totalReservations > 0 ? ((confirmedReservations / totalReservations) * 100)|number_format(0) : 0 }}%</td>
+          </tr>
+          <tr>
+            <td><strong>Pending Reservations</strong></td>
+            <td>{{ pendingReservations }}</td>
+            <td><span class="badge warning">Pending</span></td>
+            <td>{{ totalReservations > 0 ? ((pendingReservations / totalReservations) * 100)|number_format(0) : 0 }}%</td>
+          </tr>
+          <tr>
+            <td><strong>Total Reservations</strong></td>
+            <td>{{ totalReservations }}</td>
+            <td><span class="badge info">Total</span></td>
+            <td>100%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if recentUsers|length > 0 %}
+  <div class="dashboard-section">
+    <h2>Recent Registrations</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in recentUsers %}
+          <tr>
+            <td><strong>{{ user.email }}</strong></td>
+            <td>
+              {% if user.isActive %}
+                <span class="badge success">Active</span>
+              {% else %}
+                <span class="badge danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>{{ user.createdAt|date('d M Y H:i') }}</td>
+            <td>
+              <a href="{{ path('app_admin_user_show', {id: user.id}) }}" class="btn btn-sm secondary">View</a>
+              <a href="{{ path('app_admin_user_edit', {id: user.id}) }}" class="btn btn-sm secondary">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if recentListings|length > 0 %}
+  <div class="dashboard-section">
+    <h2>Recent Listings</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Vendor</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Posted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listing in recentListings %}
+          <tr>
+            <td><strong>{{ listing.brand }} {{ listing.model }} ({{ listing.year }})</strong></td>
+            <td>{{ listing.vendor.email|split('@')|first }}</td>
+            <td>{{ listing.price }} TND</td>
+            <td>
+              {% if listing.status == 'active' %}
+                <span class="badge success">Active</span>
+              {% else %}
+                <span class="badge warning">{{ listing.status|capitalize }}</span>
+              {% endif %}
+            </td>
+            <td>{{ listing.createdAt|date('d M Y') }}</td>
+            <td>
+              <a href="{{ path('app_admin_announcement_show', {id: listing.id}) }}" class="btn btn-sm secondary">View</a>
+              <a href="{{ path('app_admin_announcement_edit', {id: listing.id}) }}" class="btn btn-sm secondary">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="dashboard-section">
+    <h2>Quick Actions</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+      <a href="{{ path('app_admin_user_new') }}" class="btn yellow btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+        ➕ Add New User
+      </a>
+      <a href="{{ path('app_admin_category_new') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+        ➕ Add Category
+      </a>
+      <a href="{{ path('app_admin_service_index') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+        🔍 Review Services
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

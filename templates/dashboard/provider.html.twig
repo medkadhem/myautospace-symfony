@@ -1,10 +1,228 @@
 {% extends 'base.html.twig' %}
-{% block title %}Provider Dashboard{% endblock %}
+
+{% block title %}Provider Dashboard - MyAutoSpace{% endblock %}
+
 {% block body %}
-  <h2>Service Provider Dashboard</h2>
-  <div class="cards">
-    <div class="card"><strong>My Services</strong><p><a class="btn primary" href="#">Add service</a></p></div>
-    <div class="card"><strong>Reservations</strong><p>Approve or decline incoming reservations.</p></div>
-    <div class="card"><strong>Inbox</strong><p>Conversations with clients.</p></div>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div>
+      <h1>Provider Dashboard</h1>
+      <p style="color: var(--muted); margin: 8px 0 0;">Manage your services and car listings</p>
+    </div>
+    <div class="dashboard-header-actions">
+      <a href="{{ path('app_service_new') }}" class="btn yellow btn-lg">+ Add Service</a>
+      <a href="{{ path('app_announcement_new') }}" class="btn yellow btn-lg">+ Add Listing</a>
+    </div>
   </div>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <div class="stat-icon">🔧</div>
+      <div class="stat-label">Active Services</div>
+      <div class="stat-value">{{ activeServices }}</div>
+      <div class="stat-change">Published</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🚗</div>
+      <div class="stat-label">Active Listings</div>
+      <div class="stat-value">{{ activeListings }}</div>
+      <div class="stat-change">Car listings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-label">Total Bookings</div>
+      <div class="stat-value">{{ totalReservations }}</div>
+      <div class="stat-change">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending Requests</div>
+      <div class="stat-value">{{ pendingReservations }}</div>
+      <div class="stat-change">Awaiting approval</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-label">Rating</div>
+      <div class="stat-value">{{ averageRating > 0 ? averageRating : 'N/A' }}</div>
+      <div class="stat-change">Client feedback</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Listings Value</div>
+      <div class="stat-value">{{ totalValue|number_format(0, '.', ' ') }} TND</div>
+      <div class="stat-change">Total value</div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card">
+      <span class="card-icon">🔧</span>
+      <h3>My Services</h3>
+      <p>View and manage your service offerings</p>
+      <a href="{{ path('app_service_index') }}" class="btn yellow btn-block">View Services</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">🚗</span>
+      <h3>Car Listings</h3>
+      <p>Manage your vehicle listings</p>
+      <a href="{{ path('app_announcement_index') }}" class="btn yellow btn-block">View Listings</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">📅</span>
+      <h3>Bookings & Reservations</h3>
+      <p>Manage and confirm booking requests</p>
+      <a href="{{ path('app_reservation_index') }}" class="btn secondary btn-block">View All</a>
+    </div>
+
+    <div class="dashboard-card">
+      <span class="card-icon">⭐</span>
+      <h3>Reviews & Ratings</h3>
+      <p>Check customer feedback and ratings</p>
+      <a href="{{ path('app_review_index') }}" class="btn secondary btn-block">See Reviews</a>
+    </div>
+  </div>
+
+  {% if recentReservations|length > 0 %}
+  <div class="dashboard-section">
+    <h2>Recent Bookings</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Car/Service</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reservation in recentReservations %}
+          <tr>
+            <td>
+              <strong>{{ reservation.client.fullName ?? 'Unknown' }}</strong>
+            </td>
+            <td>
+              {% if reservation.announcement %}
+                {{ reservation.announcement.title }}
+              {% elseif reservation.service %}
+                {{ reservation.service.title }}
+              {% else %}
+                Unknown
+              {% endif %}
+            </td>
+            <td>{{ reservation.createdAt|date('d M Y') }}</td>
+            <td>
+              {% if reservation.status == 'pending' %}
+                <span class="badge warning">Pending</span>
+              {% elseif reservation.status == 'confirmed' %}
+                <span class="badge success">Confirmed</span>
+              {% elseif reservation.status == 'completed' %}
+                <span class="badge info">Completed</span>
+              {% else %}
+                <span class="badge">{{ reservation.status|capitalize }}</span>
+              {% endif %}
+            </td>
+            <td>{{ reservation.price ? (reservation.price|number_format(0, '.', ' ')) : 'N/A' }} TND</td>
+            <td>
+              <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-sm secondary">View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if announcements|length > 0 %}
+  <div class="dashboard-section">
+    <h2>Your Car Listings</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for announcement in announcements %}
+          <tr>
+            <td><strong>{{ announcement.title }}</strong></td>
+            <td>{{ announcement.price|number_format(0, '.', ' ') }} TND</td>
+            <td>
+              {% if announcement.status == 'active' %}
+                <span class="badge success">Active</span>
+              {% else %}
+                <span class="badge warning">{{ announcement.status|capitalize }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ path('app_announcement_show', {id: announcement.id}) }}" class="btn btn-sm ghost">View</a>
+              <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn btn-sm secondary">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if services|length > 0 %}
+  <div class="dashboard-section">
+    <h2>Your Services</h2>
+    <div class="dashboard-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Price</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for service in services %}
+          <tr>
+            <td><strong>{{ service.title }}</strong></td>
+            <td>{{ service.price|number_format(0, '.', ' ') }} TND</td>
+            <td>{{ service.duration }} minutes</td>
+            <td>
+              {% if service.isActive %}
+                <span class="badge success">Active</span>
+              {% else %}
+                <span class="badge warning">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn btn-sm ghost">View</a>
+              <a href="{{ path('app_service_edit', {id: service.id}) }}" class="btn btn-sm secondary">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if announcements|length == 0 and services|length == 0 %}
+  <div class="dashboard-section" style="text-align: center; padding: 60px 20px;">
+    <p style="color: var(--muted); font-size: 16px; margin-bottom: 20px;">📭 You haven't added any services or listings yet</p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <a href="{{ path('app_service_new') }}" class="btn yellow btn-lg">Create Service</a>
+      <a href="{{ path('app_announcement_new') }}" class="btn yellow btn-lg">Create Listing</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}
+

@@ -1,0 +1,374 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Marketplace - MyAutoSpace{% endblock %}
+
+{% block body %}
+<div class="marketplace-container">
+  <div class="marketplace-header">
+    <h1>Marketplace</h1>
+    <p>Discover cars and services from trusted providers</p>
+  </div>
+
+  <div class="marketplace-wrapper">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <form method="GET" action="{{ path('app_marketplace') }}" class="filters-form">
+        
+        <div class="filter-group">
+          <h3>Type</h3>
+          <label class="filter-radio">
+            <input type="radio" name="type" value="all" {% if type == 'all' or type is empty %}checked{% endif %}>
+            <span>All</span>
+          </label>
+          <label class="filter-radio">
+            <input type="radio" name="type" value="listings" {% if type == 'listings' %}checked{% endif %}>
+            <span>Car Listings</span>
+          </label>
+          <label class="filter-radio">
+            <input type="radio" name="type" value="services" {% if type == 'services' %}checked{% endif %}>
+            <span>Services</span>
+          </label>
+        </div>
+
+        {% if type != 'services' %}
+        <div class="filter-group">
+          <h3>Price Range</h3>
+          <div class="price-inputs">
+            <input type="number" name="minPrice" placeholder="Min" value="{{ minPrice }}" class="filter-input">
+            <input type="number" name="maxPrice" placeholder="Max" value="{{ maxPrice }}" class="filter-input">
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="filter-group">
+          <h3>Search</h3>
+          <input type="text" name="search" placeholder="Search..." value="{{ search }}" class="filter-input">
+        </div>
+
+        <button type="submit" class="btn yellow btn-block">Apply Filters</button>
+        <a href="{{ path('app_marketplace') }}" class="btn secondary btn-block">Clear Filters</a>
+      </form>
+    </aside>
+
+    <!-- Results Section -->
+    <main class="marketplace-results">
+      
+      <!-- Car Listings -->
+      {% if type != 'services' and announcements|length > 0 %}
+      <section class="results-section">
+        <h2>Car Listings ({{ announcements|length }})</h2>
+        <div class="listings-grid">
+          {% for announcement in announcements %}
+          <div class="listing-card">
+            {% if announcement.mainPhoto %}
+              <div class="listing-image">
+                <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.title }}" loading="lazy">
+              </div>
+            {% else %}
+              <div class="listing-image placeholder">
+                <span>🚗</span>
+              </div>
+            {% endif %}
+            
+            <div class="listing-content">
+              <h3>{{ announcement.brand }} {{ announcement.model }}</h3>
+              <p class="listing-year">{{ announcement.year }} • {{ announcement.mileage }} km</p>
+              <p class="listing-fuel">{{ announcement.fuelType }}</p>
+              
+              <div class="listing-footer">
+                <div class="listing-price">
+                  <strong>{{ announcement.price|number_format(0, '.', ' ') }} TND</strong>
+                </div>
+                <a href="{{ path('app_announcement_show', {id: announcement.id}) }}" class="btn yellow btn-sm">View</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Services -->
+      {% if type != 'listings' and services|length > 0 %}
+      <section class="results-section">
+        <h2>Services ({{ services|length }})</h2>
+        <div class="services-grid">
+          {% for service in services %}
+          <div class="service-card">
+            <div class="service-header">
+              <h3>{{ service.title }}</h3>
+              <span class="service-duration">⏱️ {{ service.duration }} min</span>
+            </div>
+            
+            <p class="service-description">{{ service.description|slice(0, 100) }}...</p>
+            
+            <div class="service-provider">
+              <strong>{{ service.provider.fullName }}</strong>
+            </div>
+
+            <div class="service-footer">
+              <div class="service-price">
+                <strong>{{ service.price|number_format(0, '.', ' ') }} TND</strong>
+              </div>
+              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow btn-sm">View</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- No Results -->
+      {% if announcements|length == 0 and services|length == 0 %}
+      <div class="no-results">
+        <p>😔 No results found</p>
+        <a href="{{ path('app_marketplace') }}" class="btn yellow">View All Listings</a>
+      </div>
+      {% endif %}
+
+    </main>
+  </div>
+</div>
+
+<style>
+  .marketplace-container {
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .marketplace-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .marketplace-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .marketplace-wrapper {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 30px;
+  }
+
+  .filters-sidebar {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .filter-group {
+    margin-bottom: 25px;
+  }
+
+  .filter-group h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .filter-radio {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .filter-radio input {
+    margin-right: 8px;
+  }
+
+  .price-inputs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .filter-input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .marketplace-results {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .results-section h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .listing-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .listing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .listing-image {
+    width: 100%;
+    height: 180px;
+    background: var(--bg-tertiary);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .listing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .listing-image.placeholder {
+    background: linear-gradient(135deg, var(--brand-yellow), var(--brand-yellow-dark));
+  }
+
+  .listing-content {
+    padding: 16px;
+  }
+
+  .listing-content h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .listing-year {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .listing-fuel {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .listing-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .listing-price {
+    font-size: 16px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .service-card {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 12px;
+  }
+
+  .service-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .service-duration {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .service-description {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .service-provider {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 12px;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+  }
+
+  .service-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .service-price {
+    font-size: 16px;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .no-results p {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .marketplace-wrapper {
+      grid-template-columns: 1fr;
+    }
+
+    .filters-sidebar {
+      position: static;
+    }
+
+    .listings-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

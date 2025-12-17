@@ -1,4 +1,349 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+<div class="listing-form-container">
+  {{ form_start(form, {'attr': {'class': 'listing-form'}}) }}
+
+  <!-- Flash Messages -->
+  {% for message in app.flashes('error') %}
+    <div class="form-alert error">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  {% for message in app.flashes('success') %}
+    <div class="form-alert success">
+      <i class="fas fa-check-circle"></i>
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  <!-- Form Errors -->
+  {% if not form.vars.valid %}
+    <div class="form-alert error">
+      <i class="fas fa-exclamation-circle"></i>
+      <strong>Please fix the following errors:</strong>
+      <ul style="margin: 8px 0 0; padding-left: 20px;">
+        {% for child in form.children %}
+          {% if child.vars.errors|length > 0 %}
+            <li>{{ child.vars.label }}: {{ child.vars.errors|first.message }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <!-- Basic Information Section -->
+  <div class="form-section">
+    <h3 class="section-title">
+      <i class="fas fa-info-circle"></i>
+      Basic Information
+    </h3>
+    
+    <div class="form-grid">
+      <div class="form-col-full">
+        {{ form_row(form.title) }}
+      </div>
+
+      <div class="form-col-full">
+        {{ form_row(form.description) }}
+      </div>
+
+      <div class="form-col-2">
+        {{ form_row(form.price) }}
+      </div>
+      <div class="form-col-2">
+        {{ form_row(form.status) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Details Section -->
+  <div class="form-section">
+    <h3 class="section-title">
+      <i class="fas fa-car"></i>
+      Vehicle Details
+    </h3>
+    
+    <div class="form-grid">
+      <div class="form-col-2">
+        {{ form_row(form.brand) }}
+      </div>
+      <div class="form-col-2">
+        {{ form_row(form.model) }}
+      </div>
+
+      <div class="form-col-3">
+        {{ form_row(form.year) }}
+      </div>
+      <div class="form-col-3">
+        {{ form_row(form.mileage) }}
+      </div>
+      <div class="form-col-3">
+        {{ form_row(form.fuelType) }}
+      </div>
+
+      <div class="form-col-full">
+        {{ form_row(form.location) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Category & Type Section -->
+  <div class="form-section">
+    <h3 class="section-title">
+      <i class="fas fa-tags"></i>
+      Category & Type
+    </h3>
+    
+    <div class="form-grid">
+      <div class="form-col-2">
+        {{ form_row(form.type) }}
+      </div>
+      <div class="form-col-2">
+        {{ form_row(form.categories) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Photos Section -->
+  <div class="form-section">
+    <h3 class="section-title">
+      <i class="fas fa-images"></i>
+      Photos
+    </h3>
+    
+    <div class="form-grid">
+      <div class="form-col-2">
+        {{ form_row(form.mainPhotoFile) }}
+        <small style="color: var(--muted); font-size: 12px;">Max 5MB - JPEG, PNG, WebP</small>
+      </div>
+      <div class="form-col-2">
+        {{ form_row(form.photoFiles) }}
+        <small style="color: var(--muted); font-size: 12px;">Multiple images allowed</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Options Section -->
+  <div class="form-section">
+    <h3 class="section-title">
+      <i class="fas fa-cog"></i>
+      Additional Options
+    </h3>
+    
+    <div class="form-grid">
+      <div class="form-col-2">
+        <div class="checkbox-wrapper">
+          {{ form_row(form.isSponsored) }}
+          <small style="color: var(--muted); font-size: 12px; display: block; margin-top: 4px;">Make your listing stand out</small>
+        </div>
+      </div>
+      <div class="form-col-2">
+        {{ form_row(form.budget) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Buttons -->
+  <div class="form-actions">
+    <button type="submit" class="btn yellow btn-lg">
+      <i class="fas fa-check"></i>
+      {{ announcement is defined and announcement.id ? 'Update Listing' : 'Post Listing' }}
+    </button>
+    <a href="{{ path('app_announcement_index') }}" class="btn secondary btn-lg">
+      <i class="fas fa-times"></i>
+      Cancel
+    </a>
+  </div>
+
+  {{ form_end(form) }}
+</div>
+
+
+<style>
+  .listing-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 0;
+  }
+
+  .listing-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-alert.error {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #dc3545;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .form-alert.success {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .form-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .section-title {
+    margin: 0 0 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title i {
+    color: var(--accent);
+    font-size: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+
+  .form-col-full {
+    grid-column: span 6;
+  }
+
+  .form-col-2 {
+    grid-column: span 3;
+  }
+
+  .form-col-3 {
+    grid-column: span 2;
+  }
+
+  .listing-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .listing-form input[type="text"],
+  .listing-form input[type="number"],
+  .listing-form input[type="email"],
+  .listing-form input[type="date"],
+  .listing-form input[type="file"],
+  .listing-form textarea,
+  .listing-form select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .listing-form input:focus,
+  .listing-form textarea:focus,
+  .listing-form select:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  }
+
+  .listing-form textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .listing-form input::placeholder,
+  .listing-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .listing-form input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  .listing-form .form-check {
+    display: flex;
+    align-items: center;
+  }
+
+  .listing-form .form-check-label {
+    cursor: pointer;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .listing-form select[multiple] {
+    min-height: 120px;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .form-actions .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-col-full,
+    .form-col-2,
+    .form-col-3 {
+      grid-column: span 1;
+    }
+
+    .form-section {
+      padding: 20px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+  }
+</style>

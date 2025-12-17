@@ -86,9 +86,16 @@ class Announcement
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'announcements')]
     private Collection $categories;
 
+    /**
+     * @var Collection<int, Reservation>
+     */
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'announcement')]
+    private Collection $reservations;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
         $this->photos = [];
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -378,6 +385,35 @@ class Announcement
     public function setRating(?string $rating): static
     {
         $this->rating = $rating;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setAnnouncement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            if ($reservation->getAnnouncement() === $this) {
+                $reservation->setAnnouncement(null);
+            }
+        }
+
         return $this;
     }
 }

@@ -24,8 +24,8 @@
         </button>
         
         <nav class="nav-links" data-nav>
-          <a class="{{ app.request.attributes.get('_route') starts with 'app_announcement' ? 'active' }}" href="{{ path('app_announcement_index') }}">MarketPlace</a>
-          <a class="{{ app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_service_index') }}">Services</a>
+          <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">MarketPlace</a>
+          <a class="{{ app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_marketplace', {type: 'services'}) }}">Services</a>
           <a href="{{ path('app_default') }}#stores">Stores</a>
           {% if is_granted('ROLE_USER') %}
             <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
@@ -45,13 +45,13 @@
             <a class="btn yellow" href="{{ path('app_logout') }}" style="margin-left: 8px;">Logout</a>
           {% else %}
             <a class="btn ghost" href="{{ path('app_login') }}">Login</a>
-            <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">seller</a>
+            <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">Get Started</a>
           {% endif %}
         </div>
       </div>
     </header>
 
-    {% if app.request.attributes.get('_route') != 'app_default' %}
+    {% if app.request.attributes.get('_route') == 'app_announcement_index' or app.request.attributes.get('_route') == 'app_marketplace' %}
       <div class="sidebar-marketplace">
         <div class="sidebar-content">
           <h3>MarketPlace</h3>
@@ -130,4 +130,27 @@
       </div>
     </footer>
   </body>
+  <script>
+    document.querySelector('.nav-toggle')?.addEventListener('click', function() {
+      const navLinks = document.querySelector('[data-nav]');
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      navLinks.classList.toggle('open');
+    });
+
+    document.querySelectorAll('[data-nav] a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('[data-nav]').classList.remove('open');
+        document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        this.textContent = this.classList.contains('active') ? '❤️' : '♡';
+      });
+    });
+  </script>
  </html>
