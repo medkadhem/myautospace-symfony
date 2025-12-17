@@ -1,0 +1,59 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New Announcement - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Create New Announcement</h1>
+    <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-secondary">Back to List</a>
+</div>
+
+<div class="form-container">
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            {{ form_row(form.title) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.type) }}
+            {{ form_row(form.status) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Pricing & Dates</h3>
+            {{ form_row(form.price) }}
+            {{ form_row(form.budget) }}
+            {{ form_row(form.startDate) }}
+            {{ form_row(form.endDate) }}
+            {{ form_row(form.publishedAt) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Vehicle Details</h3>
+            {{ form_row(form.brand) }}
+            {{ form_row(form.model) }}
+            {{ form_row(form.year) }}
+            {{ form_row(form.mileage) }}
+            {{ form_row(form.fuelType) }}
+            {{ form_row(form.location) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Photos</h3>
+            {{ form_row(form.mainPhotoFile, {'label': 'Main Photo'}) }}
+            {{ form_row(form.photoFiles, {'label': 'Additional Photos'}) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Additional Options</h3>
+            {{ form_row(form.vendor) }}
+            {{ form_row(form.categories) }}
+            {{ form_row(form.isSponsored) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Announcement</button>
+            <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

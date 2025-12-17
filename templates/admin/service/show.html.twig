@@ -1,0 +1,106 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Service Details - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Service Details</h1>
+    <div>
+        <a href="{{ path('app_admin_service_edit', {'id': service.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('app_admin_service_index') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="detail-section">
+        <h3>Basic Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ service.id }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Title:</label>
+                <span>{{ service.title }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Description:</label>
+                <span>{{ service.description }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Category:</label>
+                <span>{{ service.category ? service.category.name : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge badge-{{ service.isActive ? 'success' : 'danger' }}">{{ service.isActive ? 'Active' : 'Inactive' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Pricing & Duration</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Price:</label>
+                <span>{{ service.price }} TND</span>
+            </div>
+            <div class="detail-item">
+                <label>Duration:</label>
+                <span>{{ service.duration }} minutes</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Provider Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Provider:</label>
+                <span>{{ service.provider ? service.provider.email : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Provider Phone:</label>
+                <span>{{ service.provider and service.provider.phone ? service.provider.phone : 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Statistics</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Total Reviews:</label>
+                <span>{{ service.reviews|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Total Reservations:</label>
+                <span>{{ service.reservations|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if service.reviews|length > 0 %}
+    <div class="detail-section">
+        <h3>Recent Reviews</h3>
+        <div class="review-list">
+            {% for review in service.reviews|slice(0, 5) %}
+                <div class="review-item" style="border-left: 3px solid #ffc107; padding-left: 15px; margin-bottom: 15px;">
+                    <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+                    <p><strong>Author:</strong> {{ review.author ? review.author.email : 'N/A' }}</p>
+                    <p><strong>Comment:</strong> {{ review.comment ?? 'No comment' }}</p>
+                    <p><small>{{ review.createdAt ? review.createdAt|date('Y-m-d H:i') : 'N/A' }}</small></p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="detail-actions">
+        <form method="post" action="{{ path('app_admin_service_delete', {'id': service.id}) }}" onsubmit="return confirm('Are you sure you want to delete this service?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Service</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

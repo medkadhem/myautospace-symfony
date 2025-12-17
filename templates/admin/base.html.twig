@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Admin - MyAutoSpace{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
+    <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <h3>MyAutoSpace Admin</h3>
+            <nav>
+                <a href="{{ path('app_admin_dashboard') }}" class="{{ app.request.attributes.get('_route') == 'app_admin_dashboard' ? 'active' }}">📊 Dashboard</a>
+                <a href="{{ path('app_admin_announcement_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_announcement' ? 'active' }}">🚗 Announcements</a>
+                <a href="{{ path('app_admin_user_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_user' ? 'active' }}">👥 Users</a>
+                <a href="{{ path('app_admin_service_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_service' ? 'active' }}">🔧 Services</a>
+                <a href="{{ path('app_admin_reservation_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_reservation' ? 'active' }}">📅 Reservations</a>
+                <a href="{{ path('app_admin_category_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_category' ? 'active' }}">📁 Categories</a>
+                <a href="{{ path('app_admin_review_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_review' ? 'active' }}">⭐ Reviews</a>
+                <hr style="border-color: #333; margin: 16px 0;">
+                <a href="{{ path('app_default') }}">🏠 Back to Site</a>
+                <a href="{{ path('app_logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+        <main class="admin-content">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert {{ label }}" role="status">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+            {% block body %}{% endblock %}
+        </main>
+    </div>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

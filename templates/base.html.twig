@@ -6,43 +6,58 @@
     <title>{% block title %}MyAutoSpace{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
     <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+    <meta name="color-scheme" content="dark light">
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
   </head>
   <body>
     <header class="nav">
       <div class="container nav-inner">
-        <a class="brand" href="{{ path('app_default') }}">MyAutoSpace</a>
-        <nav>
-          <a href="{{ path('app_announcement_index') }}">Announcements</a>
-          <a href="#">Services</a>
+        <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700;">MyAutoSpace</a>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-links" data-nav>
+          <a class="{{ app.request.attributes.get('_route') starts with 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">MarketPlace</a>
+          <a class="{{ app.request.attributes.get('_route') starts with 'app_services' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
+          <a href="#stores">Stores</a>
           {% if is_granted('ROLE_USER') %}
-            <a href="{{ path('app_dashboard') }}">Dashboard</a>
+            <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
+          {% endif %}
+          {% if is_granted('ROLE_ADMIN') %}
+            <a class="{{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' }}" href="{{ path('app_admin_dashboard') }}">Admin</a>
           {% endif %}
         </nav>
         <div class="auth">
           {% if app.user %}
             <span class="user-email">{{ app.user.email }}</span>
-            <a class="btn" href="{{ path('app_logout') }}">Logout</a>
+            <a class="btn yellow" href="{{ path('app_logout') }}">Logout</a>
           {% else %}
-            <a class="btn" href="{{ path('app_login') }}">Login</a>
-            <a class="btn primary" href="{{ path('app_register') }}">Register</a>
+            <a class="btn ghost" href="{{ path('app_login') }}">Login</a>
+            <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">seller</a>
           {% endif %}
         </div>
       </div>
     </header>
 
-    <main class="container">
+    <main class="container content">
       {% for label, messages in app.flashes %}
         {% for message in messages %}
-          <div class="flash {{ label }}">{{ message }}</div>
+          <div class="alert {{ label }}" role="status" data-flash>{{ message }}</div>
         {% endfor %}
       {% endfor %}
       {% block body %}{% endblock %}
     </main>
 
     <footer class="footer">
-      <div class="container">© {{ "now"|date("Y") }} MyAutoSpace</div>
+      <div class="container footer-inner">
+        <div>© {{ "now"|date("Y") }} MyAutoSpace</div>
+        <div class="footer-links">
+          <a href="{{ path('app_default') }}">Home</a>
+          <a href="#" aria-disabled="true">About</a>
+          <a href="#" aria-disabled="true">Contact</a>
+        </div>
+      </div>
     </footer>
   </body>
  </html>

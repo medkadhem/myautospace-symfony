@@ -1,0 +1,37 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New Reservation - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Create New Reservation</h1>
+    <a href="{{ path('app_admin_reservation_index') }}" class="btn btn-secondary">Back to List</a>
+</div>
+
+<div class="form-container">
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section">
+            <h3>Reservation Details</h3>
+            {{ form_row(form.service) }}
+            {{ form_row(form.client) }}
+            {{ form_row(form.reservationDate) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Time Slot</h3>
+            {{ form_row(form.startTime) }}
+            {{ form_row(form.endTime) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Status</h3>
+            {{ form_row(form.status) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Reservation</button>
+            <a href="{{ path('app_admin_reservation_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

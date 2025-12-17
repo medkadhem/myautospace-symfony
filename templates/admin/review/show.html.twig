@@ -1,0 +1,122 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Review Details - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Review Details</h1>
+    <div>
+        <a href="{{ path('app_admin_review_edit', {'id': review.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('app_admin_review_index') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="detail-section">
+        <h3>Basic Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ review.id }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Rating:</label>
+                <span class="badge badge-{% if review.rating >= 4 %}success{% elseif review.rating >= 3 %}warning{% else %}danger{% endif %}">
+                    {{ review.rating ?? 'N/A' }}/5
+                </span>
+            </div>
+            <div class="detail-item">
+                <label>Created At:</label>
+                <span>{{ review.createdAt ? review.createdAt|date('l, F j, Y \a\t H:i') : 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Service Information</h3>
+        <div class="detail-grid">
+            {% if review.service %}
+                <div class="detail-item">
+                    <label>Service:</label>
+                    <span>{{ review.service.title }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Service Description:</label>
+                    <span>{{ review.service.description }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Service Price:</label>
+                    <span>{{ review.service.price }} TND</span>
+                </div>
+                <div class="detail-item">
+                    <label>Service Category:</label>
+                    <span>{{ review.service.category ? review.service.category.name : 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Service Provider:</label>
+                    <span>{{ review.service.provider ? review.service.provider.email : 'N/A' }}</span>
+                </div>
+            {% else %}
+                <div class="detail-item">
+                    <span>No service information available</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Author Information</h3>
+        <div class="detail-grid">
+            {% if review.author %}
+                <div class="detail-item">
+                    <label>Author:</label>
+                    <span>{{ review.author.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Author Phone:</label>
+                    <span>{{ review.author.phone ?? 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Member Since:</label>
+                    <span>{{ review.author.createdAt ? review.author.createdAt|date('Y-m-d') : 'N/A' }}</span>
+                </div>
+            {% else %}
+                <div class="detail-item">
+                    <span>No author information available</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Review Comment</h3>
+        <div class="comment-box" style="padding: 20px; background: #1a1a1a; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; white-space: pre-wrap;">{{ review.comment ?? 'No comment provided' }}</p>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Rating Visualization</h3>
+        <div class="rating-display" style="font-size: 32px; color: #ffc107;">
+            {% if review.rating %}
+                {% for i in 1..5 %}
+                    {% if i <= review.rating %}
+                        &#9733;
+                    {% else %}
+                        &#9734;
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <span style="font-size: 16px;">No rating provided</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <form method="post" action="{{ path('app_admin_review_delete', {'id': review.id}) }}" onsubmit="return confirm('Are you sure you want to delete this review?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ review.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Review</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

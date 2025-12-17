@@ -1,0 +1,155 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Announcement Details - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Announcement Details</h1>
+    <div>
+        <a href="{{ path('app_admin_announcement_edit', {'id': announcement.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="detail-section">
+        <h3>Basic Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ announcement.id }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Title:</label>
+                <span>{{ announcement.title }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Description:</label>
+                <span>{{ announcement.description }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Type:</label>
+                <span>{{ announcement.type ? announcement.type.name : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge badge-{{ announcement.status == 'active' ? 'success' : 'secondary' }}">{{ announcement.status }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Pricing & Dates</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Price:</label>
+                <span>{{ announcement.price }} TND</span>
+            </div>
+            <div class="detail-item">
+                <label>Budget:</label>
+                <span>{{ announcement.budget }} TND</span>
+            </div>
+            <div class="detail-item">
+                <label>Start Date:</label>
+                <span>{{ announcement.startDate ? announcement.startDate|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>End Date:</label>
+                <span>{{ announcement.endDate ? announcement.endDate|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Published At:</label>
+                <span>{{ announcement.publishedAt ? announcement.publishedAt|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Vehicle Details</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Brand:</label>
+                <span>{{ announcement.brand ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Model:</label>
+                <span>{{ announcement.model ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Year:</label>
+                <span>{{ announcement.year ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Mileage:</label>
+                <span>{{ announcement.mileage ? announcement.mileage ~ ' km' : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Fuel Type:</label>
+                <span>{{ announcement.fuelType ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Location:</label>
+                <span>{{ announcement.location ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Rating:</label>
+                <span>{{ announcement.rating ? announcement.rating ~ '/5' : 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Photos</h3>
+        {% if announcement.mainPhoto %}
+            <div class="photo-display">
+                <label>Main Photo:</label>
+                <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="Main Photo" style="max-width: 300px; border-radius: 8px; margin-top: 10px;">
+            </div>
+        {% endif %}
+
+        {% if announcement.photos %}
+            <div class="photo-display" style="margin-top: 20px;">
+                <label>Additional Photos:</label>
+                <div class="photo-grid" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                    {% for photo in announcement.photos %}
+                        <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Photo" style="max-width: 200px; border-radius: 8px;">
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="detail-section">
+        <h3>Additional Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Vendor:</label>
+                <span>{{ announcement.vendor ? announcement.vendor.email : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Categories:</label>
+                <span>
+                    {% if announcement.categories|length > 0 %}
+                        {% for category in announcement.categories %}
+                            <span class="badge badge-info">{{ category.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="detail-item">
+                <label>Sponsored:</label>
+                <span class="badge badge-{{ announcement.isSponsored ? 'warning' : 'secondary' }}">{{ announcement.isSponsored ? 'Yes' : 'No' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <form method="post" action="{{ path('app_admin_announcement_delete', {'id': announcement.id}) }}" onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ announcement.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Announcement</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

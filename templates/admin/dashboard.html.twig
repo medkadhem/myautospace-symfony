@@ -1,0 +1,43 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Dashboard</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <h3>Total Users</h3>
+        <div class="stat-value">{{ stats.users }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total Announcements</h3>
+        <div class="stat-value">{{ stats.announcements }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Active Announcements</h3>
+        <div class="stat-value">{{ stats.active_announcements }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total Services</h3>
+        <div class="stat-value">{{ stats.services }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total Reservations</h3>
+        <div class="stat-value">{{ stats.reservations }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Pending Reservations</h3>
+        <div class="stat-value">{{ stats.pending_reservations }}</div>
+    </div>
+</div>
+
+<h2 style="margin-top: 32px;">Quick Actions</h2>
+<div style="display: flex; gap: 12px; margin-top: 16px;">
+    <a href="{{ path('app_admin_announcement_new') }}" class="btn yellow">+ New Announcement</a>
+    <a href="{{ path('app_admin_user_new') }}" class="btn yellow">+ New User</a>
+    <a href="{{ path('app_admin_service_new') }}" class="btn yellow">+ New Service</a>
+</div>
+{% endblock %}

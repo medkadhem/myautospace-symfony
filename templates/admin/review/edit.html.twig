@@ -1,0 +1,32 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Review - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Edit Review #{{ review.id }}</h1>
+    <a href="{{ path('app_admin_review_index') }}" class="btn btn-secondary">Back to List</a>
+</div>
+
+<div class="form-container">
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section">
+            <h3>Review Details</h3>
+            {{ form_row(form.service) }}
+            {{ form_row(form.author) }}
+            {{ form_row(form.rating) }}
+            {{ form_row(form.comment) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Date</h3>
+            {{ form_row(form.createdAt) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Review</button>
+            <a href="{{ path('app_admin_review_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

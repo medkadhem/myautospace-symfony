@@ -1,0 +1,141 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Category Details - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Category Details</h1>
+    <div>
+        <a href="{{ path('app_admin_category_edit', {'id': category.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('app_admin_category_index') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="detail-section">
+        <h3>Basic Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ category.id }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Name:</label>
+                <span>{{ category.name }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Description:</label>
+                <span>{{ category.description }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Parent Category:</label>
+                <span>{{ category.parent ? category.parent.name : 'None (Root Category)' }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if category.subCategories|length > 0 %}
+    <div class="detail-section">
+        <h3>Subcategories ({{ category.subCategories|length }})</h3>
+        <div class="list-group">
+            {% for subCategory in category.subCategories %}
+                <div class="list-item">
+                    <span class="badge badge-info">{{ subCategory.id }}</span>
+                    <strong>{{ subCategory.name }}</strong> - {{ subCategory.description }}
+                    <a href="{{ path('app_admin_category_show', {'id': subCategory.id}) }}" class="btn btn-sm btn-info">View</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="detail-section">
+        <h3>Statistics</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Total Services:</label>
+                <span>{{ category.services|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Total Announcements:</label>
+                <span>{{ category.announcements|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Total Subcategories:</label>
+                <span>{{ category.subCategories|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if category.services|length > 0 %}
+    <div class="detail-section">
+        <h3>Services in this Category ({{ category.services|length }})</h3>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Provider</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in category.services|slice(0, 10) %}
+                    <tr>
+                        <td>{{ service.id }}</td>
+                        <td>{{ service.title }}</td>
+                        <td>{{ service.provider ? service.provider.email : 'N/A' }}</td>
+                        <td>{{ service.price }} TND</td>
+                        <td><span class="badge badge-{{ service.isActive ? 'success' : 'danger' }}">{{ service.isActive ? 'Active' : 'Inactive' }}</span></td>
+                        <td><a href="{{ path('app_admin_service_show', {'id': service.id}) }}" class="btn btn-sm btn-info">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if category.announcements|length > 0 %}
+    <div class="detail-section">
+        <h3>Announcements in this Category ({{ category.announcements|length }})</h3>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Vendor</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for announcement in category.announcements|slice(0, 10) %}
+                    <tr>
+                        <td>{{ announcement.id }}</td>
+                        <td>{{ announcement.title }}</td>
+                        <td>{{ announcement.vendor ? announcement.vendor.email : 'N/A' }}</td>
+                        <td>{{ announcement.price }} TND</td>
+                        <td><span class="badge badge-{{ announcement.status == 'active' ? 'success' : 'secondary' }}">{{ announcement.status }}</span></td>
+                        <td><a href="{{ path('app_admin_announcement_show', {'id': announcement.id}) }}" class="btn btn-sm btn-info">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="detail-actions">
+        <form method="post" action="{{ path('app_admin_category_delete', {'id': category.id}) }}" onsubmit="return confirm('Are you sure you want to delete this category?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+            <button type="submit" class="btn btn-danger">Delete Category</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Service - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Edit Service: {{ service.title }}</h1>
+    <a href="{{ path('app_admin_service_index') }}" class="btn btn-secondary">Back to List</a>
+</div>
+
+<div class="form-container">
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section">
+            <h3>Service Information</h3>
+            {{ form_row(form.title) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.category) }}
+            {{ form_row(form.provider) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Pricing & Duration</h3>
+            {{ form_row(form.price) }}
+            {{ form_row(form.duration) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Status</h3>
+            {{ form_row(form.isActive) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Service</button>
+            <a href="{{ path('app_admin_service_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

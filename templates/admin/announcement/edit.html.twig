@@ -1,0 +1,80 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Announcement - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Edit Announcement: {{ announcement.title }}</h1>
+    <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-secondary">Back to List</a>
+</div>
+
+<div class="form-container">
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            {{ form_row(form.title) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.type) }}
+            {{ form_row(form.status) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Pricing & Dates</h3>
+            {{ form_row(form.price) }}
+            {{ form_row(form.budget) }}
+            {{ form_row(form.startDate) }}
+            {{ form_row(form.endDate) }}
+            {{ form_row(form.publishedAt) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Vehicle Details</h3>
+            {{ form_row(form.brand) }}
+            {{ form_row(form.model) }}
+            {{ form_row(form.year) }}
+            {{ form_row(form.mileage) }}
+            {{ form_row(form.fuelType) }}
+            {{ form_row(form.location) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Current Photos</h3>
+            {% if announcement.mainPhoto %}
+                <div class="current-photo">
+                    <label>Current Main Photo:</label>
+                    <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="Main Photo" style="max-width: 200px; border-radius: 8px;">
+                </div>
+            {% endif %}
+
+            {% if announcement.photos %}
+                <div class="current-photos">
+                    <label>Current Additional Photos:</label>
+                    <div class="photo-grid">
+                        {% for photo in announcement.photos %}
+                            <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Photo" style="max-width: 150px; border-radius: 8px; margin: 5px;">
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-section">
+            <h3>Update Photos</h3>
+            {{ form_row(form.mainPhotoFile, {'label': 'New Main Photo (leave empty to keep current)'}) }}
+            {{ form_row(form.photoFiles, {'label': 'New Additional Photos (leave empty to keep current)'}) }}
+        </div>
+
+        <div class="form-section">
+            <h3>Additional Options</h3>
+            {{ form_row(form.vendor) }}
+            {{ form_row(form.categories) }}
+            {{ form_row(form.isSponsored) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Announcement</button>
+            <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}User Details - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>User Details</h1>
+    <div>
+        <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('app_admin_user_index') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="detail-section">
+        <h3>Basic Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ user.id }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Email:</label>
+                <span>{{ user.email }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Phone:</label>
+                <span>{{ user.phone ?? 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge badge-{{ user.isActive ? 'success' : 'danger' }}">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Created At:</label>
+                <span>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Updated At:</label>
+                <span>{{ user.updatedAt ? user.updatedAt|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Roles</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>User Roles:</label>
+                <span>
+                    {% for role in user.roles %}
+                        <span class="badge badge-info">{{ role }}</span>
+                    {% endfor %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Address</h3>
+        <div class="detail-grid">
+            {% if user.address %}
+                <div class="detail-item">
+                    <label>Street:</label>
+                    <span>{{ user.address.street ?? 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>City:</label>
+                    <span>{{ user.address.city ?? 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Postal Code:</label>
+                    <span>{{ user.address.postalCode ?? 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Country:</label>
+                    <span>{{ user.address.country ?? 'N/A' }}</span>
+                </div>
+            {% else %}
+                <div class="detail-item">
+                    <span>No address information available</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <h3>Statistics</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Announcements:</label>
+                <span>{{ user.announcements|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Services:</label>
+                <span>{{ user.services|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Reservations:</label>
+                <span>{{ user.reservations|length }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Reviews:</label>
+                <span>{{ user.reviews|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <form method="post" action="{{ path('app_admin_user_delete', {'id': user.id}) }}" onsubmit="return confirm('Are you sure you want to delete this user?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+            <button type="submit" class="btn btn-danger">Delete User</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

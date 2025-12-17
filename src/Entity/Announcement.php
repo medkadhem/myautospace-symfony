@@ -43,6 +43,33 @@ class Announcement
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 3)]
     private ?string $budget = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $brand = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $model = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $year = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $mileage = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $fuelType = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $location = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mainPhoto = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $photos = [];
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 2, nullable: true)]
+    private ?string $rating = null;
+
     #[ORM\ManyToOne(inversedBy: 'announcements')]
     private ?User $vendor = null;
 
@@ -59,6 +86,7 @@ class Announcement
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->photos = [];
     }
 
     public function getId(): ?int
@@ -219,6 +247,122 @@ class Announcement
     {
         $this->categories->removeElement($category);
 
+        return $this;
+    }
+
+    public function getBrand(): ?string
+    {
+        return $this->brand;
+    }
+
+    public function setBrand(?string $brand): static
+    {
+        $this->brand = $brand;
+        return $this;
+    }
+
+    public function getModel(): ?string
+    {
+        return $this->model;
+    }
+
+    public function setModel(?string $model): static
+    {
+        $this->model = $model;
+        return $this;
+    }
+
+    public function getYear(): ?int
+    {
+        return $this->year;
+    }
+
+    public function setYear(?int $year): static
+    {
+        $this->year = $year;
+        return $this;
+    }
+
+    public function getMileage(): ?int
+    {
+        return $this->mileage;
+    }
+
+    public function setMileage(?int $mileage): static
+    {
+        $this->mileage = $mileage;
+        return $this;
+    }
+
+    public function getFuelType(): ?string
+    {
+        return $this->fuelType;
+    }
+
+    public function setFuelType(?string $fuelType): static
+    {
+        $this->fuelType = $fuelType;
+        return $this;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?string $location): static
+    {
+        $this->location = $location;
+        return $this;
+    }
+
+    public function getMainPhoto(): ?string
+    {
+        return $this->mainPhoto;
+    }
+
+    public function setMainPhoto(?string $mainPhoto): static
+    {
+        $this->mainPhoto = $mainPhoto;
+        return $this;
+    }
+
+    public function getPhotos(): ?array
+    {
+        return $this->photos;
+    }
+
+    public function setPhotos(?array $photos): static
+    {
+        $this->photos = $photos ?? [];
+        return $this;
+    }
+
+    public function addPhoto(string $photo): static
+    {
+        if (!in_array($photo, $this->photos ?? [])) {
+            $this->photos[] = $photo;
+        }
+        return $this;
+    }
+
+    public function removePhoto(string $photo): static
+    {
+        if (($key = array_search($photo, $this->photos ?? [])) !== false) {
+            unset($this->photos[$key]);
+            $this->photos = array_values($this->photos);
+        }
+        return $this;
+    }
+
+    public function getRating(): ?string
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?string $rating): static
+    {
+        $this->rating = $rating;
         return $this;
     }
 }
