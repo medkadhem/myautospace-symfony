@@ -43,9 +43,9 @@
             <div class="review-item">
               <div class="review-header">
                 <div class="review-author">
-                  <div class="author-avatar">{{ review.client.email|upper|first }}</div>
+                  <div class="author-avatar">{{ review.author.email|upper|first }}</div>
                   <div>
-                    <div class="author-name">{{ review.client.fullName ?? review.client.email }}</div>
+                    <div class="author-name">{{ review.author.fullName ?? review.author.email }}</div>
                     <div class="review-date">{{ review.createdAt|date('M d, Y') }}</div>
                   </div>
                 </div>

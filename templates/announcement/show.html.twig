@@ -107,6 +107,43 @@
           <h3>Description</h3>
           <p>{{ announcement.description }}</p>
         </div>
+
+        <!-- Reviews Section -->
+        {% if announcement.reviews|length > 0 or is_granted('ROLE_USER') %}
+        <div class="reviews-section">
+          <h3>⭐ Customer Reviews ({{ announcement.averageRating|number_format(1) }}/5 - {{ announcement.reviewCount }} reviews)</h3>
+          
+          {% if is_granted('ROLE_USER') and app.user != announcement.vendor %}
+          <div class="leave-review-cta">
+            <a href="{{ path('app_review_create_for_announcement', {announcementId: announcement.id}) }}" class="btn yellow">Write a Review</a>
+          </div>
+          {% endif %}
+
+          <div class="reviews-list">
+            {% for review in announcement.reviews %}
+            <div class="review-item">
+              <div class="review-header">
+                <div class="review-author">
+                  <div class="author-avatar">{{ review.author.email|upper|first }}</div>
+                  <div>
+                    <div class="author-name">{{ review.author.fullName ?? review.author.email }}</div>
+                    <div class="review-date">{{ review.createdAt|date('M d, Y') }}</div>
+                  </div>
+                </div>
+                <div class="review-rating">
+                  {% for i in 1..5 %}
+                    <span class="{{ i <= review.rating ? 'star-filled' : 'star-empty' }}">★</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% if review.comment %}
+              <p class="review-comment">{{ review.comment }}</p>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
 
       <div class="listing-sidebar">
@@ -670,6 +707,97 @@
     .photo-gallery {
       grid-template-columns: repeat(3, 1fr);
     }
+  }
+
+  /* Reviews Section */
+  .reviews-section {
+    background: var(--bg-secondary);
+    padding: 32px;
+    border-radius: 12px;
+    margin-top: 24px;
+  }
+
+  .reviews-section h3 {
+    margin: 0 0 24px;
+    font-size: 22px;
+  }
+
+  .leave-review-cta {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .review-item {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .review-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--bg);
+  }
+
+  .author-name {
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .review-date {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .review-rating {
+    font-size: 18px;
+  }
+
+  .star-filled {
+    color: var(--accent);
+  }
+
+  .star-empty {
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  .review-comment {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text);
   }
 </style>
 
