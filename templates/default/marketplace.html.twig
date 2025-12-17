@@ -17,24 +17,14 @@
       <div class="filter-bar">
         <form method="GET" action="{{ path('app_marketplace') }}" class="filter-bar-form">
           <div class="filter-item">
-            <select name="type" class="filter-select">
-              <option value="all" {% if type == 'all' or type is empty %}selected{% endif %}>All</option>
-              <option value="listings" {% if type == 'listings' %}selected{% endif %}>Car Listings</option>
-              <option value="services" {% if type == 'services' %}selected{% endif %}>Services</option>
-            </select>
-          </div>
-          
-          {% if type != 'services' %}
-          <div class="filter-item">
             <input type="number" name="minPrice" placeholder="Min Price" value="{{ minPrice }}" class="filter-input-inline">
           </div>
           <div class="filter-item">
             <input type="number" name="maxPrice" placeholder="Max Price" value="{{ maxPrice }}" class="filter-input-inline">
           </div>
-          {% endif %}
           
           <div class="filter-item filter-search">
-            <input type="text" name="search" placeholder="Search..." value="{{ search }}" class="filter-input-inline">
+            <input type="text" name="search" placeholder="Search vehicles..." value="{{ search }}" class="filter-input-inline">
           </div>
           
           <button type="submit" class="btn yellow btn-sm">Apply</button>
@@ -43,7 +33,7 @@
       </div>
 
       <!-- Car Listings -->
-      {% if type != 'services' and announcements|length > 0 %}
+      {% if announcements|length > 0 %}
       <section class="results-section">
         <h2>Car Listings ({{ announcements|length }})</h2>
         <div class="listings-grid">
@@ -77,38 +67,8 @@
       </section>
       {% endif %}
 
-      <!-- Services -->
-      {% if type != 'listings' and services|length > 0 %}
-      <section class="results-section">
-        <h2>Services ({{ services|length }})</h2>
-        <div class="services-grid">
-          {% for service in services %}
-          <div class="service-card">
-            <div class="service-header">
-              <h3>{{ service.title }}</h3>
-              <span class="service-duration">⏱️ {{ service.duration }} min</span>
-            </div>
-            
-            <p class="service-description">{{ service.description|slice(0, 100) }}...</p>
-            
-            <div class="service-provider">
-              <strong>{{ service.provider.fullName }}</strong>
-            </div>
-
-            <div class="service-footer">
-              <div class="service-price">
-                <strong>{{ service.price|number_format(0, '.', ' ') }} TND</strong>
-              </div>
-              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow btn-sm">View</a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-
       <!-- No Results -->
-      {% if announcements|length == 0 and services|length == 0 %}
+      {% if announcements|length == 0 %}
       <div class="no-results">
         <p>😔 No results found</p>
         <a href="{{ path('app_marketplace') }}" class="btn yellow">View All Listings</a>

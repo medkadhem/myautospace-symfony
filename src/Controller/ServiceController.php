@@ -36,10 +36,27 @@ final class ServiceController extends AbstractController
             if ($user) {
                 $service->setProvider($user);
             }
+
+            // Handle photo upload
+            $photoFile = $form->get('photoFile')->getData();
+            if ($photoFile) {
+                $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                try {
+                    $photoFile->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads/services',
+                        $newFilename
+                    );
+                    $service->setPhoto($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Failed to upload photo');
+                }
+            }
+
             $entityManager->persist($service);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Service created successfully!');
+            return $this->redirectToRoute('app_dashboard_provider', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('service/new.html.twig', [
@@ -64,9 +81,25 @@ final class ServiceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle photo upload
+            $photoFile = $form->get('photoFile')->getData();
+            if ($photoFile) {
+                $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                try {
+                    $photoFile->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads/services',
+                        $newFilename
+                    );
+                    $service->setPhoto($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Failed to upload photo');
+                }
+            }
+
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Service updated successfully!');
+            return $this->redirectToRoute('app_dashboard_provider', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('service/edit.html.twig', [

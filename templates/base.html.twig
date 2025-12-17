@@ -24,8 +24,8 @@
         </button>
         
         <nav class="nav-links" data-nav>
-          <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">MarketPlace</a>
-          <a class="{{ app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_marketplace', {type: 'services'}) }}">Services</a>
+          <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">Marketplace</a>
+          <a class="{{ app.request.attributes.get('_route') == 'app_services' or app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
           <a href="{{ path('app_default') }}#stores">Stores</a>
           {% if is_granted('ROLE_USER') %}
             <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>

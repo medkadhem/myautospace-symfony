@@ -1,53 +1,287 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}{{ form.id.vars.data ? 'Edit Service' : 'Create Service' }} - MyAutoSpace{% endblock %}
-
-{% block body %}
 <div class="dashboard-container">
   <div class="dashboard-header">
     <div>
-      <h1>{{ form.id.vars.data ? 'Edit Service' : 'Create New Service' }}</h1>
-      <p style="color: var(--muted); margin: 8px 0 0;">{{ form.id.vars.data ? 'Update your service details' : 'Add a new service to your profile' }}</p>
+      <h1>{{ service.id is defined and service.id ? 'Edit Service' : 'Create New Service' }}</h1>
+      <p style="color: var(--muted); margin: 8px 0 0;">{{ service.id is defined and service.id ? 'Update your service details' : 'Add a new service to your profile' }}</p>
     </div>
   </div>
 
-  <div class="form" style="max-width: 700px; margin: 40px auto;">
+  <div class="form-container" style="max-width: 800px; margin: 40px auto;">
     {{ form_start(form, {'attr': {'class': 'service-form'}}) }}
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-      <div>
-        {{ form_row(form.title, {'label': 'Service Name', 'attr': {'placeholder': 'e.g., Premium Car Wash'}}) }}
+    <!-- Flash Messages -->
+    {% for message in app.flashes('error') %}
+      <div class="form-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ message }}
       </div>
-      <div>
-        {{ form_row(form.price, {'label': 'Price (TND)', 'attr': {'placeholder': '45'}}) }}
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+      <div class="form-alert success">
+        <i class="fas fa-check-circle"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    <!-- Service Information -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-info-circle"></i>
+        Service Information
+      </h3>
+      
+      <div class="form-grid">
+        <div class="form-col-2">
+          {{ form_row(form.title, {
+            'label': 'Service Name',
+            'attr': {'placeholder': 'e.g., Premium Car Wash', 'class': 'form-control'}
+          }) }}
+        </div>
+        <div class="form-col-2">
+          {{ form_row(form.price, {
+            'label': 'Price (TND)',
+            'attr': {'placeholder': '45.00', 'class': 'form-control', 'step': '0.01'}
+          }) }}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-col-full">
+          {{ form_row(form.description, {
+            'label': 'Description',
+            'attr': {'placeholder': 'Describe your service in detail...', 'rows': 4, 'class': 'form-control'}
+          }) }}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-col-2">
+          {{ form_row(form.duration, {
+            'label': 'Duration (minutes)',
+            'attr': {'placeholder': '60', 'class': 'form-control'}
+          }) }}
+        </div>
+        <div class="form-col-2">
+          {{ form_row(form.category, {
+            'label': 'Category',
+            'attr': {'class': 'form-control'}
+          }) }}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-col-full">
+          {{ form_row(form.photoFile, {
+            'label': 'Service Photo (optional)',
+            'attr': {'class': 'form-control'}
+          }) }}
+          <small style="color: var(--muted); font-size: 12px;">Max 5MB - JPEG, PNG, WebP</small>
+          {% if service.photo is defined and service.photo %}
+            <div style="margin-top: 12px;">
+              <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="Current photo" style="max-width: 200px; border-radius: 8px;">
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-col-full">
+          <div class="checkbox-wrapper">
+            {{ form_row(form.isActive, {
+              'label': 'Active (Make this service available for booking)',
+              'attr': {'class': 'form-check-input'}
+            }) }}
+          </div>
+        </div>
       </div>
     </div>
 
-    <div>
-      {{ form_row(form.description, {'label': 'Description', 'attr': {'placeholder': 'Describe your service in detail...', 'rows': 4}}) }}
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-      <div>
-        {{ form_row(form.duration, {'label': 'Duration (minutes)', 'attr': {'placeholder': '60'}}) }}
-      </div>
-      <div>
-        {{ form_row(form.category, {'label': 'Category', 'attr': {'class': 'form-control'}}) }}
-      </div>
-    </div>
-
-    <div>
-      {{ form_row(form.isActive, {'label': 'Publish this service'}) }}
-    </div>
-
-    <div style="display: flex; gap: 12px; margin-top: 30px;">
-      <button type="submit" class="btn yellow btn-lg" style="flex: 1;">
-        {{ form.id.vars.data ? 'Update Service' : 'Create Service' }}
+    <!-- Submit Buttons -->
+    <div class="form-actions">
+      <button type="submit" class="btn yellow btn-lg">
+        <i class="fas fa-check"></i>
+        {{ service.id is defined and service.id ? 'Update Service' : 'Create Service' }}
       </button>
-      <a href="{{ path('app_service_index') }}" class="btn secondary btn-lg" style="flex: 1; text-align: center;">Cancel</a>
+      <a href="{{ path('app_dashboard_provider') }}" class="btn secondary btn-lg">
+        <i class="fas fa-times"></i>
+        Cancel
+      </a>
     </div>
 
     {{ form_end(form) }}
   </div>
 </div>
-{% endblock %}
+
+<style>
+  .form-container {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .service-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-alert.error {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .form-alert.success {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .form-section {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .section-title {
+    margin: 0 0 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title i {
+    color: var(--accent);
+    font-size: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid:last-child {
+    margin-bottom: 0;
+  }
+
+  .form-col-full {
+    grid-column: span 4;
+  }
+
+  .form-col-2 {
+    grid-column: span 2;
+  }
+
+  .service-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .service-form .form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .service-form .form-control:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  }
+
+  .service-form textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .service-form select.form-control {
+    cursor: pointer;
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+  }
+
+  .service-form .form-check-input {
+    width: auto;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .form-actions .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .form-container {
+      padding: 20px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-col-full,
+    .form-col-2 {
+      grid-column: span 1;
+    }
+
+    .form-section {
+      padding: 20px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+  }
+</style>

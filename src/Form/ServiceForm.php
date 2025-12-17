@@ -7,8 +7,10 @@ use App\Entity\Service;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class ServiceForm extends AbstractType
 {
@@ -20,13 +22,28 @@ class ServiceForm extends AbstractType
             ->add('price')
             ->add('duration')
             ->add('isActive')
-            ->add('provider', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
+                'placeholder' => 'Select a category',
+            ])
+            ->add('photoFile', FileType::class, [
+                'label' => 'Service Photo',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/jpg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
+                    ])
+                ],
+                'attr' => ['accept' => 'image/*'],
             ])
         ;
     }

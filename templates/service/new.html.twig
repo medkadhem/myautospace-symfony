@@ -3,5 +3,5 @@
 {% block title %}Create Service - MyAutoSpace{% endblock %}
 
 {% block body %}
-  {{ include('service/_form.html.twig') }}
+  {{ include('service/_form.html.twig', {'service': service}) }}
 {% endblock %}

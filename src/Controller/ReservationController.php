@@ -57,6 +57,101 @@ final class ReservationController extends AbstractController
         ]);
     }
 
+    #[Route('/create/{serviceId}', name: 'app_reservation_create', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function createFromService(int $serviceId, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $service = $entityManager->getRepository(\App\Entity\Service::class)->find($serviceId);
+        
+        if (!$service) {
+            throw $this->createNotFoundException('Service not found');
+        }
+
+        if (!$this->isCsrfTokenValid('create_reservation', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid token');
+            return $this->redirectToRoute('app_service_show', ['id' => $serviceId]);
+        }
+
+        $reservation = new Reservation();
+        $reservation->setClient($this->getUser());
+        $reservation->setProvider($service->getProvider());
+        $reservation->setService($service);
+        $reservation->setPrice($service->getPrice());
+        $reservation->setStatus('pending');
+        
+        // Parse date and time from request
+        $dateString = $request->request->get('reservationDate');
+        $timeString = $request->request->get('startTime');
+        $comment = $request->request->get('comment');
+        
+        if ($dateString) {
+            $reservation->setReservationDate(new \DateTimeImmutable($dateString));
+        }
+        
+        if ($timeString) {
+            $reservation->setStartTime(new \DateTimeImmutable($timeString));
+            
+            // Calculate end time based on service duration
+            $endTime = (new \DateTimeImmutable($timeString))->modify('+' . $service->getDuration() . ' minutes');
+            $reservation->setEndTime($endTime);
+        }
+        
+        if ($comment) {
+            $reservation->setComment($comment);
+        }
+
+        $entityManager->persist($reservation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Your booking has been submitted! The provider will confirm it shortly.');
+        return $this->redirectToRoute('app_dashboard');
+    }
+
+    #[Route('/{id}/confirm', name: 'app_reservation_confirm', methods: ['POST'])]
+    #[IsGranted('ROLE_PROVIDER')]
+    public function confirm(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    {
+        if ($reservation->getProvider() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $reservation->setStatus('confirmed');
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Reservation confirmed!');
+        return $this->redirectToRoute('app_dashboard_provider');
+    }
+
+    #[Route('/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function cancel(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    {
+        if ($reservation->getClient() !== $this->getUser() && $reservation->getProvider() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $reservation->setStatus('cancelled');
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Reservation cancelled.');
+        return $this->redirectToRoute('app_dashboard');
+    }
+
+    #[Route('/{id}/complete', name: 'app_reservation_complete', methods: ['POST'])]
+    #[IsGranted('ROLE_PROVIDER')]
+    public function complete(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    {
+        if ($reservation->getProvider() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $reservation->setStatus('completed');
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Reservation marked as completed!');
+        return $this->redirectToRoute('app_dashboard_provider');
+    }
+
     #[Route('/{id}', name: 'app_reservation_show', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function show(Reservation $reservation): Response

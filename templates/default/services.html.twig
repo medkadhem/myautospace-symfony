@@ -1,0 +1,333 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Services - MyAutoSpace{% endblock %}
+
+{% block body %}
+<div class="marketplace-container">
+  <div class="marketplace-header">
+    <h1>🔧 Auto Services</h1>
+    <p>Professional automotive services from trusted providers</p>
+  </div>
+
+  <div class="marketplace-wrapper">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <form method="GET" action="{{ path('app_services') }}" class="filter-bar-form">
+        <div class="filter-item">
+          <input type="number" name="minPrice" placeholder="Min Price" value="{{ minPrice }}" class="filter-input-inline">
+        </div>
+        <div class="filter-item">
+          <input type="number" name="maxPrice" placeholder="Max Price" value="{{ maxPrice }}" class="filter-input-inline">
+        </div>
+        
+        <div class="filter-item filter-search">
+          <input type="text" name="search" placeholder="Search services..." value="{{ search }}" class="filter-input-inline">
+        </div>
+        
+        <button type="submit" class="btn yellow btn-sm">Apply</button>
+        <a href="{{ path('app_services') }}" class="btn secondary btn-sm">Clear</a>
+      </form>
+    </div>
+
+    <!-- Services Grid -->
+    {% if services|length > 0 %}
+    <div class="services-grid-section">
+      <h2>Available Services ({{ services|length }})</h2>
+      <div class="services-grid">
+        {% for service in services %}
+        <div class="service-card">
+          {% if service.photo %}
+          <div class="service-photo">
+            <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="{{ service.title }}">
+          </div>
+          {% else %}
+          <div class="service-icon">
+            🔧
+          </div>
+          {% endif %}
+          
+          <div class="service-content">
+            <h3>{{ service.title }}</h3>
+            <p class="service-description">{{ service.description|length > 100 ? service.description|slice(0, 100) ~ '...' : service.description }}</p>
+            
+            <div class="service-meta">
+              <span class="service-category">{{ service.category.name }}</span>
+              <span class="service-duration">⏱️ {{ service.duration }} min</span>
+            </div>
+
+            <div class="service-provider-info">
+              <div class="provider-avatar-small">{{ service.provider.email|upper|first }}</div>
+              <span class="provider-name-small">{{ service.provider.fullName ?? service.provider.email|split('@')|first }}</span>
+            </div>
+            
+            <div class="service-footer">
+              <div class="service-price">
+                <strong>{{ service.price|number_format(0, '.', ' ') }} TND</strong>
+              </div>
+              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow btn-sm">View & Book</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="no-results">
+      <div class="no-results-icon">🔍</div>
+      <h3>No Services Found</h3>
+      <p>Try adjusting your search or filters</p>
+      <a href="{{ path('app_services') }}" class="btn yellow">View All Services</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .marketplace-container {
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .marketplace-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .marketplace-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .marketplace-header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .marketplace-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .filter-bar {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filter-item {
+    flex: 0 0 auto;
+  }
+
+  .filter-search {
+    flex: 1 1 200px;
+  }
+
+  .filter-input-inline {
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 14px;
+    min-width: 120px;
+  }
+
+  .filter-input-inline:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  .services-grid-section h2 {
+    font-size: 22px;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .service-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(248, 231, 28, 0.15);
+  }
+
+  .service-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--primary-dark) 100%);
+    border-radius: 12px;
+  }
+
+  .service-photo {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: var(--bg);
+  }
+
+  .service-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .service-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .service-content h3 {
+    font-size: 18px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .service-description {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+
+  .service-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .service-category {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .service-duration {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .service-provider-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .provider-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .provider-name-small {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .service-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .service-price {
+    font-size: 18px;
+    color: var(--accent);
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .no-results-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .no-results h3 {
+    font-size: 24px;
+    margin: 0 0 12px;
+  }
+
+  .no-results p {
+    color: var(--muted);
+    margin: 0 0 24px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-bar-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-item,
+    .filter-search {
+      flex: 1 1 auto;
+      width: 100%;
+    }
+
+    .filter-input-inline {
+      width: 100%;
+    }
+
+    .filter-bar-form .btn {
+      width: 100%;
+    }
+
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
