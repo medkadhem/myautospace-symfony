@@ -3,21 +3,29 @@
 {% block title %}{{ announcement.brand }} {{ announcement.model }} - MyAutoSpace{% endblock %}
 
 {% block body %}
-<div class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h1>{{ announcement.brand }} {{ announcement.model }}</h1>
-      <a href="{{ path('app_announcement_index') }}" class="modal-close">✕</a>
+<div class="listing-detail-container">
+  <div class="listing-detail-content">
+    <div class="listing-detail-header">
+      <div>
+        <h1>{{ announcement.brand }} {{ announcement.model }}</h1>
+        <p class="listing-subtitle">{{ announcement.year }} • {{ announcement.mileage|number_format(0, '.', ',') }} km • {{ announcement.fuelType }}</p>
+      </div>
+      <a href="{{ path('app_announcement_index') }}" class="btn ghost">← Back</a>
     </div>
 
-    <div class="modal-body">
-      <div class="modal-left">
-        <div class="main-photo">
-          {% if announcement.mainPhoto %}
-            <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/600x400?text=Vehicle'">
-          {% else %}
-            <img src="https://via.placeholder.com/600x400?text=Vehicle" alt="Vehicle">
-          {% endif %}
+    <div class="listing-detail-body">
+      <div class="listing-main">
+        <div class="main-photo-container">
+          <div class="main-photo" onclick="openLightbox(0)">
+            {% if announcement.mainPhoto %}
+              <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/800x600?text=Vehicle'">
+            {% else %}
+              <img src="https://via.placeholder.com/800x600?text=Vehicle" alt="Vehicle">
+            {% endif %}
+            <div class="photo-overlay">
+              <i class="fas fa-search-plus"></i> Click to enlarge
+            </div>
+          </div>
         </div>
 
         <div class="price-section">
@@ -81,53 +89,569 @@
 
         {% if announcement.photos and announcement.photos|length > 0 %}
           <div class="photo-gallery-section">
-            <h3>Additional Photos</h3>
+            <h3>Additional Photos ({{ announcement.photos|length }})</h3>
             <div class="photo-gallery">
               {% for photo in announcement.photos %}
-                <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Vehicle photo" onerror="this.src='https://via.placeholder.com/150x150?text=Photo'">
+                <div class="gallery-item" onclick="openLightbox({{ loop.index }})">
+                  <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Vehicle photo {{ loop.index }}" onerror="this.src='https://via.placeholder.com/200x150?text=Photo'">
+                  <div class="gallery-overlay">
+                    <i class="fas fa-search-plus"></i>
+                  </div>
+                </div>
               {% endfor %}
             </div>
           </div>
         {% endif %}
+
+        <div class="description-section">
+          <h3>Description</h3>
+          <p>{{ announcement.description }}</p>
+        </div>
       </div>
 
-      <div class="modal-right">
-        <div class="action-panel">
-          <button class="btn yellow btn-block" style="margin-bottom: 12px;">Buy Now</button>
-          <button class="btn black btn-block">Contact Seller</button>
+      <div class="listing-sidebar">
+        <div class="price-card">
+          <div class="price-display">{{ announcement.price|number_format(0, '.', ',') }} TND</div>
+          <p class="status-badge status-{{ announcement.status }}">{{ announcement.status|capitalize }}</p>
         </div>
 
-        <div class="vehicle-details">
-          <h3>For Sale</h3>
-          <div class="detail-grid">
-            <div class="detail-row">
-              <span class="detail-label">Brand:</span>
-              <span class="detail-value">{{ announcement.brand }}</span>
+        <div class="action-panel">
+          <button class="btn yellow btn-block">💬 Contact Seller</button>
+          <button class="btn secondary btn-block">📧 Send Message</button>
+        </div>
+
+        <div class="specs-card">
+          <h3>Key Specifications</h3>
+          <div class="specs-list">
+            <div class="spec-item">
+              <span class="spec-icon">📅</span>
+              <div>
+                <div class="spec-label">Year</div>
+                <div class="spec-value">{{ announcement.year }}</div>
+              </div>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Model:</span>
-              <span class="detail-value">{{ announcement.model }}</span>
+            <div class="spec-item">
+              <span class="spec-icon">🛣️</span>
+              <div>
+                <div class="spec-label">Mileage</div>
+                <div class="spec-value">{{ announcement.mileage|number_format(0, '.', ',') }} km</div>
+              </div>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Category:</span>
-              <span class="detail-value">{{ announcement.status }}</span>
+            <div class="spec-item">
+              <span class="spec-icon">⛽</span>
+              <div>
+                <div class="spec-label">Fuel Type</div>
+                <div class="spec-value">{{ announcement.fuelType|capitalize }}</div>
+              </div>
+            </div>
+            <div class="spec-item">
+              <span class="spec-icon">📍</span>
+              <div>
+                <div class="spec-label">Location</div>
+                <div class="spec-value">{{ announcement.location }}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="location-section">
-          <h4>📍 Location</h4>
-          <p>{{ announcement.location }}</p>
+        <div class="details-card">
+          <h3>Vehicle Details</h3>
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="detail-label">Brand</span>
+              <span class="detail-value">{{ announcement.brand }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Model</span>
+              <span class="detail-value">{{ announcement.model }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span class="detail-value">{{ announcement.status|capitalize }}</span>
+            </div>
+          </div>
         </div>
 
         {% if is_granted('ROLE_USER') and app.user.id == announcement.vendor.id %}
-          <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px;">
-            <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn" style="width: 100%; display: block; text-align: center; margin-bottom: 8px;">Edit</a>
-            <a href="{{ path('app_announcement_index') }}" class="btn ghost" style="width: 100%; display: block; text-align: center;">Back</a>
+          <div class="owner-actions">
+            <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn secondary btn-block">✏️ Edit Listing</a>
           </div>
         {% endif %}
       </div>
     </div>
   </div>
 </div>
+
+<!-- Image Lightbox -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <button class="lightbox-nav lightbox-prev" onclick="changeImage(-1)">❮</button>
+    <img id="lightbox-img" src="" alt="Vehicle photo">
+    <button class="lightbox-nav lightbox-next" onclick="changeImage(1)">❯</button>
+  </div>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+
+<style>
+  .listing-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .listing-detail-content {
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .listing-detail-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .listing-detail-header h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+
+  .listing-subtitle {
+    color: var(--muted);
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .listing-detail-body {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 32px;
+    padding: 32px;
+  }
+
+  .listing-main {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .main-photo-container {
+    position: relative;
+  }
+
+  .main-photo {
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: var(--bg-secondary);
+  }
+
+  .main-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .main-photo:hover img {
+    transform: scale(1.05);
+  }
+
+  .photo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    padding: 20px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .main-photo:hover .photo-overlay {
+    opacity: 1;
+  }
+
+  .photo-gallery-section h3 {
+    font-size: 18px;
+    margin: 0 0 16px;
+  }
+
+  .photo-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .gallery-item {
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: var(--bg-secondary);
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.1);
+  }
+
+  .gallery-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    font-size: 20px;
+  }
+
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
+  }
+
+  .description-section {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+  }
+
+  .description-section h3 {
+    font-size: 18px;
+    margin: 0 0 12px;
+  }
+
+  .description-section p {
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .listing-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .price-card {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .price-display {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-available {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .status-active {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .status-sold {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  .action-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .specs-card, .details-card {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+  }
+
+  .specs-card h3, .details-card h3 {
+    font-size: 16px;
+    margin: 0 0 16px;
+  }
+
+  .specs-list, .details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .spec-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .spec-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .spec-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .spec-value {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .detail-value {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .owner-actions {
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+  }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox.active {
+    display: flex;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: white;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 10001;
+  }
+
+  .lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+  }
+
+  .lightbox-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 30px;
+    padding: 16px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+
+  .lightbox-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .lightbox-prev {
+    left: -60px;
+  }
+
+  .lightbox-next {
+    right: -60px;
+  }
+
+  .lightbox-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 1200px) {
+    .listing-detail-body {
+      grid-template-columns: 1fr;
+    }
+
+    .listing-sidebar {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .listing-detail-container {
+      padding: 12px;
+    }
+
+    .listing-detail-header {
+      padding: 20px;
+    }
+
+    .listing-detail-header h1 {
+      font-size: 22px;
+    }
+
+    .listing-detail-body {
+      padding: 20px;
+      gap: 24px;
+    }
+
+    .main-photo {
+      height: 300px;
+    }
+
+    .photo-gallery {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .gallery-item {
+      height: 100px;
+    }
+
+    .listing-sidebar {
+      grid-template-columns: 1fr;
+    }
+
+    .lightbox-prev {
+      left: 10px;
+    }
+
+    .lightbox-next {
+      right: 10px;
+    }
+  }
+</style>
+
+<script>
+  let currentImageIndex = 0;
+  const images = [
+    {% if announcement.mainPhoto %}'{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}',{% endif %}
+    {% if announcement.photos %}
+      {% for photo in announcement.photos %}
+        '{{ asset('uploads/announcements/' ~ photo) }}'{% if not loop.last %},{% endif %}
+      {% endfor %}
+    {% endif %}
+  ];
+
+  function openLightbox(index) {
+    currentImageIndex = index;
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    img.src = images[currentImageIndex];
+    lightbox.classList.add('active');
+    updateCounter();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  function changeImage(direction) {
+    currentImageIndex += direction;
+    if (currentImageIndex < 0) currentImageIndex = images.length - 1;
+    if (currentImageIndex >= images.length) currentImageIndex = 0;
+    
+    const img = document.getElementById('lightbox-img');
+    img.src = images[currentImageIndex];
+    updateCounter();
+  }
+
+  function updateCounter() {
+    const counter = document.getElementById('lightbox-counter');
+    counter.textContent = `${currentImageIndex + 1} / ${images.length}`;
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox.classList.contains('active')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') changeImage(-1);
+      if (e.key === 'ArrowRight') changeImage(1);
+    }
+  });
+</script>
 {% endblock %}

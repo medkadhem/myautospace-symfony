@@ -15,7 +15,7 @@
         <div class="card-header">
           <div class="card-image">
             {% if announcement.mainPhoto %}
-              <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Vehicle'">
+              <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Vehicle'">
             {% else %}
               <img src="https://via.placeholder.com/400x300?text=Vehicle" alt="Vehicle">
             {% endif %}
