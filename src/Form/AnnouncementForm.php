@@ -94,15 +94,6 @@ class AnnouncementForm extends AbstractType
                 'label' => 'Category',
                 'required' => false,
             ])
-            ->add('isSponsored', CheckboxType::class, [
-                'label' => 'Featured Listing (Sponsored)',
-                'required' => false,
-            ])
-            ->add('budget', NumberType::class, [
-                'label' => 'Budget (Optional)',
-                'attr' => ['placeholder' => '0'],
-                'required' => false,
-            ])
             ->add('mainPhotoFile', FileType::class, [
                 'label' => 'Main Photo',
                 'mapped' => false,

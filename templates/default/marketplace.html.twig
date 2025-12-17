@@ -10,49 +10,38 @@
   </div>
 
   <div class="marketplace-wrapper">
-    <!-- Filters Sidebar -->
-    <aside class="filters-sidebar">
-      <form method="GET" action="{{ path('app_marketplace') }}" class="filters-form">
-        
-        <div class="filter-group">
-          <h3>Type</h3>
-          <label class="filter-radio">
-            <input type="radio" name="type" value="all" {% if type == 'all' or type is empty %}checked{% endif %}>
-            <span>All</span>
-          </label>
-          <label class="filter-radio">
-            <input type="radio" name="type" value="listings" {% if type == 'listings' %}checked{% endif %}>
-            <span>Car Listings</span>
-          </label>
-          <label class="filter-radio">
-            <input type="radio" name="type" value="services" {% if type == 'services' %}checked{% endif %}>
-            <span>Services</span>
-          </label>
-        </div>
 
-        {% if type != 'services' %}
-        <div class="filter-group">
-          <h3>Price Range</h3>
-          <div class="price-inputs">
-            <input type="number" name="minPrice" placeholder="Min" value="{{ minPrice }}" class="filter-input">
-            <input type="number" name="maxPrice" placeholder="Max" value="{{ maxPrice }}" class="filter-input">
+    <!-- Unified Filters and Results -->
+    <main class="marketplace-content">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <form method="GET" action="{{ path('app_marketplace') }}" class="filter-bar-form">
+          <div class="filter-item">
+            <select name="type" class="filter-select">
+              <option value="all" {% if type == 'all' or type is empty %}selected{% endif %}>All</option>
+              <option value="listings" {% if type == 'listings' %}selected{% endif %}>Car Listings</option>
+              <option value="services" {% if type == 'services' %}selected{% endif %}>Services</option>
+            </select>
           </div>
-        </div>
-        {% endif %}
+          
+          {% if type != 'services' %}
+          <div class="filter-item">
+            <input type="number" name="minPrice" placeholder="Min Price" value="{{ minPrice }}" class="filter-input-inline">
+          </div>
+          <div class="filter-item">
+            <input type="number" name="maxPrice" placeholder="Max Price" value="{{ maxPrice }}" class="filter-input-inline">
+          </div>
+          {% endif %}
+          
+          <div class="filter-item filter-search">
+            <input type="text" name="search" placeholder="Search..." value="{{ search }}" class="filter-input-inline">
+          </div>
+          
+          <button type="submit" class="btn yellow btn-sm">Apply</button>
+          <a href="{{ path('app_marketplace') }}" class="btn secondary btn-sm">Clear</a>
+        </form>
+      </div>
 
-        <div class="filter-group">
-          <h3>Search</h3>
-          <input type="text" name="search" placeholder="Search..." value="{{ search }}" class="filter-input">
-        </div>
-
-        <button type="submit" class="btn yellow btn-block">Apply Filters</button>
-        <a href="{{ path('app_marketplace') }}" class="btn secondary btn-block">Clear Filters</a>
-      </form>
-    </aside>
-
-    <!-- Results Section -->
-    <main class="marketplace-results">
-      
       <!-- Car Listings -->
       {% if type != 'services' and announcements|length > 0 %}
       <section class="results-section">
@@ -62,7 +51,7 @@
           <div class="listing-card">
             {% if announcement.mainPhoto %}
               <div class="listing-image">
-                <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.title }}" loading="lazy">
+                <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.title }}" loading="lazy">
               </div>
             {% else %}
               <div class="listing-image placeholder">
@@ -148,60 +137,59 @@
   }
 
   .marketplace-wrapper {
-    display: grid;
-    grid-template-columns: 250px 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .marketplace-content {
+    display: flex;
+    flex-direction: column;
     gap: 30px;
   }
 
-  .filters-sidebar {
+  .filter-bar {
     background: var(--bg-secondary);
     padding: 20px;
     border-radius: 12px;
-    height: fit-content;
-    position: sticky;
-    top: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .filter-group {
-    margin-bottom: 25px;
-  }
-
-  .filter-group h3 {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-
-  .filter-radio {
+  .filter-bar-form {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
-    cursor: pointer;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
-  .filter-radio input {
-    margin-right: 8px;
+  .filter-item {
+    flex: 0 0 auto;
   }
 
-  .price-inputs {
-    display: flex;
-    gap: 8px;
+  .filter-search {
+    flex: 1 1 200px;
   }
 
-  .filter-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 13px;
-    flex: 1;
+  .filter-select,
+  .filter-input-inline {
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 14px;
+    min-width: 150px;
   }
 
-  .marketplace-results {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+  .filter-input-inline {
+    min-width: 120px;
+  }
+
+  .filter-select:focus,
+  .filter-input-inline:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    outline: none;
   }
 
   .results-section h2 {
@@ -354,12 +342,24 @@
   }
 
   @media (max-width: 768px) {
-    .marketplace-wrapper {
-      grid-template-columns: 1fr;
+    .filter-bar-form {
+      flex-direction: column;
+      align-items: stretch;
     }
 
-    .filters-sidebar {
-      position: static;
+    .filter-item,
+    .filter-search {
+      flex: 1 1 auto;
+      width: 100%;
+    }
+
+    .filter-select,
+    .filter-input-inline {
+      width: 100%;
+    }
+
+    .filter-bar-form .btn {
+      width: 100%;
     }
 
     .listings-grid {

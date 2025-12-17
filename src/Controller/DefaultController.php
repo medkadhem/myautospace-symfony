@@ -31,8 +31,8 @@ final class DefaultController extends AbstractController
         $search = $request->query->get('search');
 
         $announcementsQuery = $announcementRepo->createQueryBuilder('a')
-            ->where('a.status = :status')
-            ->setParameter('status', 'active');
+            ->where('a.status IN (:statuses)')
+            ->setParameter('statuses', ['active', 'available']);
 
         if ($type !== 'services' && $category) {
             $announcementsQuery->join('a.categories', 'c')

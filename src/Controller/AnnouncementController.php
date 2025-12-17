@@ -48,9 +48,10 @@ final class AnnouncementController extends AbstractController
             if (!$announcement->getEndDate()) {
                 $announcement->setEndDate(new \DateTimeImmutable('+30 days'));
             }
-            if (!$announcement->getBudget()) {
-                $announcement->setBudget(0);
-            }
+            
+            // Set default values for removed fields
+            $announcement->setIsSponsored(false);
+            $announcement->setBudget(0);
 
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
