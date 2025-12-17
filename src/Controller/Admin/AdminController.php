@@ -61,7 +61,7 @@ class AdminController extends AbstractController
 
         $reservations = $reservationRepo->findBy([], ['createdAt' => 'DESC']);
 
-        return $this->render('reservation/admin_index.html.twig', [
+        return $this->render('admin/reservation/admin_index.html.twig', [
             'reservations' => $reservations,
         ]);
     }
