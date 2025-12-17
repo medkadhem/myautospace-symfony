@@ -95,10 +95,10 @@
               </strong>
             </td>
             <td>
-              {% if reservation.announcement %}
-                {{ reservation.announcement.vendor.fullName ?? 'Unknown' }}
-              {% elseif reservation.service %}
-                {{ reservation.service.provider.fullName ?? 'Unknown' }}
+              {% if reservation.announcement and reservation.announcement.vendor %}
+                {{ reservation.announcement.vendor.fullName ? reservation.announcement.vendor.fullName : reservation.announcement.vendor.email }}
+              {% elseif reservation.service and reservation.service.provider %}
+                {{ reservation.service.provider.fullName ? reservation.service.provider.fullName : reservation.service.provider.email }}
               {% else %}
                 Unknown
               {% endif %}
@@ -115,7 +115,7 @@
                 <span class="badge">{{ reservation.status|capitalize }}</span>
               {% endif %}
             </td>
-            <td>{{ reservation.price|number_format(0, '.', ' ') ?? 'N/A' }} TND</td>
+            <td>{{ reservation.price ? (reservation.price|number_format(0, '.', ' ')) : 'N/A' }} TND</td>
             <td>
               <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-sm secondary">View</a>
             </td>

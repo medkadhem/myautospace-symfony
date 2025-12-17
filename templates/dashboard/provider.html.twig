@@ -103,7 +103,7 @@
           {% for reservation in recentReservations %}
           <tr>
             <td>
-              <strong>{{ reservation.client.fullName ?? 'Unknown' }}</strong>
+              <strong>{{ reservation.client.fullName ? reservation.client.fullName : reservation.client.email }}</strong>
             </td>
             <td>
               {% if reservation.announcement %}
