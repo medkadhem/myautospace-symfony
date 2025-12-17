@@ -25,13 +25,10 @@ class AnnouncementForm extends AbstractType
             ->add('startDate')
             ->add('endDate')
             ->add('budget')
-            ->add('vendor', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
+            // vendor is set from the authenticated user in controller
             ->add('type', EntityType::class, [
-                'class' => self::class,
-                'choice_label' => 'id',
+                'class' => AnnouncementType::class,
+                'choice_label' => 'name',
             ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,

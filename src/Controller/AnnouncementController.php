@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/announcement')]
 final class AnnouncementController extends AbstractController
@@ -23,6 +24,7 @@ final class AnnouncementController extends AbstractController
     }
 
     #[Route('/new', name: 'app_announcement_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_SELLER')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $announcement = new Announcement();
@@ -30,6 +32,11 @@ final class AnnouncementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // set the current user as vendor
+            $user = $this->getUser();
+            if ($user) {
+                $announcement->setVendor($user);
+            }
             $entityManager->persist($announcement);
             $entityManager->flush();
 
@@ -51,6 +58,7 @@ final class AnnouncementController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_announcement_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_SELLER')]
     public function edit(Request $request, Announcement $announcement, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(AnnouncementForm::class, $announcement);
@@ -69,6 +77,7 @@ final class AnnouncementController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_announcement_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_SELLER')]
     public function delete(Request $request, Announcement $announcement, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$announcement->getId(), $request->getPayload()->getString('_token'))) {

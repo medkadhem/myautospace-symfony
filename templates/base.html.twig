@@ -1,17 +1,48 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MyAutoSpace{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
+    <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
+  </head>
+  <body>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="{{ path('app_default') }}">MyAutoSpace</a>
+        <nav>
+          <a href="{{ path('app_announcement_index') }}">Announcements</a>
+          <a href="#">Services</a>
+          {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('app_dashboard') }}">Dashboard</a>
+          {% endif %}
+        </nav>
+        <div class="auth">
+          {% if app.user %}
+            <span class="user-email">{{ app.user.email }}</span>
+            <a class="btn" href="{{ path('app_logout') }}">Logout</a>
+          {% else %}
+            <a class="btn" href="{{ path('app_login') }}">Login</a>
+            <a class="btn primary" href="{{ path('app_register') }}">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
-</html>
+    <main class="container">
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="flash {{ label }}">{{ message }}</div>
+        {% endfor %}
+      {% endfor %}
+      {% block body %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <div class="container">© {{ "now"|date("Y") }} MyAutoSpace</div>
+    </footer>
+  </body>
+ </html>

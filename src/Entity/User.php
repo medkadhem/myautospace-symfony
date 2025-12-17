@@ -6,17 +6,19 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -70,6 +72,11 @@ class User
         $this->announcements = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->roles = ['ROLE_USER'];
+        $this->isActive = true;
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
     }
 
     public function getId(): ?int
@@ -113,15 +120,60 @@ class User
         return $this;
     }
 
-    public function isActive(): ?bool
+    /**
+     * Returns the identifier for this user (e.g. email)
+     */
+    public function getUserIdentifier(): string
     {
-        return $this->isActive;
+        return (string) ($this->email ?? '');
     }
 
-    public function setIsActive(bool $isActive): static
+    /**
+     * @deprecated since Symfony 5.3, use getUserIdentifier instead
+     */
+    public function getUsername(): string
     {
-        $this->isActive = $isActive;
+        return $this->getUserIdentifier();
+    }
 
+    /**
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles ?? [];
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+        return array_values(array_unique($roles));
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function setIsActive(?bool $active): static
+    {
+        $this->isActive = $active;
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->isActive;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
         return $this;
     }
 
@@ -130,10 +182,9 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
-        $this->createdAt = $createdAt;
-
+        $this->updatedAt = $updatedAt ?? new \DateTimeImmutable();
         return $this;
     }
 
@@ -142,24 +193,6 @@ class User
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getRoles(): array
-    {
-        return $this->roles;
-    }
-
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
 
     public function getAddress(): ?Address
     {

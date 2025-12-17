@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create account · MyAutoSpace{% endblock %}
+
+{% block body %}
+  <div class="form">
+    <h2>Create your account</h2>
+    {{ form_start(registrationForm) }}
+      <div class="field">{{ form_label(registrationForm.email) }}{{ form_widget(registrationForm.email) }}</div>
+      <div class="field">{{ form_label(registrationForm.plainPassword) }}{{ form_widget(registrationForm.plainPassword) }}</div>
+      <div class="field">{{ form_label(registrationForm.phone) }}{{ form_widget(registrationForm.phone) }}</div>
+      <div class="field">{{ form_label(registrationForm.role) }}{{ form_widget(registrationForm.role) }}</div>
+      <div class="actions">
+        <button class="btn primary">Register</button>
+        <a class="btn" href="{{ path('app_login') }}">I already have an account</a>
+      </div>
+    {{ form_end(registrationForm) }}
+  </div>
+{% endblock %}

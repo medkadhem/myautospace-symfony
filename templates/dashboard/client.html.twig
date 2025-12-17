@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Client Dashboard{% endblock %}
+{% block body %}
+  <h2>Client Dashboard</h2>
+  <div class="cards">
+    <div class="card"><strong>My Reservations</strong><p>View and manage your service reservations.</p></div>
+    <div class="card"><strong>Inbox</strong><p>Chat with sellers and providers.</p></div>
+    <div class="card"><strong>Browse</strong><p><a class="btn" href="{{ path('app_announcement_index') }}">Find cars</a></p></div>
+  </div>
+{% endblock %}

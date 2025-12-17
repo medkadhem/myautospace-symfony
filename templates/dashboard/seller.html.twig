@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Seller Dashboard{% endblock %}
+{% block body %}
+  <h2>Seller Dashboard</h2>
+  <div class="cards">
+    <div class="card"><strong>My Listings</strong><p><a class="btn primary" href="{{ path('app_announcement_new') }}">Create announcement</a></p></div>
+    <div class="card"><strong>Offers & Notifications</strong><p>Track offers from clients.</p></div>
+    <div class="card"><strong>Inbox</strong><p>Conversations with buyers.</p></div>
+  </div>
+{% endblock %}

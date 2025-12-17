@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MyAutoSpace · Find Cars and Services{% endblock %}
+
+{% block body %}
+  <section class="hero">
+    <div>
+      <h1>Your auto marketplace in one place</h1>
+      <p>Browse car announcements, book trusted services, and manage your listings with a clean dashboard.</p>
+      <div class="cta">
+        <a class="btn primary" href="{{ path('app_announcement_index') }}">Explore announcements</a>
+        {% if not app.user %}
+          <a class="btn" href="{{ path('app_register') }}">Become a member</a>
+        {% else %}
+          <a class="btn" href="{{ path('app_dashboard') }}">Go to dashboard</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card">
+      <strong>What you can do</strong>
+      <ul>
+        <li>Clients: view and reserve services, make offers, message sellers/providers</li>
+        <li>Sellers: post car listings, receive offers and notifications</li>
+        <li>Service providers: list services, manage reservations and inbox</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><h3>Cars</h3><p>Discover new and used cars from verified sellers.</p></div>
+    <div class="card"><h3>Services</h3><p>Find maintenance, detailing, and inspection services near you.</p></div>
+    <div class="card"><h3>Secure</h3><p>Role-based access, secure login, and notifications.</p></div>
+  </section>
+{% endblock %}
