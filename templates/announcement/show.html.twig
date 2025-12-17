@@ -10,7 +10,7 @@
         <h1>{{ announcement.brand }} {{ announcement.model }}</h1>
         <p class="listing-subtitle">{{ announcement.year }} • {{ announcement.mileage|number_format(0, '.', ',') }} km • {{ announcement.fuelType }}</p>
       </div>
-      <a href="{{ path('app_announcement_index') }}" class="btn ghost">← Back</a>
+      <a href="#" onclick="goBack(); return false;" class="btn ghost" id="back-btn">← Back</a>
     </div>
 
     <div class="listing-detail-body">
@@ -115,10 +115,12 @@
           <p class="status-badge status-{{ announcement.status }}">{{ announcement.status|capitalize }}</p>
         </div>
 
-        <div class="action-panel">
-          <button class="btn yellow btn-block">💬 Contact Seller</button>
-          <button class="btn secondary btn-block">📧 Send Message</button>
-        </div>
+        {% if not (is_granted('ROLE_USER') and app.user.id == announcement.vendor.id) %}
+          <div class="action-panel">
+            <button class="btn yellow btn-block">💬 Contact Seller</button>
+            <button class="btn secondary btn-block">📧 Send Message</button>
+          </div>
+        {% endif %}
 
         <div class="specs-card">
           <h3>Key Specifications</h3>
@@ -174,7 +176,19 @@
 
         {% if is_granted('ROLE_USER') and app.user.id == announcement.vendor.id %}
           <div class="owner-actions">
+            <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn yellow btn-block">✏️ Edit Listing</a>
+            <form method="post" action="{{ path('app_announcement_delete', {'id': announcement.id}) }}" onsubmit="return confirm('Are you sure you want to delete this listing?');" style="margin-top: 12px;">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ announcement.id) }}">
+              <button type="submit" class="btn danger btn-block">🗑️ Delete Listing</button>
+            </form>
+          </div>
+        {% elseif is_granted('ROLE_ADMIN') %}
+          <div class="admin-actions">
             <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn secondary btn-block">✏️ Edit Listing</a>
+            <form method="post" action="{{ path('app_announcement_delete', {'id': announcement.id}) }}" onsubmit="return confirm('Are you sure you want to delete this listing?');" style="margin-top: 12px;">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ announcement.id) }}">
+              <button type="submit" class="btn danger btn-block">🗑️ Delete Listing</button>
+            </form>
           </div>
         {% endif %}
       </div>
@@ -198,6 +212,7 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    width: 100%;
   }
 
   .listing-detail-content {
@@ -460,11 +475,15 @@
     font-size: 14px;
   }
 
-  .owner-actions {
+  .owner-actions, .admin-actions {
     padding: 20px;
     background: var(--bg-secondary);
     border-radius: 12px;
     border: 2px dashed rgba(255, 255, 255, 0.1);
+  }
+
+  .admin-actions {
+    border-color: rgba(231, 76, 60, 0.3);
   }
 
   /* Lightbox */
@@ -553,22 +572,33 @@
     }
 
     .listing-sidebar {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 20px;
     }
   }
 
   @media (max-width: 768px) {
     .listing-detail-container {
-      padding: 12px;
+      padding: 8px;
+    }
+
+    .listing-detail-content {
+      border-radius: 12px;
     }
 
     .listing-detail-header {
-      padding: 20px;
+      padding: 16px 20px;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .listing-detail-header h1 {
-      font-size: 22px;
+      font-size: 20px;
+    }
+
+    .listing-subtitle {
+      font-size: 13px;
     }
 
     .listing-detail-body {
@@ -577,32 +607,105 @@
     }
 
     .main-photo {
-      height: 300px;
+      height: 250px;
+      border-radius: 8px;
     }
 
     .photo-gallery {
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
     }
 
     .gallery-item {
-      height: 100px;
+      height: 80px;
     }
 
     .listing-sidebar {
       grid-template-columns: 1fr;
     }
 
+    .price-display {
+      font-size: 26px;
+    }
+
     .lightbox-prev {
-      left: 10px;
+      left: 5px;
+      padding: 12px 16px;
+      font-size: 24px;
     }
 
     .lightbox-next {
-      right: 10px;
+      right: 5px;
+      padding: 12px 16px;
+      font-size: 24px;
+    }
+
+    .lightbox-close {
+      right: 20px;
+      font-size: 32px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .listing-detail-container {
+      padding: 4px;
+    }
+
+    .listing-detail-header {
+      padding: 12px 16px;
+    }
+
+    .listing-detail-header h1 {
+      font-size: 18px;
+    }
+
+    .listing-detail-body {
+      padding: 16px;
+    }
+
+    .main-photo {
+      height: 200px;
+    }
+
+    .photo-gallery {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>
 
 <script>
+  // Back button logic
+  function goBack() {
+    const referrer = document.referrer;
+    const isOwner = {{ (is_granted('ROLE_USER') and app.user.id == announcement.vendor.id) ? 'true' : 'false' }};
+    const isProvider = {{ is_granted('ROLE_PROVIDER') ? 'true' : 'false' }};
+    const isSeller = {{ is_granted('ROLE_SELLER') ? 'true' : 'false' }};
+    const isAdmin = {{ is_granted('ROLE_ADMIN') ? 'true' : 'false' }};
+    
+    // Check if came from marketplace
+    if (referrer && referrer.includes('marketplace')) {
+      window.location.href = '{{ path('app_marketplace') }}';
+    }
+    // Check if owner and came from dashboard
+    else if (isOwner && referrer && referrer.includes('dashboard')) {
+      if (isProvider) {
+        window.location.href = '{{ path('app_dashboard_provider') }}';
+      } else if (isSeller) {
+        window.location.href = '{{ path('app_dashboard_seller') }}';
+      } else if (isAdmin) {
+        window.location.href = '{{ path('app_dashboard_admin') }}';
+      } else {
+        window.location.href = '{{ path('app_announcement_index') }}';
+      }
+    }
+    // Default: go to listings or use browser back
+    else if (referrer && (referrer.includes('announcement') || referrer.includes(window.location.host))) {
+      window.history.back();
+    } else {
+      window.location.href = '{{ path('app_announcement_index') }}';
+    }
+  }
+
   let currentImageIndex = 0;
   const images = [
     {% if announcement.mainPhoto %}'{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}',{% endif %}
