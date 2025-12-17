@@ -4,40 +4,207 @@
 
 {% block body %}
 <div class="admin-header">
-    <h1>Dashboard</h1>
-</div>
-
-<div class="stat-grid">
-    <div class="stat-card">
-        <h3>Total Users</h3>
-        <div class="stat-value">{{ stats.users }}</div>
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p style="color: var(--muted); font-size: 14px; margin: 8px 0 0;">Welcome back! Here's what's happening with your platform today.</p>
     </div>
-    <div class="stat-card">
-        <h3>Total Announcements</h3>
-        <div class="stat-value">{{ stats.announcements }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Active Announcements</h3>
-        <div class="stat-value">{{ stats.active_announcements }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Total Services</h3>
-        <div class="stat-value">{{ stats.services }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Total Reservations</h3>
-        <div class="stat-value">{{ stats.reservations }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Pending Reservations</h3>
-        <div class="stat-value">{{ stats.pending_reservations }}</div>
+    <div class="dashboard-header-actions">
+        <a href="{{ path('app_admin_reports') }}" class="btn secondary">📊 View Reports</a>
+        <a href="{{ path('app_admin_user_new') }}" class="btn yellow">➕ Add User</a>
     </div>
 </div>
 
-<h2 style="margin-top: 32px;">Quick Actions</h2>
-<div style="display: flex; gap: 12px; margin-top: 16px;">
-    <a href="{{ path('app_admin_announcement_new') }}" class="btn yellow">+ New Announcement</a>
-    <a href="{{ path('app_admin_user_new') }}" class="btn yellow">+ New User</a>
-    <a href="{{ path('app_admin_service_new') }}" class="btn yellow">+ New Service</a>
+<div class="dashboard-stats">
+    <div class="stat-card stat-card-premium">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">{{ totalUsers }}</div>
+        <div class="stat-change">{{ activeUsers }} active users</div>
+    </div>
+    <div class="stat-card stat-card-premium">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">Active Listings</div>
+        <div class="stat-value">{{ activeListings }}</div>
+        <div class="stat-change">{{ allAnnouncements }} total listings</div>
+    </div>
+    <div class="stat-card stat-card-premium">
+        <div class="stat-icon">🔧</div>
+        <div class="stat-label">Active Services</div>
+        <div class="stat-value">{{ activeServices }}</div>
+        <div class="stat-change">{{ allServices }} total services</div>
+    </div>
+    <div class="stat-card stat-card-premium">
+        <div class="stat-icon">📅</div>
+        <div class="stat-label">Reservations</div>
+        <div class="stat-value">{{ totalReservations }}</div>
+        <div class="stat-change">
+            {% if pendingReservations > 0 %}
+                <span class="admin-badge urgent">{{ pendingReservations }} pending</span>
+            {% else %}
+                All up to date
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if pendingReservations > 0 or (totalUsers > 0 and activeUsers / totalUsers < 0.5) %}
+<div style="background: rgba(231,76,60,.1); border: 1px solid rgba(231,76,60,.3); border-radius: 12px; padding: 20px; margin-bottom: 32px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="font-size: 32px;">⚠️</div>
+        <div style="flex: 1;">
+            <h3 style="margin: 0 0 8px; color: var(--danger); font-size: 18px;">Attention Required</h3>
+            <p style="margin: 0; color: var(--muted); font-size: 14px;">
+                {% if pendingReservations > 0 %}
+                    You have {{ pendingReservations }} pending reservation(s) waiting for review.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{{ path('app_admin_reservation_index') }}" class="btn danger">Review Now</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="dashboard-section">
+    <h2>🎛️ Management Center</h2>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <span class="card-icon">👥</span>
+            <h3>User Management</h3>
+            <p>{{ totalUsers }} total · {{ activeUsers }} active</p>
+            <a href="{{ path('app_admin_user_index') }}" class="btn yellow btn-block">Manage Users</a>
+        </div>
+        <div class="dashboard-card">
+            <span class="card-icon">📋</span>
+            <h3>Announcements</h3>
+            <p>{{ activeListings }} active · {{ allAnnouncements }} total</p>
+            <a href="{{ path('app_admin_announcement_index') }}" class="btn yellow btn-block">View Listings</a>
+        </div>
+        <div class="dashboard-card">
+            <span class="card-icon">🔧</span>
+            <h3>Services</h3>
+            <p>{{ activeServices }} active · {{ allServices }} total</p>
+            <a href="{{ path('app_admin_service_index') }}" class="btn yellow btn-block">Manage Services</a>
+        </div>
+        <div class="dashboard-card">
+            <span class="card-icon">📅</span>
+            <h3>Reservations</h3>
+            <p>{{ totalReservations }} bookings · {{ pendingReservations }} pending</p>
+            <a href="{{ path('app_admin_reservation_index') }}" class="btn secondary btn-block">View All</a>
+        </div>
+        <div class="dashboard-card">
+            <span class="card-icon">⭐</span>
+            <h3>Reviews & Ratings</h3>
+            <p>Monitor customer feedback</p>
+            <a href="{{ path('app_admin_review_index') }}" class="btn secondary btn-block">View Reviews</a>
+        </div>
+        <div class="dashboard-card">
+            <span class="card-icon">📂</span>
+            <h3>Categories</h3>
+            <p>Organize services & listings</p>
+            <a href="{{ path('app_admin_category_index') }}" class="btn secondary btn-block">Manage</a>
+        </div>
+    </div>
+</div>
+
+{% if recentUsers|length > 0 %}
+<div class="dashboard-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 style="margin: 0;">👤 Recent User Registrations</h2>
+        <a href="{{ path('app_admin_user_index') }}" class="btn btn-sm secondary">View All Users →</a>
+    </div>
+    <div class="dashboard-table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in recentUsers %}
+                <tr>
+                    <td><strong>{{ user.email }}</strong></td>
+                    <td>
+                        {% if user.isActive %}
+                            <span class="badge success">Active</span>
+                        {% else %}
+                            <span class="badge danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.createdAt|date('d M Y H:i') }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_user_show', {id: user.id}) }}" class="btn btn-sm secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if recentListings|length > 0 %}
+<div class="dashboard-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 style="margin: 0;">🚗 Recent Vehicle Listings</h2>
+        <a href="{{ path('app_admin_announcement_index') }}" class="btn btn-sm secondary">View All Listings →</a>
+    </div>
+    <div class="dashboard-table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Posted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in recentListings %}
+                <tr>
+                    <td><strong>{{ listing.title }}</strong></td>
+                    <td>{{ listing.price }} TND</td>
+                    <td>
+                        {% if listing.status == 'active' %}
+                            <span class="badge success">Active</span>
+                        {% else %}
+                            <span class="badge warning">{{ listing.status|capitalize }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ listing.createdAt|date('d M Y') }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_announcement_show', {id: listing.id}) }}" class="btn btn-sm secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="dashboard-section">
+    <h2>⚡ Quick Actions</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        <a href="{{ path('app_admin_user_new') }}" class="btn yellow btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 20px;">➕</span>
+            <span>Create New User</span>
+        </a>
+        <a href="{{ path('app_admin_announcement_new') }}" class="btn yellow btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 20px;">🚗</span>
+            <span>Add Listing</span>
+        </a>
+        <a href="{{ path('app_admin_category_new') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 20px;">📂</span>
+            <span>New Category</span>
+        </a>
+        <a href="{{ path('app_admin_service_new') }}" class="btn secondary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 20px;">🔧</span>
+            <span>Add Service</span>
+        </a>
+    </div>
 </div>
 {% endblock %}

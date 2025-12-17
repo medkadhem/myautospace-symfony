@@ -1,0 +1,168 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Reports & Analytics - Admin{% endblock %}
+
+{% block body %}
+<div class="admin-header">
+    <h1>Reports & Analytics</h1>
+    <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div class="dashboard-container">
+    <div class="dashboard-section">
+        <h2>📊 User Statistics</h2>
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ stats.users.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Active Users</div>
+                <div class="stat-value">{{ stats.users.active }}</div>
+                <div class="stat-change">{{ stats.users.total > 0 ? ((stats.users.active / stats.users.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏪</div>
+                <div class="stat-label">Sellers</div>
+                <div class="stat-value">{{ stats.users.sellers }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔑</div>
+                <div class="stat-label">Admins</div>
+                <div class="stat-value">{{ stats.users.admins }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>📋 Announcement Statistics</h2>
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-label">Total Listings</div>
+                <div class="stat-value">{{ stats.announcements.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-label">Active Listings</div>
+                <div class="stat-value">{{ stats.announcements.active }}</div>
+                <div class="stat-change">{{ stats.announcements.total > 0 ? ((stats.announcements.active / stats.announcements.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-label">Sponsored</div>
+                <div class="stat-value">{{ stats.announcements.sponsored }}</div>
+                <div class="stat-change">{{ stats.announcements.total > 0 ? ((stats.announcements.sponsored / stats.announcements.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>🔧 Service Statistics</h2>
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🔧</div>
+                <div class="stat-label">Total Services</div>
+                <div class="stat-value">{{ stats.services.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Active Services</div>
+                <div class="stat-value">{{ stats.services.active }}</div>
+                <div class="stat-change">{{ stats.services.total > 0 ? ((stats.services.active / stats.services.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>📅 Reservation Statistics</h2>
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-label">Total Reservations</div>
+                <div class="stat-value">{{ stats.reservations.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-label">Pending</div>
+                <div class="stat-value">{{ stats.reservations.pending }}</div>
+                <div class="stat-change">{{ stats.reservations.total > 0 ? ((stats.reservations.pending / stats.reservations.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Confirmed</div>
+                <div class="stat-value">{{ stats.reservations.confirmed }}</div>
+                <div class="stat-change">{{ stats.reservations.total > 0 ? ((stats.reservations.confirmed / stats.reservations.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">Cancelled</div>
+                <div class="stat-value">{{ stats.reservations.cancelled }}</div>
+                <div class="stat-change">{{ stats.reservations.total > 0 ? ((stats.reservations.cancelled / stats.reservations.total) * 100)|number_format(1) : 0 }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>📈 Summary Overview</h2>
+        <div class="dashboard-table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total</th>
+                        <th>Active/Confirmed</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Users</strong></td>
+                        <td>{{ stats.users.total }}</td>
+                        <td>{{ stats.users.active }}</td>
+                        <td>{{ stats.users.total > 0 ? ((stats.users.active / stats.users.total) * 100)|number_format(1) : 0 }}%</td>
+                        <td><span class="badge success">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Announcements</strong></td>
+                        <td>{{ stats.announcements.total }}</td>
+                        <td>{{ stats.announcements.active }}</td>
+                        <td>{{ stats.announcements.total > 0 ? ((stats.announcements.active / stats.announcements.total) * 100)|number_format(1) : 0 }}%</td>
+                        <td><span class="badge success">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Services</strong></td>
+                        <td>{{ stats.services.total }}</td>
+                        <td>{{ stats.services.active }}</td>
+                        <td>{{ stats.services.total > 0 ? ((stats.services.active / stats.services.total) * 100)|number_format(1) : 0 }}%</td>
+                        <td><span class="badge success">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reservations</strong></td>
+                        <td>{{ stats.reservations.total }}</td>
+                        <td>{{ stats.reservations.confirmed }}</td>
+                        <td>{{ stats.reservations.total > 0 ? ((stats.reservations.confirmed / stats.reservations.total) * 100)|number_format(1) : 0 }}%</td>
+                        <td>
+                            {% if stats.reservations.total > 0 %}
+                                {% set confirmRate = (stats.reservations.confirmed / stats.reservations.total) * 100 %}
+                                {% if confirmRate >= 70 %}
+                                    <span class="badge success">Excellent</span>
+                                {% elseif confirmRate >= 50 %}
+                                    <span class="badge warning">Good</span>
+                                {% else %}
+                                    <span class="badge danger">Needs Attention</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge secondary">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

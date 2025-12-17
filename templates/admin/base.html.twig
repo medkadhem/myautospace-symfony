@@ -6,6 +6,7 @@
     <title>{% block title %}Admin - MyAutoSpace{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
     <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+    <meta name="color-scheme" content="dark light">
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
@@ -21,6 +22,7 @@
                 <a href="{{ path('app_admin_category_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_category' ? 'active' }}">📁 Categories</a>
                 <a href="{{ path('app_admin_review_index') }}" class="{{ app.request.attributes.get('_route') starts with 'app_admin_review' ? 'active' }}">⭐ Reviews</a>
                 <hr style="border-color: #333; margin: 16px 0;">
+                <a href="{{ path('app_admin_reports') }}" class="{{ app.request.attributes.get('_route') == 'app_admin_reports' ? 'active' }}">📊 Reports</a>
                 <a href="{{ path('app_default') }}">🏠 Back to Site</a>
                 <a href="{{ path('app_logout') }}">🚪 Logout</a>
             </nav>
@@ -34,6 +36,8 @@
             {% block body %}{% endblock %}
         </main>
     </div>
-    {% block javascripts %}{% endblock %}
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
 </body>
 </html>

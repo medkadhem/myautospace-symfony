@@ -45,62 +45,8 @@ final class DashboardController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function admin(): Response
     {
-        try {
-            // Users statistics
-            $allUsers = $this->userRepo->findAll();
-            $totalUsers = count($allUsers);
-            $activeUsers = count(array_filter($allUsers, fn($u) => $u->isActive()));
-            
-            // Announcements statistics
-            $allAnnouncementsData = $this->announcementRepo->findAll();
-            $activeListings = count(array_filter($allAnnouncementsData, fn($a) => in_array($a->getStatus(), ['active', 'available'])));
-            $allAnnouncements = count($allAnnouncementsData);
-            
-            // Services statistics
-            $activeServices = count($this->serviceRepo->findBy(['isActive' => true]));
-            $allServices = count($this->serviceRepo->findAll());
-            
-            // Reservations statistics
-            $allReservations = $this->reservationRepo->findAll();
-            $totalReservations = count($allReservations);
-            $pendingReservations = count(array_filter($allReservations, fn($r) => $r->getStatus() === 'pending'));
-            $confirmedReservations = count(array_filter($allReservations, fn($r) => $r->getStatus() === 'confirmed'));
-            
-            // Get recent activity
-            $recentUsers = array_slice(array_reverse($allUsers), 0, 5);
-            
-            // Sort announcements by creation date (newest first)
-            $announcements = $this->announcementRepo->findAll();
-            usort($announcements, fn($a, $b) => $b->getCreatedAt() <=> $a->getCreatedAt());
-            $recentListings = array_slice($announcements, 0, 5);
-            
-        } catch (\Exception $e) {
-            $totalUsers = 0;
-            $activeUsers = 0;
-            $activeListings = 0;
-            $allAnnouncements = 0;
-            $activeServices = 0;
-            $allServices = 0;
-            $totalReservations = 0;
-            $pendingReservations = 0;
-            $confirmedReservations = 0;
-            $recentUsers = [];
-            $recentListings = [];
-        }
-        
-        return $this->render('dashboard/admin.html.twig', [
-            'totalUsers' => $totalUsers,
-            'activeUsers' => $activeUsers,
-            'activeListings' => $activeListings,
-            'allAnnouncements' => $allAnnouncements,
-            'activeServices' => $activeServices,
-            'allServices' => $allServices,
-            'totalReservations' => $totalReservations,
-            'pendingReservations' => $pendingReservations,
-            'confirmedReservations' => $confirmedReservations,
-            'recentUsers' => $recentUsers,
-            'recentListings' => $recentListings,
-        ]);
+        // Redirect to the main admin dashboard
+        return $this->redirectToRoute('app_admin_dashboard');
     }
 
     #[Route('/dashboard/client', name: 'app_dashboard_client')]
