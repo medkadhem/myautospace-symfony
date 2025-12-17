@@ -1,51 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Announcement index{% endblock %}
+{% block title %}All Vehicles - MyAutoSpace{% endblock %}
 
 {% block body %}
-    <h1>Announcement index</h1>
+<div class="marketplace-container">
+  <div class="marketplace-header">
+    <h1>All Vehicles</h1>
+    <p>{{ announcements | length }} results found</p>
+  </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>PublishedAt</th>
-                <th>IsSponsored</th>
-                <th>StartDate</th>
-                <th>EndDate</th>
-                <th>Budget</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for announcement in announcements %}
-            <tr>
-                <td>{{ announcement.id }}</td>
-                <td>{{ announcement.title }}</td>
-                <td>{{ announcement.description }}</td>
-                <td>{{ announcement.price }}</td>
-                <td>{{ announcement.status }}</td>
-                <td>{{ announcement.publishedAt ? announcement.publishedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ announcement.isSponsored ? 'Yes' : 'No' }}</td>
-                <td>{{ announcement.startDate ? announcement.startDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ announcement.endDate ? announcement.endDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ announcement.budget }}</td>
-                <td>
-                    <a href="{{ path('app_announcement_show', {'id': announcement.id}) }}">show</a>
-                    <a href="{{ path('app_announcement_edit', {'id': announcement.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="11">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+  <div class="vehicles-grid">
+    {% for announcement in announcements %}
+      <div class="vehicle-card" data-id="{{ announcement.id }}">
+        <div class="card-header">
+          <div class="card-image">
+            {% if announcement.mainPhoto %}
+              <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Vehicle'">
+            {% else %}
+              <img src="https://via.placeholder.com/400x300?text=Vehicle" alt="Vehicle">
+            {% endif %}
+          </div>
+          <button class="favorite-btn" aria-label="Add to favorites">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+        </div>
 
-    <a href="{{ path('app_announcement_new') }}">Create new</a>
+        <div class="card-content">
+          <div class="card-price">{{ announcement.price }} TND</div>
+          <h3 class="card-title">{{ announcement.brand }} {{ announcement.model }}</h3>
+          <p class="card-location">Tunis, Tunisia</p>
+          <div class="card-footer">
+            <div class="card-rating">
+              <span>4.5/5</span>
+              <span style="color: var(--yellow);">★</span>
+            </div>
+            <button class="action-btn" onclick="window.location.href='{{ path('app_announcement_show', {id: announcement.id}) }}'">•</button>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px;">
+        <p style="color: var(--muted);">No vehicles found</p>
+        <a href="{{ path('app_announcement_new') }}" class="btn yellow" style="margin-top: 16px;">Post a Vehicle</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

@@ -1,34 +1,122 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}MyAutoSpace · Find Cars and Services{% endblock %}
+{% block title %}MyAutoSpace - Rent. Buy. Sell.{% endblock %}
 
 {% block body %}
-  <section class="hero">
-    <div>
-      <h1>Your auto marketplace in one place</h1>
-      <p>Browse car announcements, book trusted services, and manage your listings with a clean dashboard.</p>
-      <div class="cta">
-        <a class="btn primary" href="{{ path('app_announcement_index') }}">Explore announcements</a>
-        {% if not app.user %}
-          <a class="btn" href="{{ path('app_register') }}">Become a member</a>
-        {% else %}
-          <a class="btn" href="{{ path('app_dashboard') }}">Go to dashboard</a>
-        {% endif %}
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <span>RENT.</span>
+        <span class="highlight">BUY.</span>
+        <span>SELL.</span>
+      </h1>
+      <div class="hero-actions">
+        <a href="{{ path('app_announcement_index') }}" class="action-link">
+          <span class="arrow">→</span>
+          <span>Rent a car</span>
+        </a>
+        <a href="{{ path('app_announcement_index') }}" class="action-link">
+          <span class="arrow">→</span>
+          <span>Buy a car</span>
+        </a>
+        <a href="{{ path('app_announcement_index') }}" class="action-link">
+          <span class="arrow">→</span>
+          <span>Sell a car</span>
+        </a>
       </div>
     </div>
-    <div class="card">
-      <strong>What you can do</strong>
-      <ul>
-        <li>Clients: view and reserve services, make offers, message sellers/providers</li>
-        <li>Sellers: post car listings, receive offers and notifications</li>
-        <li>Service providers: list services, manage reservations and inbox</li>
-      </ul>
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1567818735868-e71b99932e29?w=800&q=80" alt="Sports Car">
     </div>
   </section>
 
-  <section class="cards">
-    <div class="card"><h3>Cars</h3><p>Discover new and used cars from verified sellers.</p></div>
-    <div class="card"><h3>Services</h3><p>Find maintenance, detailing, and inspection services near you.</p></div>
-    <div class="card"><h3>Secure</h3><p>Role-based access, secure login, and notifications.</p></div>
+  <section class="about-section">
+    <div class="about-content">
+      <div class="about-text">
+        <h2>About us</h2>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est</p>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+      </div>
+      <div class="about-text">
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est</p>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-section">
+    <h2>Our Services</h2>
+    
+    <div class="service-item">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1552555238-6461a8b80e71?w=500&q=80" alt="Service A">
+      </div>
+      <div class="service-content">
+        <h3>Service A</h3>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+      </div>
+    </div>
+
+    <div class="service-item reverse">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1517420879524-86d64ac2aea8?w=500&q=80" alt="Service B">
+      </div>
+      <div class="service-content">
+        <h3>Service B</h3>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+      </div>
+    </div>
+
+    <div class="service-item">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1625231724288-e22032e19fff?w=500&q=80" alt="Service C">
+      </div>
+      <div class="service-content">
+        <h3>Service C</h3>
+        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section">
+    <h2>Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-number">23 000</span>
+        <span class="stat-label">Buyers</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">500 000</span>
+        <span class="stat-label">Transactions</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">1 000</span>
+        <span class="stat-label">Sellers</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">100 000</span>
+        <span class="stat-label">Announcements</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">2 000</span>
+        <span class="stat-label">Service Providers</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">20 000</span>
+        <span class="stat-label">Services</span>
+      </div>
+    </div>
+    <div class="stats-image">
+      <img src="https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=600&q=80" alt="Orange Sports Car">
+    </div>
+  </section>
+
+  <section class="partners-section">
+    <h2>Partners</h2>
+    <div class="partners-grid">
+      {% for i in 1..6 %}
+        <div class="partner-logo"></div>
+      {% endfor %}
+    </div>
   </section>
 {% endblock %}

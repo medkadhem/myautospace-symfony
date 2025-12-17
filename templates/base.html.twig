@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}MyAutoSpace{% endblock %}</title>
+    <title>{% block title %}MyAutoSpace - Find Cars & Services{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
     <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
     <meta name="color-scheme" content="dark light">
@@ -13,14 +13,20 @@
   <body>
     <header class="nav">
       <div class="container nav-inner">
-        <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700;">MyAutoSpace</a>
+        <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700; font-size: 20px;">MyAutoSpace</a>
+        
+        <div class="search-wrapper">
+          <input type="text" class="search-input" placeholder="Search vehicles or services...">
+        </div>
+        
         <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
+        
         <nav class="nav-links" data-nav>
-          <a class="{{ app.request.attributes.get('_route') starts with 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">MarketPlace</a>
-          <a class="{{ app.request.attributes.get('_route') starts with 'app_services' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
-          <a href="#stores">Stores</a>
+          <a class="{{ app.request.attributes.get('_route') starts with 'app_announcement' ? 'active' }}" href="{{ path('app_announcement_index') }}">MarketPlace</a>
+          <a class="{{ app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_service_index') }}">Services</a>
+          <a href="{{ path('app_default') }}#stores">Stores</a>
           {% if is_granted('ROLE_USER') %}
             <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
           {% endif %}
@@ -28,10 +34,15 @@
             <a class="{{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' }}" href="{{ path('app_admin_dashboard') }}">Admin</a>
           {% endif %}
         </nav>
+        
         <div class="auth">
           {% if app.user %}
-            <span class="user-email">{{ app.user.email }}</span>
-            <a class="btn yellow" href="{{ path('app_logout') }}">Logout</a>
+            <div class="notification-bell">🔔</div>
+            <div class="user-menu">
+              <span class="user-avatar">{{ app.user.email | upper | first }}</span>
+              <span class="user-label">{{ app.user.email | split('@') | first }}</span>
+            </div>
+            <a class="btn yellow" href="{{ path('app_logout') }}" style="margin-left: 8px;">Logout</a>
           {% else %}
             <a class="btn ghost" href="{{ path('app_login') }}">Login</a>
             <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">seller</a>
@@ -40,7 +51,33 @@
       </div>
     </header>
 
-    <main class="container content">
+    {% if app.request.attributes.get('_route') != 'app_default' %}
+      <div class="sidebar-marketplace">
+        <div class="sidebar-content">
+          <h3>MarketPlace</h3>
+          <input type="text" class="search-input" placeholder="Search...">
+          
+          <div class="filter-section">
+            <button class="filter-btn active">Browse All</button>
+            <button class="filter-btn">Featured</button>
+            <button class="filter-btn">For Sale</button>
+            <button class="filter-btn">For Rent</button>
+          </div>
+          
+          <div class="location-section">
+            <h4>Location</h4>
+            <input type="text" class="search-input" placeholder="Tunis, Tunisia" value="Tunis, Tunisia">
+          </div>
+          
+          <div class="favorites-section">
+            <h4>Favorites</h4>
+            <p class="no-favorites">No favorites yet</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <main class="main-content">
       {% for label, messages in app.flashes %}
         {% for message in messages %}
           <div class="alert {{ label }}" role="status" data-flash>{{ message }}</div>
@@ -50,13 +87,46 @@
     </main>
 
     <footer class="footer">
-      <div class="container footer-inner">
-        <div>© {{ "now"|date("Y") }} MyAutoSpace</div>
-        <div class="footer-links">
-          <a href="{{ path('app_default') }}">Home</a>
-          <a href="#" aria-disabled="true">About</a>
-          <a href="#" aria-disabled="true">Contact</a>
+      <div class="container footer-content">
+        <div class="footer-section">
+          <h4 style="color: var(--yellow); margin: 0 0 12px;">JOIN US</h4>
+          <div class="footer-links">
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+          </div>
         </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <div class="footer-links">
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Pricing</h4>
+          <div class="footer-links">
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Company</h4>
+          <div class="footer-links">
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+            <a href="#">Resource</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© {{ "now"|date("Y") }} MyAutoSpace. All rights reserved.</p>
       </div>
     </footer>
   </body>

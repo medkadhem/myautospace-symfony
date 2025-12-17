@@ -1,10 +1,49 @@
 {% extends 'base.html.twig' %}
-{% block title %}Seller Dashboard{% endblock %}
+
+{% block title %}Seller Dashboard - MyAutoSpace{% endblock %}
+
 {% block body %}
-  <h2>Seller Dashboard</h2>
-  <div class="cards">
-    <div class="card"><strong>My Listings</strong><p><a class="btn primary" href="{{ path('app_announcement_new') }}">Create announcement</a></p></div>
-    <div class="card"><strong>Offers & Notifications</strong><p>Track offers from clients.</p></div>
-    <div class="card"><strong>Inbox</strong><p>Conversations with buyers.</p></div>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Seller Dashboard</h1>
+    <a href="{{ path('app_announcement_new') }}" class="btn yellow">+ Post New Listing</a>
   </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card">
+      <div class="card-icon">📋</div>
+      <h3>My Listings</h3>
+      <p>Manage your vehicle announcements</p>
+      <a href="{{ path('app_announcement_index') }}" class="btn ghost" style="width: 100%; text-align: center; margin-top: 12px;">View Listings</a>
+    </div>
+
+    <div class="dashboard-card">
+      <div class="card-icon">💬</div>
+      <h3>Offers & Notifications</h3>
+      <p>Track offers from potential buyers</p>
+      <a href="#" class="btn ghost" style="width: 100%; text-align: center; margin-top: 12px;">View Offers (0)</a>
+    </div>
+
+    <div class="dashboard-card">
+      <div class="card-icon">📧</div>
+      <h3>Inbox</h3>
+      <p>Messages from buyers and interested parties</p>
+      <a href="#" class="btn ghost" style="width: 100%; text-align: center; margin-top: 12px;">View Messages (0)</a>
+    </div>
+
+    <div class="dashboard-card">
+      <div class="card-icon">⭐</div>
+      <h3>Ratings & Reviews</h3>
+      <p>Your seller ratings and customer reviews</p>
+      <a href="#" class="btn ghost" style="width: 100%; text-align: center; margin-top: 12px;">View Reviews</a>
+    </div>
+  </div>
+
+  <div class="dashboard-section">
+    <h2>Recent Listings</h2>
+    <div class="vehicles-grid">
+      <!-- List recent announcements here -->
+    </div>
+  </div>
+</div>
 {% endblock %}

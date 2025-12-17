@@ -1,43 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Service index{% endblock %}
+{% block title %}Services - MyAutoSpace{% endblock %}
 
 {% block body %}
-    <h1>Service index</h1>
+<div class="marketplace-container">
+  <div class="marketplace-header">
+    <h1>Available Services</h1>
+    <p>{{ services | length }} services available</p>
+  </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Duration</th>
-                <th>IsActive</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for service in services %}
-            <tr>
-                <td>{{ service.id }}</td>
-                <td>{{ service.title }}</td>
-                <td>{{ service.description }}</td>
-                <td>{{ service.price }}</td>
-                <td>{{ service.duration }}</td>
-                <td>{{ service.isActive ? 'Yes' : 'No' }}</td>
-                <td>
-                    <a href="{{ path('app_service_show', {'id': service.id}) }}">show</a>
-                    <a href="{{ path('app_service_edit', {'id': service.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+  <div class="vehicles-grid">
+    {% for service in services %}
+      <div class="vehicle-card">
+        <div class="card-header">
+          <div class="card-image" style="background: linear-gradient(135deg, var(--yellow) 0%, var(--primary-dark) 100%); display: flex; align-items: center; justify-content: center; font-size: 40px;">
+            🔧
+          </div>
+          <button class="favorite-btn" aria-label="Add to favorites">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+        </div>
 
-    <a href="{{ path('app_service_new') }}">Create new</a>
+        <div class="card-content">
+          <div class="card-price">{{ service.price }} TND</div>
+          <h3 class="card-title">{{ service.title }}</h3>
+          <p class="card-location">{{ service.category.name }}</p>
+          <div class="card-footer">
+            <div class="card-rating">
+              <span>⏱️ {{ service.duration }}min</span>
+            </div>
+            <button class="action-btn" onclick="window.location.href='{{ path('app_service_show', {id: service.id}) }}'">•</button>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px;">
+        <p style="color: var(--muted);">No services available</p>
+        {% if is_granted('ROLE_USER') %}
+          <a href="{{ path('app_service_new') }}" class="btn yellow" style="margin-top: 16px;">Create a Service</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

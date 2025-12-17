@@ -23,25 +23,28 @@ class Announcement
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 3)]
-    private ?string $price = null;
+    private ?float $price = null;
 
     #[ORM\Column(length: 50)]
     private ?string $status = null;
 
     #[ORM\Column]
-    private ?\DateTime $publishedAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column]
     private ?bool $isSponsored = null;
 
     #[ORM\Column]
-    private ?\DateTime $startDate = null;
+    private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column]
-    private ?\DateTime $endDate = null;
+    private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 3)]
-    private ?string $budget = null;
+    private ?float $budget = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $brand = null;
@@ -87,6 +90,7 @@ class Announcement
     {
         $this->categories = new ArrayCollection();
         $this->photos = [];
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -118,12 +122,12 @@ class Announcement
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(float $price): static
     {
         $this->price = $price;
 
@@ -142,12 +146,23 @@ class Announcement
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    public function setPublishedAt(\DateTime $publishedAt): static
+    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
     {
         $this->publishedAt = $publishedAt;
 
@@ -166,36 +181,36 @@ class Announcement
         return $this;
     }
 
-    public function getStartDate(): ?\DateTime
+    public function getStartDate(): ?\DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTime $startDate): static
+    public function setStartDate(\DateTimeImmutable $startDate): static
     {
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTime
+    public function getEndDate(): ?\DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(\DateTime $endDate): static
+    public function setEndDate(\DateTimeImmutable $endDate): static
     {
         $this->endDate = $endDate;
 
         return $this;
     }
 
-    public function getBudget(): ?string
+    public function getBudget(): ?float
     {
         return $this->budget;
     }
 
-    public function setBudget(string $budget): static
+    public function setBudget(float $budget): static
     {
         $this->budget = $budget;
 

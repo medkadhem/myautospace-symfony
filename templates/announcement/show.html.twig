@@ -1,58 +1,132 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Announcement{% endblock %}
+{% block title %}{{ announcement.brand }} {{ announcement.model }} - MyAutoSpace{% endblock %}
 
 {% block body %}
-    <h1>Announcement</h1>
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1>{{ announcement.brand }} {{ announcement.model }}</h1>
+      <a href="{{ path('app_announcement_index') }}" class="modal-close">✕</a>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ announcement.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ announcement.title }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ announcement.description }}</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>{{ announcement.price }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ announcement.status }}</td>
-            </tr>
-            <tr>
-                <th>PublishedAt</th>
-                <td>{{ announcement.publishedAt ? announcement.publishedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>IsSponsored</th>
-                <td>{{ announcement.isSponsored ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>StartDate</th>
-                <td>{{ announcement.startDate ? announcement.startDate|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>EndDate</th>
-                <td>{{ announcement.endDate ? announcement.endDate|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Budget</th>
-                <td>{{ announcement.budget }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="modal-body">
+      <div class="modal-left">
+        <div class="main-photo">
+          {% if announcement.mainPhoto %}
+            <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/600x400?text=Vehicle'">
+          {% else %}
+            <img src="https://via.placeholder.com/600x400?text=Vehicle" alt="Vehicle">
+          {% endif %}
+        </div>
 
-    <a href="{{ path('app_announcement_index') }}">back to list</a>
+        <div class="price-section">
+          <h2 class="price-display">{{ announcement.price }} TND</h2>
+          <p class="status-label">{{ announcement.status }}</p>
+        </div>
 
-    <a href="{{ path('app_announcement_edit', {'id': announcement.id}) }}">edit</a>
+        <div class="vehicle-details">
+          <h3>Vehicle Details</h3>
+          <div class="detail-grid">
+            <div class="detail-row">
+              <span class="detail-label">Brand:</span>
+              <span class="detail-value">{{ announcement.brand }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Model:</span>
+              <span class="detail-value">{{ announcement.model }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Category:</span>
+              <span class="detail-value">{{ announcement.status }}</span>
+            </div>
+          </div>
+        </div>
 
-    {{ include('announcement/_delete_form.html.twig') }}
+        <div class="vehicle-specs">
+          <div class="spec">
+            <span class="spec-icon">📅</span>
+            <div>
+              <div class="spec-label">Year</div>
+              <div class="spec-value">{{ announcement.year }}</div>
+            </div>
+          </div>
+          <div class="spec">
+            <span class="spec-icon">🛣️</span>
+            <div>
+              <div class="spec-label">Mileage</div>
+              <div class="spec-value">{{ announcement.mileage }} km</div>
+            </div>
+          </div>
+          <div class="spec">
+            <span class="spec-icon">⛽</span>
+            <div>
+              <div class="spec-label">Fuel</div>
+              <div class="spec-value">{{ announcement.fuelType }}</div>
+            </div>
+          </div>
+          <div class="spec">
+            <span class="spec-icon">⭐</span>
+            <div>
+              <div class="spec-label">Rating</div>
+              <div class="spec-value">{{ announcement.rating }}/5</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="location-section">
+          <h4>📍 Location</h4>
+          <p>{{ announcement.location }}</p>
+        </div>
+
+        {% if announcement.photos %}
+          <div class="photo-gallery-section">
+            <div class="photo-gallery">
+              {% for photo in announcement.photos %}
+                <img src="{{ photo }}" alt="Vehicle photo" onerror="this.src='https://via.placeholder.com/150x150?text=Photo'">
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="modal-right">
+        <div class="action-panel">
+          <button class="btn yellow btn-block" style="margin-bottom: 12px;">Buy Now</button>
+          <button class="btn black btn-block">Contact Seller</button>
+        </div>
+
+        <div class="vehicle-details">
+          <h3>For Sale</h3>
+          <div class="detail-grid">
+            <div class="detail-row">
+              <span class="detail-label">Brand:</span>
+              <span class="detail-value">{{ announcement.brand }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Model:</span>
+              <span class="detail-value">{{ announcement.model }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Category:</span>
+              <span class="detail-value">{{ announcement.status }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="location-section">
+          <h4>📍 Location</h4>
+          <p>{{ announcement.location }}</p>
+        </div>
+
+        {% if is_granted('ROLE_USER') and app.user.id == announcement.vendor.id %}
+          <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px;">
+            <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn" style="width: 100%; display: block; text-align: center; margin-bottom: 8px;">Edit</a>
+            <a href="{{ path('app_announcement_index') }}" class="btn ghost" style="width: 100%; display: block; text-align: center;">Back</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

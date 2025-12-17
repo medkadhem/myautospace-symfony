@@ -14,14 +14,14 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $reservationDate = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?\DateTimeImmutable $reservationDate = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTime $startTime = null;
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $startTime = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTime $endTime = null;
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $endTime = null;
 
     #[ORM\Column(length: 50)]
     private ?string $status = null;
@@ -39,36 +39,36 @@ class Reservation
         return $this->id;
     }
 
-    public function getReservationDate(): ?\DateTime
+    public function getReservationDate(): ?\DateTimeImmutable
     {
         return $this->reservationDate;
     }
 
-    public function setReservationDate(\DateTime $reservationDate): static
+    public function setReservationDate(\DateTimeImmutable $reservationDate): static
     {
         $this->reservationDate = $reservationDate;
 
         return $this;
     }
 
-    public function getStartTime(): ?\DateTime
+    public function getStartTime(): ?\DateTimeImmutable
     {
         return $this->startTime;
     }
 
-    public function setStartTime(\DateTime $startTime): static
+    public function setStartTime(\DateTimeImmutable $startTime): static
     {
         $this->startTime = $startTime;
 
         return $this;
     }
 
-    public function getEndTime(): ?\DateTime
+    public function getEndTime(): ?\DateTimeImmutable
     {
         return $this->endTime;
     }
 
-    public function setEndTime(\DateTime $endTime): static
+    public function setEndTime(\DateTimeImmutable $endTime): static
     {
         $this->endTime = $endTime;
 
