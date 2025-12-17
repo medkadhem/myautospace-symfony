@@ -15,16 +15,18 @@ class UserAdminType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['is_edit'] ?? true;
+        
         $builder
             ->add('email', EmailType::class, [
                 'label' => 'Email',
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => 'Password',
+                'label' => $isEdit ? 'New Password (leave empty to keep current)' : 'Password',
                 'mapped' => false,
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'required' => !$isEdit,
+                'attr' => ['class' => 'form-control', 'placeholder' => $isEdit ? 'Leave empty to keep current password' : 'Enter password'],
             ])
             ->add('phone', IntegerType::class, [
                 'label' => 'Phone',
@@ -44,7 +46,7 @@ class UserAdminType extends AbstractType
                 'choices' => [
                     'User' => 'ROLE_USER',
                     'Admin' => 'ROLE_ADMIN',
-                    'Seller' => 'ROLE_SELLER',
+                    'Seller' => 'ROLE_PROVIDER',
                 ],
                 'multiple' => true,
                 'attr' => ['class' => 'form-control'],
@@ -56,6 +58,7 @@ class UserAdminType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'is_edit' => true,
         ]);
     }
 }

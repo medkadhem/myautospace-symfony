@@ -108,9 +108,9 @@
             <td>{{ reservation.createdAt|date('M d, H:i') }}</td>
             <td>
               <div class="action-btns">
-                <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn-icon" title="View">👁️</a>
-                <a href="{{ path('app_reservation_edit', {id: reservation.id}) }}" class="btn-icon" title="Edit">✏️</a>
-                <form method="post" action="{{ path('app_reservation_delete', {id: reservation.id}) }}" onsubmit="return confirm('Delete this reservation?');" style="display: inline;">
+                <a href="{{ path('app_admin_reservation_show', {id: reservation.id}) }}" class="btn-icon" title="View">👁️</a>
+                <a href="{{ path('app_admin_reservation_edit', {id: reservation.id}) }}" class="btn-icon" title="Edit">✏️</a>
+                <form method="post" action="{{ path('app_admin_reservation_delete', {id: reservation.id}) }}" onsubmit="return confirm('Delete this reservation?');" style="display: inline;">
                   <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
                   <button type="submit" class="btn-icon delete" title="Delete">🗑️</button>
                 </form>

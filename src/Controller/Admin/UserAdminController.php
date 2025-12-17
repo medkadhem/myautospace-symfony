@@ -31,7 +31,7 @@ class UserAdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $user = new User();
-        $form = $this->createForm(UserAdminType::class, $user);
+        $form = $this->createForm(UserAdminType::class, $user, ['is_edit' => false]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -39,6 +39,12 @@ class UserAdminController extends AbstractController
             if ($plainPassword) {
                 $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
                 $user->setPassword($hashedPassword);
+            } else {
+                $this->addFlash('error', 'Password is required for new users');
+                return $this->render('admin/user/new.html.twig', [
+                    'user' => $user,
+                    'form' => $form,
+                ]);
             }
 
             $entityManager->persist($user);
@@ -69,7 +75,7 @@ class UserAdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $form = $this->createForm(UserAdminType::class, $user);
+        $form = $this->createForm(UserAdminType::class, $user, ['is_edit' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
