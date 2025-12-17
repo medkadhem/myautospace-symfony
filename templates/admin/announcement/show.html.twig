@@ -28,8 +28,16 @@
                 <span>{{ announcement.description }}</span>
             </div>
             <div class="detail-item">
-                <label>Type:</label>
-                <span>{{ announcement.type ? announcement.type.name : 'N/A' }}</span>
+                <label>Tags (Categories):</label>
+                <span>
+                    {% if announcement.categories|length > 0 %}
+                        {% for category in announcement.categories %}
+                            <span class="badge badge-info">{{ category.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
             </div>
             <div class="detail-item">
                 <label>Status:</label>

@@ -14,7 +14,7 @@
             <tr>
                 <th>ID</th>
                 <th>Title</th>
-                <th>Type</th>
+                <th>Tags</th>
                 <th>Brand/Model</th>
                 <th>Price</th>
                 <th>Status</th>
@@ -29,7 +29,15 @@
             <tr>
                 <td>{{ announcement.id }}</td>
                 <td>{{ announcement.title }}</td>
-                <td>{{ announcement.type ? announcement.type.name : 'N/A' }}</td>
+                <td>
+                    {% if announcement.categories|length > 0 %}
+                        {% for category in announcement.categories %}
+                            <span class="badge badge-info">{{ category.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
                 <td>{{ announcement.brand ? announcement.brand ~ ' ' ~ announcement.model : 'N/A' }}</td>
                 <td>{{ announcement.price }} TND</td>
                 <td><span class="badge badge-{{ announcement.status == 'active' ? 'success' : 'secondary' }}">{{ announcement.status }}</span></td>

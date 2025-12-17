@@ -76,10 +76,6 @@ class Announcement
     #[ORM\ManyToOne(inversedBy: 'announcements')]
     private ?User $vendor = null;
 
-    #[ORM\ManyToOne(inversedBy: 'announcements')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?AnnouncementType $type = null;
-
     /**
      * @var Collection<int, Category>
      */
@@ -243,17 +239,7 @@ class Announcement
         return $this;
     }
 
-    public function getType(): ?AnnouncementType
-    {
-        return $this->type;
-    }
 
-    public function setType(?AnnouncementType $type): static
-    {
-        $this->type = $type;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Category>

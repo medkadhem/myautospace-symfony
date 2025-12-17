@@ -95,11 +95,8 @@
     </h3>
     
     <div class="form-grid">
-      <div class="form-col-2">
-        {{ form_row(form.type) }}
-      </div>
-      <div class="form-col-2">
-        {{ form_row(form.categories) }}
+      <div class="form-col-full">
+        {{ form_row(form.categories, {'label': 'Tags (Categories)'}) }}
       </div>
     </div>
   </div>

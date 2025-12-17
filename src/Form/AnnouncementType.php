@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Announcement;
-use App\Entity\AnnouncementType as AnnouncementTypeEntity;
 use App\Entity\Category;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -87,17 +86,10 @@ class AnnouncementType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'City, Country'],
             ])
-            ->add('type', EntityType::class, [
-                'class' => AnnouncementTypeEntity::class,
-                'choice_label' => 'name',
-                'label' => 'Listing Type',
-                'placeholder' => 'Select a type',
-                'attr' => ['class' => 'form-control'],
-            ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
-                'label' => 'Categories',
+                'label' => 'Tags (Categories)',
                 'multiple' => true,
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
@@ -116,6 +108,13 @@ class AnnouncementType extends AbstractType
                 'currency' => 'TND',
                 'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => '0.00'],
+            ])
+            ->add('vendor', EntityType::class, [
+                'class' => User::class,
+                'choice_label' => 'email',
+                'label' => 'Vendor',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
             ])
             ->add('mainPhotoFile', FileType::class, [
                 'label' => 'Main Photo',

@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Announcement;
-use App\Entity\AnnouncementType;
 use App\Entity\Category;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -82,16 +81,11 @@ class AnnouncementForm extends AbstractType
                 'attr' => ['placeholder' => 'Tunis, Tunisia'],
                 'required' => false,
             ])
-            ->add('type', EntityType::class, [
-                'class' => AnnouncementType::class,
-                'choice_label' => 'name',
-                'label' => 'Announcement Type',
-            ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
                 'multiple' => true,
-                'label' => 'Category',
+                'label' => 'Tags (Categories)',
                 'required' => false,
             ])
             ->add('mainPhotoFile', FileType::class, [

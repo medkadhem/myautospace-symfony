@@ -14,17 +14,13 @@
             <h3>Basic Information</h3>
             {{ form_row(form.title) }}
             {{ form_row(form.description) }}
-            {{ form_row(form.type) }}
             {{ form_row(form.status) }}
         </div>
 
         <div class="form-section">
-            <h3>Pricing & Dates</h3>
+            <h3>Pricing</h3>
             {{ form_row(form.price) }}
             {{ form_row(form.budget) }}
-            {{ form_row(form.startDate) }}
-            {{ form_row(form.endDate) }}
-            {{ form_row(form.publishedAt) }}
         </div>
 
         <div class="form-section">
@@ -65,9 +61,9 @@
         </div>
 
         <div class="form-section">
-            <h3>Additional Options</h3>
+            <h3>Tags & Options</h3>
+            {{ form_row(form.categories, {'label': 'Tags (Categories)'}) }}
             {{ form_row(form.vendor) }}
-            {{ form_row(form.categories) }}
             {{ form_row(form.isSponsored) }}
         </div>
 
