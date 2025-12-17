@@ -35,4 +35,16 @@ class AdminController extends AbstractController
             'stats' => $stats,
         ]);
     }
+
+    #[Route('/reservations', name: 'app_admin_reservations')]
+    public function reservations(ReservationRepository $reservationRepo): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $reservations = $reservationRepo->findBy([], ['createdAt' => 'DESC']);
+
+        return $this->render('reservation/admin_index.html.twig', [
+            'reservations' => $reservations,
+        ]);
+    }
 }

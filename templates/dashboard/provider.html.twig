@@ -84,9 +84,171 @@
     </div>
   </div>
 
+  <!-- Pending Reservations - Action Required -->
+  {% if pendingReservations > 0 %}
+  <div class="dashboard-section" style="background: rgba(243, 156, 18, 0.1); border: 2px solid rgba(243, 156, 18, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 40px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+      <h2 style="margin: 0; color: #f39c12;">⏳ Pending Booking Requests ({{ pendingReservations }})</h2>
+      <span class="badge warning" style="font-size: 14px; padding: 8px 16px;">Action Required</span>
+    </div>
+    
+    <div class="reservations-grid">
+      {% for reservation in recentReservations %}
+        {% if reservation.status == 'pending' %}
+        <div class="reservation-card pending-card">
+          <div class="reservation-header">
+            <div class="client-info">
+              <div class="client-avatar">{{ reservation.client.email|upper|first }}</div>
+              <div>
+                <h4>{{ reservation.client.fullName ? reservation.client.fullName : reservation.client.email }}</h4>
+                <p class="reservation-type">
+                  {% if reservation.service %}
+                    🔧 {{ reservation.service.title }}
+                  {% else %}
+                    🚗 {{ reservation.announcement.title }}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+            <span class="badge warning">Pending</span>
+          </div>
+
+          <div class="reservation-details">
+            <div class="detail-row">
+              <span class="detail-icon">📅</span>
+              <div>
+                <div class="detail-label">Booking Date</div>
+                <div class="detail-value">{{ reservation.reservationDate|date('M d, Y') }}</div>
+              </div>
+            </div>
+            
+            {% if reservation.startTime %}
+            <div class="detail-row">
+              <span class="detail-icon">⏰</span>
+              <div>
+                <div class="detail-label">Time</div>
+                <div class="detail-value">{{ reservation.startTime|date('H:i') }}{% if reservation.endTime %} - {{ reservation.endTime|date('H:i') }}{% endif %}</div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="detail-row">
+              <span class="detail-icon">💰</span>
+              <div>
+                <div class="detail-label">Price</div>
+                <div class="detail-value">{{ reservation.price|number_format(0, '.', ',') }} TND</div>
+              </div>
+            </div>
+
+            {% if reservation.comment %}
+            <div class="detail-row full-width">
+              <span class="detail-icon">💬</span>
+              <div>
+                <div class="detail-label">Client Notes</div>
+                <div class="detail-value">{{ reservation.comment }}</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="reservation-actions">
+            <form method="post" action="{{ path('app_reservation_confirm', {id: reservation.id}) }}" style="flex: 1;">
+              <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.id) }}">
+              <button type="submit" class="btn yellow btn-block">✓ Confirm</button>
+            </form>
+            <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" onsubmit="return confirm('Are you sure you want to decline this booking?');" style="flex: 1;">
+              <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+              <button type="submit" class="btn danger btn-block">✗ Decline</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Upcoming Confirmed Bookings -->
+  {% set confirmedBookings = recentReservations|filter(r => r.status == 'confirmed') %}
+  {% if confirmedBookings|length > 0 %}
+  <div class="dashboard-section">
+    <h2>✅ Upcoming Confirmed Bookings ({{ confirmedBookings|length }})</h2>
+    <div class="reservations-grid">
+      {% for reservation in confirmedBookings %}
+        <div class="reservation-card confirmed-card">
+          <div class="reservation-header">
+            <div class="client-info">
+              <div class="client-avatar success">{{ reservation.client.email|upper|first }}</div>
+              <div>
+                <h4>{{ reservation.client.fullName ? reservation.client.fullName : reservation.client.email }}</h4>
+                <p class="reservation-type">
+                  {% if reservation.service %}
+                    🔧 {{ reservation.service.title }}
+                  {% else %}
+                    🚗 {{ reservation.announcement.title }}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+            <span class="badge success">Confirmed</span>
+          </div>
+
+          <div class="reservation-details">
+            <div class="detail-row">
+              <span class="detail-icon">📅</span>
+              <div>
+                <div class="detail-label">Booking Date</div>
+                <div class="detail-value">{{ reservation.reservationDate|date('M d, Y') }}</div>
+              </div>
+            </div>
+            
+            {% if reservation.startTime %}
+            <div class="detail-row">
+              <span class="detail-icon">⏰</span>
+              <div>
+                <div class="detail-label">Time</div>
+                <div class="detail-value">{{ reservation.startTime|date('H:i') }}{% if reservation.endTime %} - {{ reservation.endTime|date('H:i') }}{% endif %}</div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="detail-row">
+              <span class="detail-icon">💰</span>
+              <div>
+                <div class="detail-label">Price</div>
+                <div class="detail-value">{{ reservation.price|number_format(0, '.', ',') }} TND</div>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-icon">📞</span>
+              <div>
+                <div class="detail-label">Contact</div>
+                <div class="detail-value">{{ reservation.client.email }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reservation-actions">
+            <form method="post" action="{{ path('app_reservation_complete', {id: reservation.id}) }}" style="flex: 1;">
+              <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ reservation.id) }}">
+              <button type="submit" class="btn success btn-block">✓✓ Mark as Completed</button>
+            </form>
+            <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');" style="flex: 1;">
+              <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+              <button type="submit" class="btn secondary btn-block">Cancel</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- All Bookings Table -->
   {% if recentReservations|length > 0 %}
   <div class="dashboard-section">
-    <h2>Recent Bookings</h2>
+    <h2>All Recent Bookings</h2>
     <div class="dashboard-table-wrapper">
       <table class="table">
         <thead>
@@ -94,6 +256,7 @@
             <th>Client</th>
             <th>Car/Service</th>
             <th>Date</th>
+            <th>Time</th>
             <th>Status</th>
             <th>Price</th>
             <th>Actions</th>
@@ -101,40 +264,72 @@
         </thead>
         <tbody>
           {% for reservation in recentReservations %}
-          <tr>
+          <tr class="status-{{ reservation.status }}">
             <td>
               <strong>{{ reservation.client.fullName ? reservation.client.fullName : reservation.client.email }}</strong>
+              <br><small style="color: var(--muted);">{{ reservation.client.email }}</small>
             </td>
             <td>
               {% if reservation.announcement %}
-                {{ reservation.announcement.title }}
+                🚗 {{ reservation.announcement.title }}
               {% elseif reservation.service %}
-                {{ reservation.service.title }}
+                🔧 {{ reservation.service.title }}
               {% else %}
                 Unknown
               {% endif %}
             </td>
-            <td>{{ reservation.createdAt|date('d M Y') }}</td>
+            <td>{{ reservation.reservationDate|date('M d, Y') }}</td>
+            <td>
+              {% if reservation.startTime %}
+                {{ reservation.startTime|date('H:i') }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
             <td>
               {% if reservation.status == 'pending' %}
-                <span class="badge warning">Pending</span>
+                <span class="badge warning">⏳ Pending</span>
               {% elseif reservation.status == 'confirmed' %}
-                <span class="badge success">Confirmed</span>
+                <span class="badge success">✓ Confirmed</span>
               {% elseif reservation.status == 'completed' %}
-                <span class="badge info">Completed</span>
+                <span class="badge info">✓✓ Completed</span>
+              {% elseif reservation.status == 'cancelled' %}
+                <span class="badge danger">✗ Cancelled</span>
               {% else %}
                 <span class="badge">{{ reservation.status|capitalize }}</span>
               {% endif %}
             </td>
-            <td>{{ reservation.price ? (reservation.price|number_format(0, '.', ' ')) : 'N/A' }} TND</td>
+            <td><strong>{{ reservation.price ? (reservation.price|number_format(0, '.', ' ')) : 'N/A' }} TND</strong></td>
             <td>
-              <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-sm secondary">View</a>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                {% if reservation.status == 'pending' %}
+                  <form method="post" action="{{ path('app_reservation_confirm', {id: reservation.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.id) }}">
+                    <button type="submit" class="btn btn-sm yellow" title="Confirm">✓</button>
+                  </form>
+                  <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" onsubmit="return confirm('Decline this booking?');" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                    <button type="submit" class="btn btn-sm danger" title="Decline">✗</button>
+                  </form>
+                {% elseif reservation.status == 'confirmed' %}
+                  <form method="post" action="{{ path('app_reservation_complete', {id: reservation.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ reservation.id) }}">
+                    <button type="submit" class="btn btn-sm success" title="Complete">✓✓</button>
+                  </form>
+                {% endif %}
+                <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-sm secondary" title="View Details">👁️</a>
+              </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+  </div>
+  {% else %}
+  <div class="dashboard-section" style="text-align: center; padding: 60px 20px;">
+    <p style="color: var(--muted); font-size: 16px; margin-bottom: 20px;">📭 No bookings yet</p>
+    <p style="color: var(--muted); font-size: 14px;">Your bookings will appear here when clients book your services or listings.</p>
   </div>
   {% endif %}
 
@@ -224,5 +419,227 @@
   </div>
   {% endif %}
 </div>
+
+<style>
+  /* Reservation Management Styles */
+  .reservations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .reservation-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .reservation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .pending-card {
+    border-color: rgba(243, 156, 18, 0.4);
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.05) 0%, var(--surface) 100%);
+  }
+
+  .confirmed-card {
+    border-color: rgba(40, 167, 69, 0.4);
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, var(--surface) 100%);
+  }
+
+  .reservation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .client-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .client-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--primary-dark));
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .client-avatar.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+  }
+
+  .client-info h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .reservation-type {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .reservation-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .detail-row.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .detail-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .detail-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .detail-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .reservation-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .reservation-actions form {
+    flex: 1;
+  }
+
+  .reservation-actions .btn {
+    width: 100%;
+    font-size: 13px;
+    padding: 10px 12px;
+    font-weight: 600;
+  }
+
+  /* Badge Styles */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .badge.warning {
+    background: rgba(243, 156, 18, 0.2);
+    color: #f39c12;
+  }
+
+  .badge.success {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .badge.info {
+    background: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+  }
+
+  .badge.danger {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  /* Table row coloring based on status */
+  .table tbody tr.status-pending {
+    background: rgba(243, 156, 18, 0.05);
+  }
+
+  .table tbody tr.status-confirmed {
+    background: rgba(40, 167, 69, 0.05);
+  }
+
+  .table tbody tr.status-completed {
+    background: rgba(23, 162, 184, 0.05);
+  }
+
+  .table tbody tr.status-cancelled {
+    background: rgba(220, 53, 69, 0.05);
+    opacity: 0.7;
+  }
+
+  /* Button variants */
+  .btn.success {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+  }
+
+  .btn.success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .reservations-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .reservation-details {
+      grid-template-columns: 1fr;
+    }
+
+    .reservation-actions {
+      flex-direction: column;
+    }
+
+    .dashboard-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .table {
+      min-width: 800px;
+    }
+  }
+</style>
 {% endblock %}
 

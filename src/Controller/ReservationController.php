@@ -19,8 +19,29 @@ final class ReservationController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function index(ReservationRepository $reservationRepository): Response
     {
+        $user = $this->getUser();
+        
+        // Admin sees all reservations
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $reservations = $reservationRepository->findAll();
+        }
+        // Provider sees their reservations (as provider)
+        elseif ($this->isGranted('ROLE_PROVIDER')) {
+            $reservations = $reservationRepository->findBy(
+                ['provider' => $user],
+                ['createdAt' => 'DESC']
+            );
+        }
+        // Client sees their reservations (as client)
+        else {
+            $reservations = $reservationRepository->findBy(
+                ['client' => $user],
+                ['createdAt' => 'DESC']
+            );
+        }
+
         return $this->render('reservation/index.html.twig', [
-            'reservations' => $reservationRepository->findAll(),
+            'reservations' => $reservations,
         ]);
     }
 
@@ -109,46 +130,67 @@ final class ReservationController extends AbstractController
 
     #[Route('/{id}/confirm', name: 'app_reservation_confirm', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function confirm(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    public function confirm(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
         if ($reservation->getProvider() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('confirm'.$reservation->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token');
+            return $this->redirectToRoute('app_dashboard_provider');
         }
 
         $reservation->setStatus('confirmed');
         $entityManager->flush();
 
-        $this->addFlash('success', 'Reservation confirmed!');
+        $this->addFlash('success', '✓ Booking confirmed successfully!');
         return $this->redirectToRoute('app_dashboard_provider');
     }
 
     #[Route('/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function cancel(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    public function cancel(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
         if ($reservation->getClient() !== $this->getUser() && $reservation->getProvider() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
+        if (!$this->isCsrfTokenValid('cancel'.$reservation->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
         $reservation->setStatus('cancelled');
         $entityManager->flush();
 
-        $this->addFlash('success', 'Reservation cancelled.');
+        $this->addFlash('success', '✗ Booking cancelled.');
+        
+        // Redirect based on user role
+        if ($this->isGranted('ROLE_PROVIDER') && $reservation->getProvider() === $this->getUser()) {
+            return $this->redirectToRoute('app_dashboard_provider');
+        }
+        
         return $this->redirectToRoute('app_dashboard');
     }
 
     #[Route('/{id}/complete', name: 'app_reservation_complete', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function complete(Reservation $reservation, EntityManagerInterface $entityManager): Response
+    public function complete(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
         if ($reservation->getProvider() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
+        if (!$this->isCsrfTokenValid('complete'.$reservation->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid security token');
+            return $this->redirectToRoute('app_dashboard_provider');
+        }
+
         $reservation->setStatus('completed');
         $entityManager->flush();
 
-        $this->addFlash('success', 'Reservation marked as completed!');
+        $this->addFlash('success', '✓✓ Booking marked as completed!');
         return $this->redirectToRoute('app_dashboard_provider');
     }
 
@@ -156,21 +198,32 @@ final class ReservationController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function show(Reservation $reservation): Response
     {
+        $user = $this->getUser();
+        
+        // Check permissions: user must be client, provider, or admin
+        if (!$this->isGranted('ROLE_ADMIN') && 
+            $reservation->getClient() !== $user && 
+            $reservation->getProvider() !== $user) {
+            throw $this->createAccessDeniedException('You do not have permission to view this reservation.');
+        }
+
         return $this->render('reservation/show.html.twig', [
             'reservation' => $reservation,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_reservation_edit', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ADMIN')]
     public function edit(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
+        // Only admins can edit reservations directly
         $form = $this->createForm(ReservationForm::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', 'Reservation updated successfully!');
             return $this->redirectToRoute('app_reservation_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -181,12 +234,17 @@ final class ReservationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_reservation_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ADMIN')]
     public function delete(Request $request, Reservation $reservation, EntityManagerInterface $entityManager): Response
     {
+        // Only admins can delete reservations
         if ($this->isCsrfTokenValid('delete'.$reservation->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($reservation);
             $entityManager->flush();
+            
+            $this->addFlash('success', 'Reservation deleted successfully!');
+        } else {
+            $this->addFlash('error', 'Invalid security token');
         }
 
         return $this->redirectToRoute('app_reservation_index', [], Response::HTTP_SEE_OTHER);
