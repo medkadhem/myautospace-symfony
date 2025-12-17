@@ -35,6 +35,9 @@ final class DashboardController extends AbstractController
         if ($this->isGranted('ROLE_PROVIDER')) {
             return $this->redirectToRoute('app_dashboard_provider');
         }
+        if ($this->isGranted('ROLE_SELLER')) {
+            return $this->redirectToRoute('app_dashboard_seller');
+        }
         return $this->redirectToRoute('app_dashboard_client');
     }
 
@@ -49,8 +52,9 @@ final class DashboardController extends AbstractController
             $activeUsers = count(array_filter($allUsers, fn($u) => $u->isActive()));
             
             // Announcements statistics
-            $activeListings = count($this->announcementRepo->findBy(['status' => 'active']));
-            $allAnnouncements = count($this->announcementRepo->findAll());
+            $allAnnouncementsData = $this->announcementRepo->findAll();
+            $activeListings = count(array_filter($allAnnouncementsData, fn($a) => in_array($a->getStatus(), ['active', 'available'])));
+            $allAnnouncements = count($allAnnouncementsData);
             
             // Services statistics
             $activeServices = count($this->serviceRepo->findBy(['isActive' => true]));
@@ -148,7 +152,7 @@ final class DashboardController extends AbstractController
             
             // Announcements/Listings statistics
             $announcements = $this->announcementRepo->findBy(['vendor' => $user]);
-            $activeListings = count(array_filter($announcements, fn($a) => $a->getStatus() === 'active'));
+            $activeListings = count(array_filter($announcements, fn($a) => in_array($a->getStatus(), ['active', 'available'])));
             $totalValue = array_sum(array_map(fn($a) => $a->getPrice() ?? 0, $announcements));
             
             // Get all reservations and filter by provider's services/announcements
@@ -209,6 +213,44 @@ final class DashboardController extends AbstractController
             'recentReservations' => $recentReservations,
             'announcements' => $announcements,
             'services' => $services,
+        ]);
+    }
+
+    #[Route('/dashboard/seller', name: 'app_dashboard_seller')]
+    #[IsGranted('ROLE_SELLER')]
+    public function seller(): Response
+    {
+        $user = $this->getUser();
+        
+        try {
+            // Get seller's announcements
+            $announcements = $this->announcementRepo->findBy(['vendor' => $user], ['createdAt' => 'DESC']);
+            $activeListings = count(array_filter($announcements, fn($a) => in_array($a->getStatus(), ['active', 'available'])));
+            $totalValue = array_sum(array_map(fn($a) => $a->getPrice() ?? 0, $announcements));
+            
+            // Get recent listings (last 5)
+            $recentListings = array_slice($announcements, 0, 5);
+            
+            // Calculate average rating from announcement ratings
+            $ratingsArray = array_filter(array_map(fn($a) => $a->getRating(), $announcements), fn($r) => $r !== null && $r > 0);
+            $averageRating = count($ratingsArray) > 0 
+                ? round(array_sum($ratingsArray) / count($ratingsArray), 2)
+                : 0;
+            
+        } catch (\Exception $e) {
+            $announcements = [];
+            $activeListings = 0;
+            $totalValue = 0;
+            $recentListings = [];
+            $averageRating = 0;
+        }
+        
+        return $this->render('dashboard/seller.html.twig', [
+            'announcements' => $announcements,
+            'activeListings' => $activeListings,
+            'totalValue' => $totalValue,
+            'recentListings' => $recentListings,
+            'averageRating' => $averageRating,
         ]);
     }
 }

@@ -80,7 +80,7 @@
         <div class="card-header">
           <div class="card-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
             {% if announcement.mainPhoto %}
-              <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Car'">
+              <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Car'">
             {% else %}
               <img src="https://via.placeholder.com/400x300?text=Car" alt="Vehicle">
             {% endif %}

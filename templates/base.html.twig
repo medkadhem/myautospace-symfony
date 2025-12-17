@@ -51,32 +51,6 @@
       </div>
     </header>
 
-    {% if app.request.attributes.get('_route') == 'app_marketplace' %}
-      <div class="sidebar-marketplace">
-        <div class="sidebar-content">
-          <h3>MarketPlace</h3>
-          <input type="text" class="search-input" placeholder="Search...">
-          
-          <div class="filter-section">
-            <button class="filter-btn active">Browse All</button>
-            <button class="filter-btn">Featured</button>
-            <button class="filter-btn">For Sale</button>
-            <button class="filter-btn">For Rent</button>
-          </div>
-          
-          <div class="location-section">
-            <h4>Location</h4>
-            <input type="text" class="search-input" placeholder="Tunis, Tunisia" value="Tunis, Tunisia">
-          </div>
-          
-          <div class="favorites-section">
-            <h4>Favorites</h4>
-            <p class="no-favorites">No favorites yet</p>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-
     <main class="main-content">
       {% for label, messages in app.flashes %}
         {% for message in messages %}

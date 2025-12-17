@@ -14,7 +14,7 @@
       <div class="modal-left">
         <div class="main-photo">
           {% if announcement.mainPhoto %}
-            <img src="{{ announcement.mainPhoto }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/600x400?text=Vehicle'">
+            <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/600x400?text=Vehicle'">
           {% else %}
             <img src="https://via.placeholder.com/600x400?text=Vehicle" alt="Vehicle">
           {% endif %}
@@ -79,11 +79,12 @@
           <p>{{ announcement.location }}</p>
         </div>
 
-        {% if announcement.photos %}
+        {% if announcement.photos and announcement.photos|length > 0 %}
           <div class="photo-gallery-section">
+            <h3>Additional Photos</h3>
             <div class="photo-gallery">
               {% for photo in announcement.photos %}
-                <img src="{{ photo }}" alt="Vehicle photo" onerror="this.src='https://via.placeholder.com/150x150?text=Photo'">
+                <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Vehicle photo" onerror="this.src='https://via.placeholder.com/150x150?text=Photo'">
               {% endfor %}
             </div>
           </div>
