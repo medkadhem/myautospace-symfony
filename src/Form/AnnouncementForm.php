@@ -81,12 +81,13 @@ class AnnouncementForm extends AbstractType
                 'attr' => ['placeholder' => 'Tunis, Tunisia'],
                 'required' => false,
             ])
-            ->add('categories', EntityType::class, [
+            ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
-                'multiple' => true,
-                'label' => 'Tags (Categories)',
+                'label' => 'Category',
+                'mapped' => false,
                 'required' => false,
+                'placeholder' => 'Select a category',
             ])
             ->add('mainPhotoFile', FileType::class, [
                 'label' => 'Main Photo',

@@ -35,6 +35,13 @@ class AnnouncementAdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle category selection
+            $category = $form->get('category')->getData();
+            if ($category) {
+                $announcement->getCategories()->clear();
+                $announcement->addCategory($category);
+            }
+
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
             if ($mainPhotoFile) {
@@ -84,10 +91,25 @@ class AnnouncementAdminController extends AbstractController
         $oldMainPhoto = $announcement->getMainPhoto();
         $oldPhotos = $announcement->getPhotos();
 
+        // Set the current category for the form
+        $currentCategory = $announcement->getCategories()->first() ?: null;
+
         $form = $this->createForm(AnnouncementType::class, $announcement);
+        
+        // Set the category field value
+        if ($currentCategory) {
+            $form->get('category')->setData($currentCategory);
+        }
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle category selection
+            $category = $form->get('category')->getData();
+            $announcement->getCategories()->clear();
+            if ($category) {
+                $announcement->addCategory($category);
+            }
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
             if ($mainPhotoFile) {

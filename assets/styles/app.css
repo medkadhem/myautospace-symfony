@@ -302,6 +302,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 .admin-form label{display:block;margin-bottom:8px;font-size:14px;font-weight:600;color:var(--text)}
 .admin-form input,.admin-form select,.admin-form textarea{width:100%;padding:12px 16px;background:var(--surface-2);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text);font-size:14px;transition:all .2s}
 .admin-form input:focus,.admin-form select:focus,.admin-form textarea:focus{outline:none;border-color:var(--yellow);box-shadow:0 0 0 3px rgba(248,231,28,.1)}
+.admin-form select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f8e71c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:40px}
+.admin-form select option{background:var(--surface-2);color:var(--text);padding:8px}
 .admin-form textarea{min-height:120px;resize:vertical}
 .form-actions{display:flex;gap:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)}
 

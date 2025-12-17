@@ -86,12 +86,13 @@ class AnnouncementType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'City, Country'],
             ])
-            ->add('categories', EntityType::class, [
+            ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
-                'label' => 'Tags (Categories)',
-                'multiple' => true,
+                'label' => 'Category',
+                'mapped' => false,
                 'required' => false,
+                'placeholder' => 'Select a category',
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('isSponsored', ChoiceType::class, [
