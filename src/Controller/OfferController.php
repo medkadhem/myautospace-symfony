@@ -77,12 +77,24 @@ final class OfferController extends AbstractController
             throw $this->createAccessDeniedException('You cannot accept this offer.');
         }
 
-        if ($this->isCsrfTokenValid('accept'.$offer->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('', $request->getPayload()->getString('_token'))) {
             $offer->setStatus('accepted');
             $offer->setRespondedAt(new \DateTimeImmutable());
+            
+            // Update announcement status to sold/reserved
+            $announcement = $offer->getAnnouncement();
+            $announcement->setStatus('sold');
+            
+            // Auto-reject all other pending offers for this announcement
+            foreach ($announcement->getOffers() as $otherOffer) {
+                if ($otherOffer->getId() !== $offer->getId() && $otherOffer->getStatus() === 'pending') {
+                    $otherOffer->setStatus('rejected');
+                    $otherOffer->setRespondedAt(new \DateTimeImmutable());
+                }
+            }
+            
             $entityManager->flush();
-
-            $this->addFlash('success', 'Offer accepted!');
+            $this->addFlash('success', 'Offer accepted! Listing status changed to sold and other offers declined.');
         }
 
         return $this->redirectToRoute('app_offer_received');
@@ -96,7 +108,7 @@ final class OfferController extends AbstractController
             throw $this->createAccessDeniedException('You cannot reject this offer.');
         }
 
-        if ($this->isCsrfTokenValid('reject'.$offer->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('', $request->getPayload()->getString('_token'))) {
             $offer->setStatus('rejected');
             $offer->setRespondedAt(new \DateTimeImmutable());
             $entityManager->flush();

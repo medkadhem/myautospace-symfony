@@ -88,12 +88,18 @@
 
                             {% if offer.status == 'pending' %}
                                 <div class="action-buttons">
-                                    <button class="btn-accept" onclick="handleAction(event, 'accept', {{ offer.id }})">
-                                        <span>✓</span> Accept
-                                    </button>
-                                    <button class="btn-reject" onclick="handleAction(event, 'reject', {{ offer.id }})">
-                                        <span>✗</span> Decline
-                                    </button>
+                                    <form method="POST" action="{{ path('app_offer_accept', {'id': offer.id}) }}" style="display:inline;" onsubmit="return confirm('Accept this offer? The listing will be marked as sold and other offers will be declined.');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                                        <button type="submit" class="btn-accept">
+                                            <span>✓</span> Accept
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ path('app_offer_reject', {'id': offer.id}) }}" style="display:inline;" onsubmit="return confirm('Decline this offer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                                        <button type="submit" class="btn-reject">
+                                            <span>✗</span> Decline
+                                        </button>
+                                    </form>
                                 </div>
                             {% else %}
                                 <div class="responded-time">
@@ -110,11 +116,6 @@
                             </div>
                         {% endif %}
                     </div>
-
-                    <!-- Hidden form for AJAX -->
-                    <form id="offer-form-{{ offer.id }}" method="POST" style="display: none;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('') }}">
-                    </form>
                 {% endfor %}
             </div>
         {% endif %}
@@ -513,22 +514,6 @@
                     card.style.display = 'none';
                 }
             });
-        }
-
-        function handleAction(event, action, offerId) {
-            event.preventDefault();
-            
-            if (confirm(`Are you sure you want to ${action} this offer?`)) {
-                const form = document.getElementById(`offer-form-${offerId}`);
-                
-                // Build URL directly
-                const baseUrl = window.location.origin;
-                const url = baseUrl + '/offer/' + offerId + '/' + action;
-                
-                form.action = url;
-                form.method = 'POST';
-                form.submit();
-            }
         }
     </script>
 {% endblock %}
