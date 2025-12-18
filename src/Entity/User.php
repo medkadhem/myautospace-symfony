@@ -81,12 +81,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'client')]
     private Collection $reservations;
 
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'sender')]
+    private Collection $sentMessages;
+
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'receiver')]
+    private Collection $receivedMessages;
+
+    /**
+     * @var Collection<int, Offer>
+     */
+    #[ORM\OneToMany(targetEntity: Offer::class, mappedBy: 'buyer')]
+    private Collection $offers;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->announcements = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->sentMessages = new ArrayCollection();
+        $this->receivedMessages = new ArrayCollection();
+        $this->offers = new ArrayCollection();
         $this->roles = ['ROLE_USER'];
         $this->isActive = true;
         $now = new \DateTimeImmutable();
@@ -296,6 +317,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->address = $address;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getSentMessages(): Collection
+    {
+        return $this->sentMessages;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getReceivedMessages(): Collection
+    {
+        return $this->receivedMessages;
+    }
+
+    /**
+     * @return Collection<int, Offer>
+     */
+    public function getOffers(): Collection
+    {
+        return $this->offers;
     }
 
     /**

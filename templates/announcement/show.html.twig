@@ -152,10 +152,41 @@
           <p class="status-badge status-{{ announcement.status }}">{{ announcement.status|capitalize }}</p>
         </div>
 
-        {% if not (is_granted('ROLE_USER') and app.user.id == announcement.vendor.id) %}
+        {% if app.user and announcement.vendor.id != app.user.id %}
           <div class="action-panel">
-            <button class="btn yellow btn-block">💬 Contact Seller</button>
-            <button class="btn secondary btn-block">📧 Send Message</button>
+            <h3>Contact Seller</h3>
+            
+            {# Message Form #}
+            <form method="POST" action="{{ path('app_messages_send', {announcementId: announcement.id}) }}" class="contact-form">
+              <div class="form-group">
+                <label>💬 Send Message</label>
+                <textarea name="message" rows="3" placeholder="Ask about this vehicle..." class="form-input" required></textarea>
+              </div>
+              <button type="submit" class="btn yellow btn-block">Send Message</button>
+            </form>
+
+            {# Offer Form #}
+            <form method="POST" action="{{ path('app_offer_make', {announcementId: announcement.id}) }}" class="contact-form">
+              <div class="form-group">
+                <label>💰 Make an Offer</label>
+                <input type="number" name="amount" placeholder="Your offer (TND)" class="form-input" required min="1" step="1">
+              </div>
+              <div class="form-group">
+                <label>Message (optional)</label>
+                <textarea name="message" rows="2" placeholder="Add a note..." class="form-input"></textarea>
+              </div>
+              <button type="submit" class="btn secondary btn-block">Submit Offer</button>
+            </form>
+          </div>
+        {% elseif app.user and announcement.vendor.id == app.user.id %}
+          <div class="action-panel">
+            <p style="text-align: center; color: var(--muted);">This is your listing</p>
+            <a href="{{ path('app_announcement_edit', {id: announcement.id}) }}" class="btn yellow btn-block">✏️ Edit Listing</a>
+          </div>
+        {% else %}
+          <div class="action-panel">
+            <p style="text-align: center; color: var(--muted); margin-bottom: 16px;">Login to contact seller</p>
+            <a href="{{ path('app_login') }}" class="btn yellow btn-block">Login</a>
           </div>
         {% endif %}
 
@@ -447,9 +478,62 @@
   }
 
   .action-panel {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .action-panel h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .contact-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 16px;
+    background: rgba(255,255,255,.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.05);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all .2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--yellow);
+    background: rgba(255,255,255,.08);
+  }
+
+  .form-input::placeholder {
+    color: var(--muted);
   }
 
   .specs-card, .details-card {
