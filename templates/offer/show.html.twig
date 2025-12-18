@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offer Details{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>Offer Details</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{{ offer.announcement.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>From:</strong> {{ offer.client.fullName }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if offer.status == 'accepted' %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elseif offer.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Offered Price:</strong> €{{ offer.price|number_format(2, ',', '.') }}</p>
+                        <p><strong>Original Price:</strong> €{{ offer.announcement.price|number_format(2, ',', '.') }}</p>
+                        
+                        {% if offer.message %}
+                            <p><strong>Message:</strong></p>
+                            <p>{{ offer.message }}</p>
+                        {% endif %}
+
+                        <p><strong>Submitted:</strong> {{ offer.createdAt|date('d.m.Y H:i') }}</p>
+                        {% if offer.respondedAt %}
+                            <p><strong>Responded:</strong> {{ offer.respondedAt|date('d.m.Y H:i') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="javascript:history.back()" class="btn btn-secondary mt-3">Back</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

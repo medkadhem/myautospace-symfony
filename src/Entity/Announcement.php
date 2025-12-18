@@ -94,11 +94,18 @@ class Announcement
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'announcement')]
     private Collection $reviews;
 
+    /**
+     * @var Collection<int, Offer>
+     */
+    #[ORM\OneToMany(targetEntity: Offer::class, mappedBy: 'announcement')]
+    private Collection $offers;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->offers = new ArrayCollection();
         $this->photos = [];
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -460,5 +467,34 @@ class Announcement
     public function getReviewCount(): int
     {
         return $this->reviews->count();
+    }
+
+    /**
+     * @return Collection<int, Offer>
+     */
+    public function getOffers(): Collection
+    {
+        return $this->offers;
+    }
+
+    public function addOffer(Offer $offer): static
+    {
+        if (!$this->offers->contains($offer)) {
+            $this->offers->add($offer);
+            $offer->setAnnouncement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffer(Offer $offer): static
+    {
+        if ($this->offers->removeElement($offer)) {
+            if ($offer->getAnnouncement() === $this) {
+                $offer->setAnnouncement(null);
+            }
+        }
+
+        return $this;
     }
 }

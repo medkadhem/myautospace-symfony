@@ -1,0 +1,535 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Received Offers{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="offers-header mb-5">
+            <h1 class="offers-title">📥 Offers Received</h1>
+            <p class="offers-subtitle">Manage offers from interested buyers</p>
+        </div>
+
+        {% if offers is empty %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📬</div>
+                <h3>No Offers Yet</h3>
+                <p>You haven't received any offers on your listings. Share your listings and wait for offers to come in!</p>
+                <a href="{{ path('app_announcement_index') }}" class="btn btn-primary mt-3">My Listings</a>
+            </div>
+        {% else %}
+            <div class="received-filters mb-4">
+                <button class="filter-btn active" onclick="filterOffers('all')">All ({{ offers|length }})</button>
+                <button class="filter-btn" onclick="filterOffers('pending')">
+                    New <span class="badge">{{ offers|filter(o => o.status == 'pending')|length }}</span>
+                </button>
+                <button class="filter-btn" onclick="filterOffers('accepted')">
+                    Accepted <span class="badge badge-success">{{ offers|filter(o => o.status == 'accepted')|length }}</span>
+                </button>
+                <button class="filter-btn" onclick="filterOffers('rejected')">
+                    Declined <span class="badge badge-danger">{{ offers|filter(o => o.status == 'rejected')|length }}</span>
+                </button>
+            </div>
+
+            <div class="offers-list">
+                {% for offer in offers %}
+                    <div class="received-offer-card" data-status="{{ offer.status }}">
+                        <div class="offer-card-left">
+                            <div class="listing-image">
+                                {% if offer.announcement.mainPhoto %}
+                                    <img src="{{ asset('uploads/announcements/' ~ offer.announcement.mainPhoto) }}" alt="Vehicle" onerror="this.src='https://via.placeholder.com/120x90?text=Vehicle'">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/120x90?text=Vehicle" alt="Vehicle">
+                                {% endif %}
+                            </div>
+                            <div class="listing-info">
+                                <h4 class="listing-title">
+                                    <a href="{{ path('app_announcement_show', {'id': offer.announcement.id}) }}">
+                                        {{ offer.announcement.brand }} {{ offer.announcement.model }}
+                                    </a>
+                                </h4>
+                                <p class="listing-details">{{ offer.announcement.year }} • {{ offer.announcement.mileage|number_format(0, '.', ',') }} km</p>
+                                <p class="buyer-name">From: <strong>{{ offer.client.fullName }}</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="offer-card-middle">
+                            <div class="price-comparison">
+                                <div class="price-row">
+                                    <span class="label">Your Price:</span>
+                                    <span class="value asking">€{{ offer.announcement.price|number_format(2, ',', '.') }}</span>
+                                </div>
+                                <div class="price-row">
+                                    <span class="label">Their Offer:</span>
+                                    <span class="value offer-price">€{{ offer.price|number_format(2, ',', '.') }}</span>
+                                </div>
+                                <div class="price-row difference">
+                                    <span class="label">Difference:</span>
+                                    <span class="value {% if offer.price < offer.announcement.price %}lower{% else %}higher{% endif %}">
+                                        {% if offer.price < offer.announcement.price %}
+                                            -€{{ (offer.announcement.price - offer.price)|number_format(2, ',', '.') }}
+                                        {% else %}
+                                            +€{{ (offer.price - offer.announcement.price)|number_format(2, ',', '.') }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="offer-card-right">
+                            <div class="status-section">
+                                {% if offer.status == 'accepted' %}
+                                    <span class="status-badge status-accepted">✓ Accepted</span>
+                                {% elseif offer.status == 'rejected' %}
+                                    <span class="status-badge status-rejected">✗ Declined</span>
+                                {% else %}
+                                    <span class="status-badge status-pending">⏳ Pending</span>
+                                {% endif %}
+                            </div>
+
+                            {% if offer.status == 'pending' %}
+                                <div class="action-buttons">
+                                    <button class="btn-accept" onclick="handleAction(event, 'accept', {{ offer.id }})">
+                                        <span>✓</span> Accept
+                                    </button>
+                                    <button class="btn-reject" onclick="handleAction(event, 'reject', {{ offer.id }})">
+                                        <span>✗</span> Decline
+                                    </button>
+                                </div>
+                            {% else %}
+                                <div class="responded-time">
+                                    Responded: {{ offer.respondedAt|date('d.m.Y H:i') }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if offer.message %}
+                            <div class="offer-message-preview">
+                                <div class="message-label">💬 Buyer's Message:</div>
+                                <p class="message-text">{{ offer.message|slice(0, 150) }}{% if offer.message|length > 150 %}...{% endif %}</p>
+                                <a href="{{ path('app_offer_show', {'id': offer.id}) }}" class="view-details-link">View Full Details →</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Hidden form for AJAX -->
+                    <form id="offer-form-{{ offer.id }}" method="POST" style="display: none;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                    </form>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .offers-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .offers-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 8px;
+        }
+
+        .offers-subtitle {
+            color: var(--muted);
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin: 0 0 12px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .received-filters {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            border-radius: 24px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .filter-btn .badge {
+            margin-left: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .badge-success {
+            background: rgba(40, 167, 69, 0.3) !important;
+            color: #28a745 !important;
+        }
+
+        .badge-danger {
+            background: rgba(220, 53, 69, 0.3) !important;
+            color: #dc3545 !important;
+        }
+
+        .offers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .received-offer-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .received-offer-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .offer-card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .listing-image {
+            width: 120px;
+            height: 90px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--bg);
+        }
+
+        .listing-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .listing-info {
+            flex: 1;
+        }
+
+        .listing-title {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .listing-title a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .listing-title a:hover {
+            text-decoration: underline;
+        }
+
+        .listing-details {
+            margin: 4px 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .buyer-name {
+            margin: 8px 0 0;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .buyer-name strong {
+            color: var(--accent);
+        }
+
+        .offer-card-middle {
+            flex-shrink: 0;
+        }
+
+        .price-comparison {
+            background: rgba(255, 193, 7, 0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            min-width: 200px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .price-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .price-row .label {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .price-row .value {
+            font-weight: 600;
+        }
+
+        .price-row .asking {
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .price-row .offer-price {
+            color: var(--accent);
+        }
+
+        .price-row.difference .value.lower {
+            color: #dc3545;
+        }
+
+        .price-row.difference .value.higher {
+            color: #28a745;
+        }
+
+        .offer-card-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .status-section {
+            width: 100%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-accepted {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .status-rejected {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-accept, .btn-reject {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-accept {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-accept:hover {
+            background: rgba(40, 167, 69, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-reject:hover {
+            background: rgba(220, 53, 69, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .responded-time {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .offer-message-preview {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            margin-top: 12px;
+        }
+
+        .message-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .message-text {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .view-details-link {
+            font-size: 12px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .view-details-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .received-offer-card {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .offer-card-right {
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .offers-title {
+                font-size: 24px;
+            }
+
+            .received-offer-card {
+                padding: 16px;
+            }
+
+            .offer-card-left {
+                flex-wrap: wrap;
+            }
+
+            .listing-image {
+                width: 100px;
+                height: 75px;
+            }
+
+            .price-comparison {
+                min-width: auto;
+            }
+        }
+    </style>
+
+    <script>
+        function filterOffers(status) {
+            const cards = document.querySelectorAll('.received-offer-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.filter-btn').classList.add('active');
+
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function handleAction(event, action, offerId) {
+            event.preventDefault();
+            
+            if (confirm(`Are you sure you want to ${action} this offer?`)) {
+                const form = document.getElementById(`offer-form-${offerId}`);
+                
+                // Build URL directly
+                const baseUrl = window.location.origin;
+                const url = baseUrl + '/offer/' + offerId + '/' + action;
+                
+                form.action = url;
+                form.method = 'POST';
+                form.submit();
+            }
+        }
+    </script>
+{% endblock %}
+

@@ -154,7 +154,8 @@
 
         {% if not (is_granted('ROLE_USER') and app.user.id == announcement.vendor.id) %}
           <div class="action-panel">
-            <button class="btn yellow btn-block">💬 Contact Seller</button>
+            <a href="{{ path('app_offer_create', {'id': announcement.id}) }}" class="btn yellow btn-block">💰 Make an Offer</a>
+            <button class="btn secondary btn-block">💬 Contact Seller</button>
             <button class="btn secondary btn-block">📧 Send Message</button>
           </div>
         {% endif %}

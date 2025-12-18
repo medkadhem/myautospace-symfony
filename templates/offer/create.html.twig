@@ -1,0 +1,499 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Make an Offer - {{ announcement.brand }} {{ announcement.model }}{% endblock %}
+
+{% block body %}
+    <div class="offer-create-container">
+        <div class="offer-create-wrapper">
+            <!-- Left Side - Listing Info -->
+            <div class="listing-preview">
+                <div class="preview-image">
+                    {% if announcement.mainPhoto %}
+                        <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.brand }} {{ announcement.model }}" onerror="this.src='https://via.placeholder.com/400x300?text=Vehicle'">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x300?text=Vehicle" alt="Vehicle">
+                    {% endif %}
+                </div>
+                <div class="preview-content">
+                    <h2>{{ announcement.brand }} {{ announcement.model }}</h2>
+                    <p class="preview-year">{{ announcement.year }} • {{ announcement.mileage|number_format(0, '.', ',') }} km • {{ announcement.fuelType }}</p>
+                    
+                    <div class="preview-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">💰</span>
+                            <div>
+                                <span class="detail-label">Asking Price</span>
+                                <span class="detail-value">€{{ announcement.price|number_format(2, ',', '.') }}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">👤</span>
+                            <div>
+                                <span class="detail-label">Seller</span>
+                                <span class="detail-value">{{ announcement.vendor.fullName }}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">📍</span>
+                            <div>
+                                <span class="detail-label">Location</span>
+                                <span class="detail-value">{{ announcement.location }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="description-box">
+                        <h4>Description</h4>
+                        <p>{{ announcement.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Offer Form -->
+            <div class="offer-form-wrapper">
+                <div class="form-header">
+                    <h1>💰 Make Your Offer</h1>
+                    <p>Submit your best offer for this vehicle</p>
+                </div>
+
+                {{ form_start(form, {'attr': {'class': 'offer-form', 'novalidate': 'novalidate'}}) }}
+                
+                    <div class="form-section">
+                        <label class="form-label">Your Offer Price</label>
+                        <div class="price-input-wrapper">
+                            <span class="currency">€</span>
+                            {{ form_widget(form.price, {'attr': {
+                                'class': 'form-control price-input',
+                                'placeholder': announcement.price|number_format(2, ',', '.'),
+                                'min': '1'
+                            }}) }}
+                        </div>
+                        {% if form.price.vars.errors %}
+                            <div class="form-error">
+                                {% for error in form.price.vars.errors %}
+                                    <span>{{ error.message }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="price-comparison">
+                            <div class="comparison-row">
+                                <span>Asking Price:</span>
+                                <strong>€{{ announcement.price|number_format(2, ',', '.') }}</strong>
+                            </div>
+                            <div class="comparison-row" id="differenceRow" style="display: none;">
+                                <span>Your Difference:</span>
+                                <strong id="differenceValue">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Message to Seller <span class="optional">(optional)</span></label>
+                        {{ form_widget(form.message, {'attr': {
+                            'class': 'form-control message-input',
+                            'placeholder': 'Tell the seller why you think this is a fair offer...',
+                            'rows': '5'
+                        }}) }}
+                        {% if form.message.vars.errors %}
+                            <div class="form-error">
+                                {% for error in form.message.vars.errors %}
+                                    <span>{{ error.message }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="field-hint">A good message increases your chances of acceptance!</p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Offer</button>
+                        <a href="{{ path('app_announcement_show', {'id': announcement.id}) }}" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+
+                    <div class="offer-tips">
+                        <h4>💡 Tips for Better Offers</h4>
+                        <ul>
+                            <li>Research similar vehicles in your area</li>
+                            <li>Consider the vehicle's condition and mileage</li>
+                            <li>Be respectful - sellers are more likely to respond</li>
+                            <li>Include a personalized message</li>
+                        </ul>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .offer-create-container {
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.2), transparent);
+        }
+
+        .offer-create-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .listing-preview {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 40px;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .preview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-content {
+            padding: 24px;
+        }
+
+        .preview-content h2 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .preview-year {
+            color: var(--muted);
+            margin: 0 0 20px;
+            font-size: 14px;
+        }
+
+        .preview-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .detail-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .description-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .description-box h4 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .description-box p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .offer-form-wrapper {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .offer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .optional {
+            color: var(--muted);
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .price-input-wrapper {
+            position: relative;
+        }
+
+        .currency {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .price-input {
+            padding-left: 40px !important;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        }
+
+        .message-input {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-error {
+            color: #dc3545;
+            font-size: 13px;
+            padding: 8px 12px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #dc3545;
+        }
+
+        .price-comparison {
+            background: rgba(255, 193, 7, 0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            background: lighten(var(--accent), 10%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-lg {
+            flex: 1;
+            padding: 14px 24px;
+        }
+
+        .offer-tips {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(255, 193, 7, 0.1));
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #28a745;
+        }
+
+        .offer-tips h4 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .offer-tips ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+
+        .offer-tips li {
+            padding: 6px 0;
+            font-size: 13px;
+            color: var(--muted);
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .offer-tips li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .offer-create-wrapper {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .listing-preview {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .offer-create-container {
+                padding: 20px 12px;
+            }
+
+            .offer-form-wrapper {
+                padding: 20px;
+            }
+
+            .form-header h1 {
+                font-size: 22px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-lg {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        const priceInput = document.querySelector('[name*="price"]');
+        const askingPrice = {{ announcement.price|json_encode() }};
+
+        function updatePriceDifference() {
+            const offerPrice = parseFloat(priceInput.value);
+            const differenceRow = document.getElementById('differenceRow');
+            const differenceValue = document.getElementById('differenceValue');
+
+            if (offerPrice && !isNaN(offerPrice)) {
+                differenceRow.style.display = 'flex';
+                const difference = offerPrice - askingPrice;
+                const formattedDiff = (difference < 0 ? '-' : '+') + 
+                    '€' + Math.abs(difference).toFixed(2).replace('.', ',');
+                
+                differenceValue.textContent = formattedDiff;
+                differenceValue.style.color = difference < 0 ? '#28a745' : '#ffc107';
+            } else {
+                differenceRow.style.display = 'none';
+            }
+        }
+
+        if (priceInput) {
+            priceInput.addEventListener('input', updatePriceDifference);
+        }
+    </script>
+{% endblock %}
+
