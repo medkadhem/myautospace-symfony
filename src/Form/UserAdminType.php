@@ -46,7 +46,7 @@ class UserAdminType extends AbstractType
                 'choices' => [
                     'User' => 'ROLE_USER',
                     'Admin' => 'ROLE_ADMIN',
-                    'Seller' => 'ROLE_PROVIDER',
+                    'Provider' => 'ROLE_PROVIDER',
                 ],
                 'multiple' => true,
                 'attr' => ['class' => 'form-control'],

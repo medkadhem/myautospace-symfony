@@ -32,6 +32,13 @@ final class AnnouncementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle category selection
+            $category = $form->get('category')->getData();
+            if ($category) {
+                $announcement->getCategories()->clear();
+                $announcement->addCategory($category);
+            }
+
             // Set the current user as vendor
             $user = $this->getUser();
             if ($user) {
@@ -112,10 +119,25 @@ final class AnnouncementController extends AbstractController
     #[IsGranted('ROLE_PROVIDER')]
     public function edit(Request $request, Announcement $announcement, EntityManagerInterface $entityManager): Response
     {
+        // Set the current category for the form
+        $currentCategory = $announcement->getCategories()->first() ?: null;
+
         $form = $this->createForm(AnnouncementForm::class, $announcement);
+        
+        // Set the category field value
+        if ($currentCategory) {
+            $form->get('category')->setData($currentCategory);
+        }
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle category selection
+            $category = $form->get('category')->getData();
+            $announcement->getCategories()->clear();
+            if ($category) {
+                $announcement->addCategory($category);
+            }
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
             if ($mainPhotoFile) {
