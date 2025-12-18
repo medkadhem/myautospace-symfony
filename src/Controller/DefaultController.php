@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\AnnouncementRepository;
 use App\Repository\ServiceRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,9 +13,70 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     #[Route('/', name: 'app_default')]
-    public function index(): Response
+    public function index(
+        AnnouncementRepository $announcementRepo,
+        ServiceRepository $serviceRepo,
+        EntityManagerInterface $entityManager
+    ): Response
     {
-        return $this->render('default/landing.html.twig');
+        // Get featured/latest announcements
+        $featuredAnnouncements = $announcementRepo->createQueryBuilder('a')
+            ->where('a.status IN (:statuses)')
+            ->setParameter('statuses', ['active', 'available'])
+            ->orderBy('a.createdAt', 'DESC')
+            ->setMaxResults(6)
+            ->getQuery()
+            ->getResult();
+
+        // Get featured services
+        $featuredServices = $serviceRepo->createQueryBuilder('s')
+            ->where('s.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('s.createdAt', 'DESC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult();
+
+        // Get statistics
+        $totalAnnouncements = $announcementRepo->count([]);
+        $activeAnnouncements = $announcementRepo->count(['status' => 'active']);
+        $totalServices = $serviceRepo->count(['isActive' => true]);
+        
+        // Get total users count
+        $totalUsers = $entityManager->createQueryBuilder()
+            ->select('COUNT(u.id)')
+            ->from('App\Entity\User', 'u')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        // Get providers count
+        $totalProviders = $entityManager->createQueryBuilder()
+            ->select('COUNT(u.id)')
+            ->from('App\Entity\User', 'u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%ROLE_PROVIDER%')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        // Get completed reservations count
+        $completedReservations = $entityManager->createQueryBuilder()
+            ->select('COUNT(r.id)')
+            ->from('App\Entity\Reservation', 'r')
+            ->where('r.status = :status')
+            ->setParameter('status', 'completed')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $this->render('default/landing.html.twig', [
+            'featuredAnnouncements' => $featuredAnnouncements,
+            'featuredServices' => $featuredServices,
+            'totalAnnouncements' => $totalAnnouncements,
+            'activeAnnouncements' => $activeAnnouncements,
+            'totalServices' => $totalServices,
+            'totalUsers' => $totalUsers,
+            'totalProviders' => $totalProviders,
+            'completedReservations' => $completedReservations,
+        ]);
     }
 
     #[Route('/marketplace', name: 'app_marketplace')]

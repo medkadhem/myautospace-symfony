@@ -33,90 +33,161 @@
   <section class="about-section">
     <div class="about-content">
       <div class="about-text">
-        <h2>About us</h2>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est</p>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+        <h2>About MyAutoSpace</h2>
+        <p>Your trusted marketplace for automotive needs in Tunisia. We connect buyers, sellers, and service providers in one seamless platform.</p>
+        <p>MyAutoSpace is the leading automotive marketplace offering a comprehensive platform for buying, selling, and renting vehicles. With our extensive network of verified providers and a wide range of professional services, we make automotive transactions simple, secure, and transparent.</p>
       </div>
       <div class="about-text">
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est</p>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+        <p>Whether you're looking to purchase your dream car, list your vehicle for sale, or find reliable automotive services, MyAutoSpace has you covered.</p>
+        <p>Our platform features {{ activeAnnouncements }} active listings, {{ totalServices }} professional services, and a growing community of automotive enthusiasts. Join thousands of satisfied users who trust MyAutoSpace for their automotive needs.</p>
       </div>
     </div>
   </section>
 
+  <!-- Featured Listings -->
+  {% if featuredAnnouncements|length > 0 %}
+  <section class="featured-section">
+    <div class="container">
+      <h2>🔥 Featured Listings</h2>
+      <p>Check out our latest and most popular vehicles</p>
+      
+      <div class="vehicles-grid">
+        {% for announcement in featuredAnnouncements %}
+        <a href="{{ path('app_announcement_show', {id: announcement.id}) }}" class="vehicle-card">
+          <div class="vehicle-image">
+            {% if announcement.mainPhoto %}
+              <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.title }}">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80" alt="{{ announcement.title }}">
+            {% endif %}
+            {% if announcement.isSponsored %}
+            <span class="badge">⭐ SPONSORED</span>
+            {% endif %}
+          </div>
+          <div class="vehicle-info">
+            <h3>{{ announcement.title }}</h3>
+            <div class="vehicle-details">
+              {% if announcement.brand %}
+                <span>🚗 {{ announcement.brand }} {{ announcement.model }}</span>
+              {% endif %}
+              {% if announcement.year %}
+                <span>📅 {{ announcement.year }}</span>
+              {% endif %}
+              {% if announcement.mileage %}
+                <span>🛣️ {{ announcement.mileage|number_format(0, '.', ',') }} km</span>
+              {% endif %}
+            </div>
+            <div class="vehicle-footer">
+              <span class="price">{{ announcement.price|number_format(0, '.', ',') }} TND</span>
+              <span class="status {{ announcement.status }}">{{ announcement.status|capitalize }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      
+      <div style="text-align: center; margin-top: 40px;">
+        <a href="{{ path('app_marketplace') }}" class="btn yellow">View All Listings →</a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <section class="services-section">
-    <h2>Our Services</h2>
+    <h2>🔧 Professional Services</h2>
     
-    <div class="service-item">
-      <div class="service-image">
-        <img src="https://images.unsplash.com/photo-1552555238-6461a8b80e71?w=500&q=80" alt="Service A">
+    {% if featuredServices|length > 0 %}
+      {% for service in featuredServices %}
+        <div class="service-item {{ loop.index is even ? 'reverse' : '' }}">
+          <div class="service-image">
+            {% if service.photo %}
+              <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="{{ service.title }}">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-{{ ['1552555238-6461a8b80e71', '1517420879524-86d64ac2aea8', '1625231724288-e22032e19fff'][loop.index0 % 3] }}?w=500&q=80" alt="{{ service.title }}">
+            {% endif %}
+          </div>
+          <div class="service-content">
+            <h3>{{ service.title }}</h3>
+            <p>{{ service.description|length > 200 ? service.description|slice(0, 200) ~ '...' : service.description }}</p>
+            <div class="service-pricing">
+              <span class="service-price">{{ service.price|number_format(0, '.', ',') }} TND</span>
+              {% if service.duration %}
+                <span class="service-duration">⏱️ {{ service.duration }} min</span>
+              {% endif %}
+            </div>
+            <div class="service-action">
+              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow">View Details →</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      
+      <div style="text-align: center; margin-top: 60px;">
+        <a href="{{ path('app_services') }}" class="btn secondary">View All Services →</a>
       </div>
-      <div class="service-content">
-        <h3>Service A</h3>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
+    {% else %}
+      <div class="service-item">
+        <div class="service-image">
+          <img src="https://images.unsplash.com/photo-1552555238-6461a8b80e71?w=500&q=80" alt="Car Maintenance">
+        </div>
+        <div class="service-content">
+          <h3>Car Maintenance</h3>
+          <p>Professional car maintenance and servicing to keep your vehicle running smoothly. From oil changes to brake inspections, our certified technicians ensure your car receives the best care possible.</p>
+        </div>
       </div>
-    </div>
 
-    <div class="service-item reverse">
-      <div class="service-image">
-        <img src="https://images.unsplash.com/photo-1517420879524-86d64ac2aea8?w=500&q=80" alt="Service B">
+      <div class="service-item reverse">
+        <div class="service-image">
+          <img src="https://images.unsplash.com/photo-1517420879524-86d64ac2aea8?w=500&q=80" alt="Car Repair">
+        </div>
+        <div class="service-content">
+          <h3>Repair Services</h3>
+          <p>Expert repair services for all types of vehicles. Our skilled mechanics diagnose and fix issues quickly and efficiently, using quality parts and modern equipment to restore your vehicle to perfect condition.</p>
+        </div>
       </div>
-      <div class="service-content">
-        <h3>Service B</h3>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
-      </div>
-    </div>
 
-    <div class="service-item">
-      <div class="service-image">
-        <img src="https://images.unsplash.com/photo-1625231724288-e22032e19fff?w=500&q=80" alt="Service C">
+      <div class="service-item">
+        <div class="service-image">
+          <img src="https://images.unsplash.com/photo-1625231724288-e22032e19fff?w=500&q=80" alt="Car Detailing">
+        </div>
+        <div class="service-content">
+          <h3>Detailing & Cleaning</h3>
+          <p>Premium car detailing services that make your vehicle look brand new. Interior and exterior cleaning, polishing, waxing, and protection treatments to maintain your car's appearance and value.</p>
+        </div>
       </div>
-      <div class="service-content">
-        <h3>Service C</h3>
-        <p>Lorem ipsum dolor sit amet consectetur. Morbi porttitor augue senectus a enim morbi commodo est. Suspendisse mattis at turpis duis nibh volutpat. Porta purus sit odio consulla. Viverra vitae. Fugia sed eu lectus enim disctumst. Dis pulsular sed volutpat integer sed risus semper polem consulla</p>
-      </div>
-    </div>
+    {% endif %}
   </section>
 
   <section class="stats-section">
-    <h2>Statistics</h2>
+    <h2>📊 Our Impact</h2>
     <div class="stats-grid">
       <div class="stat-box">
-        <span class="stat-number">23 000</span>
-        <span class="stat-label">Buyers</span>
+        <span class="stat-number">{{ totalAnnouncements|number_format(0, '.', ',') }}</span>
+        <span class="stat-label">Total Listings</span>
       </div>
       <div class="stat-box">
-        <span class="stat-number">500 000</span>
-        <span class="stat-label">Transactions</span>
+        <span class="stat-number">{{ activeAnnouncements|number_format(0, '.', ',') }}</span>
+        <span class="stat-label">Active Vehicles</span>
       </div>
       <div class="stat-box">
-        <span class="stat-number">1 000</span>
-        <span class="stat-label">Sellers</span>
+        <span class="stat-number">{{ totalServices|number_format(0, '.', ',') }}</span>
+        <span class="stat-label">Services Available</span>
       </div>
       <div class="stat-box">
-        <span class="stat-number">100 000</span>
-        <span class="stat-label">Announcements</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-number">2 000</span>
+        <span class="stat-number">{{ totalProviders|number_format(0, '.', ',') }}</span>
         <span class="stat-label">Service Providers</span>
       </div>
       <div class="stat-box">
-        <span class="stat-number">20 000</span>
-        <span class="stat-label">Services</span>
+        <span class="stat-number">{{ totalUsers|number_format(0, '.', ',') }}</span>
+        <span class="stat-label">Total Users</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">{{ completedReservations|number_format(0, '.', ',') }}</span>
+        <span class="stat-label">Completed Bookings</span>
       </div>
     </div>
     <div class="stats-image">
-      <img src="https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=600&q=80" alt="Orange Sports Car">
-    </div>
-  </section>
-
-  <section class="partners-section">
-    <h2>Partners</h2>
-    <div class="partners-grid">
-      {% for i in 1..6 %}
-        <div class="partner-logo"></div>
-      {% endfor %}
+      <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80" alt="Orange Sports Car">
     </div>
   </section>
 {% endblock %}

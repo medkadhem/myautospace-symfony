@@ -15,14 +15,6 @@
       <div class="container nav-inner">
         <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700; font-size: 20px;">MyAutoSpace</a>
         
-        <div class="search-wrapper">
-          <input type="text" class="search-input" placeholder="Search vehicles or services...">
-        </div>
-        
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-        
         <nav class="nav-links" data-nav>
           <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">Marketplace</a>
           <a class="{{ app.request.attributes.get('_route') == 'app_services' or app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
@@ -61,44 +53,6 @@
     </main>
 
     <footer class="footer">
-      <div class="container footer-content">
-        <div class="footer-section">
-          <h4 style="color: var(--yellow); margin: 0 0 12px;">JOIN US</h4>
-          <div class="footer-links">
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-          </div>
-        </div>
-        <div class="footer-section">
-          <h4>Resources</h4>
-          <div class="footer-links">
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-          </div>
-        </div>
-        <div class="footer-section">
-          <h4>Pricing</h4>
-          <div class="footer-links">
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-          </div>
-        </div>
-        <div class="footer-section">
-          <h4>Company</h4>
-          <div class="footer-links">
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-            <a href="#">Resource</a>
-          </div>
-        </div>
-      </div>
       <div class="footer-bottom">
         <p>© {{ "now"|date("Y") }} MyAutoSpace. All rights reserved.</p>
       </div>
