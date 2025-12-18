@@ -1,0 +1,253 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Offers - MyAutoSpace{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">💰 My Offers</h2>
+            
+            <!-- Tabs for Made Offers and Received Offers -->
+            <ul class="nav nav-tabs mb-4" id="offerTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="made-tab" data-bs-toggle="tab" data-bs-target="#made" type="button" role="tab">
+                        Offers I Made <span class="badge bg-primary">{{ madeOffers|length }}</span>
+                    </button>
+                </li>
+                {% if receivedOffers|length > 0 %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab">
+                        Offers Received <span class="badge bg-success">{{ receivedOffers|length }}</span>
+                    </button>
+                </li>
+                {% endif %}
+            </ul>
+
+            <div class="tab-content" id="offerTabsContent">
+                <!-- Offers I Made -->
+                <div class="tab-pane fade show active" id="made" role="tabpanel">
+                    {% if madeOffers is empty %}
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center py-5">
+                                <svg width="64" height="64" fill="currentColor" class="text-muted mb-3" viewBox="0 0 16 16">
+                                    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
+                                </svg>
+                                <h5>No offers made yet</h5>
+                                <p class="text-muted">Browse the marketplace and make offers on listings you're interested in</p>
+                                <a href="{{ path('app_marketplace') }}" class="btn btn-primary mt-3">Browse Listings</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            {% for offer in madeOffers %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card shadow-sm h-100">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Offer #{{ offer.id }}</h6>
+                                            <span class="badge 
+                                                {% if offer.status == 'pending' %}bg-warning
+                                                {% elseif offer.status == 'accepted' %}bg-success
+                                                {% elseif offer.status == 'rejected' %}bg-danger
+                                                {% else %}bg-info{% endif %}">
+                                                {{ offer.status|upper }}
+                                            </span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a href="{{ path('app_announcement_show', {id: offer.announcement.id}) }}" class="text-decoration-none">
+                                                    {{ offer.announcement.title }}
+                                                </a>
+                                            </h5>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Your Offer:</span>
+                                                    <strong class="text-primary">{{ offer.amount|number_format(0, '.', ',') }} TND</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Asking Price:</span>
+                                                    <span>{{ offer.announcement.price|number_format(0, '.', ',') }} TND</span>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if offer.message %}
+                                                <div class="alert alert-light mb-3">
+                                                    <small><strong>Your message:</strong> {{ offer.message }}</small>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if offer.status == 'countered' %}
+                                                <div class="alert alert-info">
+                                                    <strong>Counter Offer: {{ offer.counterAmount|number_format(0, '.', ',') }} TND</strong>
+                                                    {% if offer.counterMessage %}
+                                                        <p class="mb-0 mt-2"><small>{{ offer.counterMessage }}</small></p>
+                                                    {% endif %}
+                                                </div>
+                                                <form method="post" action="{{ path('app_offer_accept_counter', {id: offer.id}) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Accept counter offer of {{ offer.counterAmount }} TND?')">
+                                                        ✓ Accept Counter Offer
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+
+                                            <div class="mt-3">
+                                                <small class="text-muted">
+                                                    Submitted: {{ offer.createdAt|date('M d, Y H:i') }}
+                                                    {% if offer.respondedAt %}
+                                                        <br>Responded: {{ offer.respondedAt|date('M d, Y H:i') }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="{{ path('app_announcement_show', {id: offer.announcement.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                View Listing
+                                            </a>
+                                            <a href="{{ path('app_messages_conversation', {
+                                                announcementId: offer.announcement.id,
+                                                userId: offer.announcement.vendor.id
+                                            }) }}" class="btn btn-sm btn-outline-secondary">
+                                                💬 Message Seller
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Offers Received (Provider Only) -->
+                {% if receivedOffers|length > 0 %}
+                <div class="tab-pane fade" id="received" role="tabpanel">
+                    <div class="row">
+                        {% for offer in receivedOffers %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow-sm h-100 border-{% if offer.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Offer #{{ offer.id }} from {{ offer.buyer.fullName }}</h6>
+                                        <span class="badge 
+                                            {% if offer.status == 'pending' %}bg-warning
+                                            {% elseif offer.status == 'accepted' %}bg-success
+                                            {% elseif offer.status == 'rejected' %}bg-danger
+                                            {% else %}bg-info{% endif %}">
+                                            {{ offer.status|upper }}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="{{ path('app_announcement_show', {id: offer.announcement.id}) }}" class="text-decoration-none">
+                                                {{ offer.announcement.title }}
+                                            </a>
+                                        </h5>
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Buyer's Offer:</span>
+                                                <strong class="text-success">{{ offer.amount|number_format(0, '.', ',') }} TND</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">Your Asking Price:</span>
+                                                <span>{{ offer.announcement.price|number_format(0, '.', ',') }} TND</span>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if offer.message %}
+                                            <div class="alert alert-light mb-3">
+                                                <small><strong>Buyer's message:</strong> {{ offer.message }}</small>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if offer.status == 'countered' %}
+                                            <div class="alert alert-info">
+                                                <strong>Your Counter: {{ offer.counterAmount|number_format(0, '.', ',') }} TND</strong>
+                                                {% if offer.counterMessage %}
+                                                    <p class="mb-0 mt-2"><small>{{ offer.counterMessage }}</small></p>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="mt-3">
+                                            <small class="text-muted">
+                                                Received: {{ offer.createdAt|date('M d, Y H:i') }}
+                                                {% if offer.respondedAt %}
+                                                    <br>Responded: {{ offer.respondedAt|date('M d, Y H:i') }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        {% if offer.status == 'pending' %}
+                                            <div class="btn-group w-100 mb-2" role="group">
+                                                <form method="post" action="{{ path('app_offer_accept', {id: offer.id}) }}" class="flex-fill">
+                                                    <button type="submit" class="btn btn-success w-100" onclick="return confirm('Accept offer of {{ offer.amount }} TND?')">
+                                                        ✓ Accept
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{{ path('app_offer_reject', {id: offer.id}) }}" class="flex-fill">
+                                                    <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Reject this offer?')">
+                                                        ✗ Reject
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <button type="button" class="btn btn-info w-100" data-bs-toggle="collapse" data-bs-target="#counter-{{ offer.id }}">
+                                                💬 Make Counter Offer
+                                            </button>
+                                            <div class="collapse mt-2" id="counter-{{ offer.id }}">
+                                                <form method="post" action="{{ path('app_offer_counter', {id: offer.id}) }}" class="mt-2">
+                                                    <div class="mb-2">
+                                                        <input type="number" name="counter_amount" class="form-control" placeholder="Counter amount (TND)" required min="1" step="1">
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <textarea name="counter_message" class="form-control" rows="2" placeholder="Optional message"></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary w-100">Send Counter Offer</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                        <a href="{{ path('app_messages_conversation', {
+                                            announcementId: offer.announcement.id,
+                                            userId: offer.buyer.id
+                                        }) }}" class="btn btn-sm btn-outline-secondary mt-2 w-100">
+                                            💬 Message Buyer
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.btn-group form {
+    margin: 0 2px;
+}
+</style>
+{% endblock %}

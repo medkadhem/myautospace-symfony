@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conversation with {{ otherUser.fullName }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">{{ otherUser.fullName }}</h5>
+                            <small>About: {{ announcement.title }}</small>
+                        </div>
+                        <a href="{{ path('app_messages') }}" class="btn btn-sm btn-light">
+                            Back to Messages
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body" style="height: 500px; overflow-y: auto;" id="messageContainer">
+                    {% if messages is empty %}
+                        <p class="text-muted text-center mt-5">No messages yet. Start the conversation!</p>
+                    {% else %}
+                        {% for message in messages %}
+                            <div class="message-item mb-3 {{ message.sender.id == app.user.id ? 'text-end' : 'text-start' }}">
+                                <div class="d-inline-block" style="max-width: 70%;">
+                                    <div class="card {{ message.sender.id == app.user.id ? 'bg-primary text-white' : 'bg-light' }}">
+                                        <div class="card-body py-2 px-3">
+                                            <p class="mb-1">{{ message.content }}</p>
+                                            <small class="{{ message.sender.id == app.user.id ? 'text-white-50' : 'text-muted' }}">
+                                                {{ message.createdAt|date('M d, Y H:i') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <form method="post">
+                        <div class="input-group">
+                            <textarea 
+                                class="form-control" 
+                                name="content" 
+                                placeholder="Type your message..." 
+                                rows="2" 
+                                required></textarea>
+                            <button class="btn btn-primary" type="submit">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                                </svg>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Scroll to bottom of messages
+document.addEventListener('DOMContentLoaded', function() {
+    var container = document.getElementById('messageContainer');
+    container.scrollTop = container.scrollHeight;
+});
+</script>
+
+<style>
+.message-item {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
