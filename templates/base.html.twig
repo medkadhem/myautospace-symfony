@@ -1,89 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}MyAutoSpace - Find Cars & Services{% endblock %}</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
-    <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
-    <meta name="color-scheme" content="dark light">
-    {% block stylesheets %}{% endblock %}
-    {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
-  </head>
-  <body>
-    <header class="nav">
-      <div class="container nav-inner">
-        <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700; font-size: 20px;">MyAutoSpace</a>
-        
-        <nav class="nav-links" data-nav>
-          <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">Marketplace</a>
-          <a class="{{ app.request.attributes.get('_route') == 'app_services' or app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
-          {% if is_granted('ROLE_USER') %}
-            <a class="{{ app.request.attributes.get('_route') starts with 'app_messages' ? 'active' }}" href="{{ path('app_messages') }}">💬 Messages</a>
-            <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offers') }}">💰 Offers</a>
-            <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
-            <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offer_my_offers') }}" title="View your offers">💰 My Offers</a>
-          {% endif %}
-          {% if is_granted('ROLE_PROVIDER') %}
-            <a class="{{ app.request.attributes.get('_route') == 'app_offer_received' ? 'active' }}" href="{{ path('app_offer_received') }}" title="Offers received on your listings">📥 Received Offers</a>
-          {% endif %}
-          {% if is_granted('ROLE_ADMIN') %}
-            <a class="{{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' }}" href="{{ path('app_admin_dashboard') }}">Admin</a>
-          {% endif %}
-        </nav>
-        
-        <div class="auth">
-          {% if app.user %}
-            <div class="notification-bell">🔔</div>
-            <div class="user-menu">
-              <span class="user-avatar">{{ app.user.email | upper | first }}</span>
-              <span class="user-label">{{ app.user.email | split('@') | first }}</span>
-            </div>
-            <a class="btn yellow" href="{{ path('app_logout') }}" style="margin-left: 8px;">Logout</a>
-          {% else %}
-            <a class="btn ghost" href="{{ path('app_login') }}">Login</a>
-            <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">Get Started</a>
-          {% endif %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MyAutoSpace - Find Cars & Services{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🚗</text></svg>">
+  <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+  <meta name="color-scheme" content="dark light">
+  {% block stylesheets %}{% endblock %}
+  {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="{{ path('app_default') }}" style="color: var(--yellow); font-weight: 700; font-size: 20px;">MyAutoSpace</a>
+
+    <nav class="nav-links" data-nav>
+      <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">Marketplace</a>
+      <a class="{{ app.request.attributes.get('_route') == 'app_services' or app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
+      {% if is_granted('ROLE_USER') %}
+        <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
+        <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offer_my_offers') }}" title="View your offers">💰 My Offers</a>
+      {% endif %}
+      {% if is_granted('ROLE_PROVIDER') %}
+        <a class="{{ app.request.attributes.get('_route') == 'app_offer_received' ? 'active' }}" href="{{ path('app_offer_received') }}" title="Offers received on your listings">📥 Received Offers</a>
+      {% endif %}
+      {% if is_granted('ROLE_ADMIN') %}
+        <a class="{{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' }}" href="{{ path('app_admin_dashboard') }}">Admin</a>
+      {% endif %}
+    </nav>
+
+    <div class="auth">
+      {% if app.user %}
+        <div class="notification-bell">🔔</div>
+        <div class="user-menu">
+          <span class="user-avatar">{{ app.user.email | upper | first }}</span>
+          <span class="user-label">{{ app.user.email | split('@') | first }}</span>
         </div>
-      </div>
-    </header>
+        <a class="btn yellow" href="{{ path('app_logout') }}" style="margin-left: 8px;">Logout</a>
+      {% else %}
+        <a class="btn ghost" href="{{ path('app_login') }}">Login</a>
+        <a class="btn yellow" href="{{ path('app_register') }}" style="font-weight: 600;">Get Started</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
 
-    <main class="main-content">
-      {% for label, messages in app.flashes %}
-        {% for message in messages %}
-          <div class="alert {{ label }}" role="status" data-flash>{{ message }}</div>
-        {% endfor %}
-      {% endfor %}
-      {% block body %}{% endblock %}
-    </main>
+<main class="main-content">
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert {{ label }}" role="status" data-flash>{{ message }}</div>
+    {% endfor %}
+  {% endfor %}
+  {% block body %}{% endblock %}
+</main>
 
-    <footer class="footer">
-      <div class="footer-bottom">
-        <p>© {{ "now"|date("Y") }} MyAutoSpace. All rights reserved.</p>
-      </div>
-    </footer>
-  </body>
-  <script>
-    document.querySelector('.nav-toggle')?.addEventListener('click', function() {
-      const navLinks = document.querySelector('[data-nav]');
-      const isExpanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', !isExpanded);
-      navLinks.classList.toggle('open');
+<footer class="footer">
+  <div class="footer-bottom">
+    <p>© {{ "now"|date("Y") }} MyAutoSpace. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+<script>
+  document.querySelector('.nav-toggle')?.addEventListener('click', function() {
+    const navLinks = document.querySelector('[data-nav]');
+    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', !isExpanded);
+    navLinks.classList.toggle('open');
+  });
+
+  document.querySelectorAll('[data-nav] a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('[data-nav]').classList.remove('open');
+      document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false');
     });
+  });
 
-    document.querySelectorAll('[data-nav] a').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelector('[data-nav]').classList.remove('open');
-        document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false');
-      });
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      this.classList.toggle('active');
+      this.textContent = this.classList.contains('active') ? '❤️' : '♡';
     });
-
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        this.classList.toggle('active');
-        this.textContent = this.classList.contains('active') ? '❤️' : '♡';
-      });
-    });
-  </script>
- </html>
+  });
+</script>
+</html>
