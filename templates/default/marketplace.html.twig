@@ -5,73 +5,105 @@
 {% block body %}
 <div class="marketplace-container">
   <div class="marketplace-header">
-    <h1>Marketplace</h1>
-    <p>Discover cars and services from trusted providers</p>
+    <h1>🚗 Marketplace</h1>
+    <p>Discover amazing vehicles from trusted providers</p>
   </div>
 
   <div class="marketplace-wrapper">
 
     <!-- Unified Filters and Results -->
     <main class="marketplace-content">
-      <!-- Filter Bar -->
-      <div class="filter-bar">
-        <form method="GET" action="{{ path('app_marketplace') }}" class="filter-bar-form">
-          <div class="filter-item">
-            <input type="number" name="minPrice" placeholder="Min Price" value="{{ minPrice }}" class="filter-input-inline">
+      <!-- Enhanced Filter Bar -->
+      <div class="filter-bar-enhanced">
+        <form method="GET" action="{{ path('app_marketplace') }}" class="filter-form">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>💰 Price Range</label>
+              <div class="filter-inputs">
+                <input type="number" name="minPrice" placeholder="Min" value="{{ minPrice }}" class="filter-input">
+                <span class="filter-separator">—</span>
+                <input type="number" name="maxPrice" placeholder="Max" value="{{ maxPrice }}" class="filter-input">
+              </div>
+            </div>
+            
+            <div class="filter-group filter-search-group">
+              <label>🔍 Search</label>
+              <input type="text" name="search" placeholder="Search by brand, model, year..." value="{{ search }}" class="filter-input search-input">
+            </div>
+            
+            <div class="filter-actions">
+              <button type="submit" class="btn yellow">
+                <span>Apply Filters</span>
+              </button>
+              <a href="{{ path('app_marketplace') }}" class="btn secondary">Clear</a>
+            </div>
           </div>
-          <div class="filter-item">
-            <input type="number" name="maxPrice" placeholder="Max Price" value="{{ maxPrice }}" class="filter-input-inline">
-          </div>
-          
-          <div class="filter-item filter-search">
-            <input type="text" name="search" placeholder="Search vehicles..." value="{{ search }}" class="filter-input-inline">
-          </div>
-          
-          <button type="submit" class="btn yellow btn-sm">Apply</button>
-          <a href="{{ path('app_marketplace') }}" class="btn secondary btn-sm">Clear</a>
         </form>
       </div>
 
       <!-- Car Listings -->
       {% if announcements|length > 0 %}
       <section class="results-section">
-        <h2>Car Listings ({{ announcements|length }})</h2>
-        <div class="listings-grid">
+        <div class="results-header">
+          <h2>Available Vehicles</h2>
+          <span class="results-count">{{ announcements|length }} {{ announcements|length == 1 ? 'vehicle' : 'vehicles' }} found</span>
+        </div>
+        
+        <div class="vehicles-grid">
           {% for announcement in announcements %}
-          <div class="listing-card">
-            {% if announcement.mainPhoto %}
-              <div class="listing-image">
+          <a href="{{ path('app_announcement_show', {id: announcement.id}) }}" class="vehicle-card">
+            <div class="vehicle-image">
+              {% if announcement.mainPhoto %}
                 <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="{{ announcement.title }}" loading="lazy">
-              </div>
-            {% else %}
-              <div class="listing-image placeholder">
-                <span>🚗</span>
-              </div>
-            {% endif %}
-            
-            <div class="listing-content">
-              <h3>{{ announcement.brand }} {{ announcement.model }}</h3>
-              <p class="listing-year">{{ announcement.year }} • {{ announcement.mileage }} km</p>
-              <p class="listing-fuel">{{ announcement.fuelType }}</p>
-              
-              <div class="listing-footer">
-                <div class="listing-price">
-                  <strong>{{ announcement.price|number_format(0, '.', ' ') }} TND</strong>
+              {% else %}
+                <div class="placeholder-image">
+                  <span class="placeholder-icon">🚗</span>
                 </div>
-                <a href="{{ path('app_announcement_show', {id: announcement.id}) }}" class="btn yellow btn-sm">View</a>
+              {% endif %}
+              {% if announcement.isSponsored %}
+                <span class="badge">⭐ FEATURED</span>
+              {% endif %}
+            </div>
+            
+            <div class="vehicle-info">
+              <h3>{{ announcement.title }}</h3>
+              
+              <div class="vehicle-details">
+                {% if announcement.brand %}
+                  <span>🚗 {{ announcement.brand }} {{ announcement.model }}</span>
+                {% endif %}
+                {% if announcement.year %}
+                  <span>📅 {{ announcement.year }}</span>
+                {% endif %}
+                {% if announcement.mileage %}
+                  <span>🛣️ {{ announcement.mileage|number_format(0, '.', ',') }} km</span>
+                {% endif %}
+                {% if announcement.fuelType %}
+                  <span>⛽ {{ announcement.fuelType }}</span>
+                {% endif %}
+              </div>
+              
+              {% if announcement.location %}
+                <div class="vehicle-location">
+                  <span>📍 {{ announcement.location }}</span>
+                </div>
+              {% endif %}
+              
+              <div class="vehicle-footer">
+                <span class="price">{{ announcement.price|number_format(0, '.', ',') }} TND</span>
+                <span class="status {{ announcement.status }}">{{ announcement.status|capitalize }}</span>
               </div>
             </div>
-          </div>
+          </a>
           {% endfor %}
         </div>
       </section>
-      {% endif %}
-
-      <!-- No Results -->
-      {% if announcements|length == 0 %}
+      {% else %}
       <div class="no-results">
-        <p>😔 No results found</p>
-        <a href="{{ path('app_marketplace') }}" class="btn yellow">View All Listings</a>
+        <div class="no-results-icon">🔍</div>
+        <h3>No Vehicles Found</h3>
+        <p>We couldn't find any vehicles matching your criteria.</p>
+        <a href="{{ path('app_marketplace') }}" class="btn yellow">View All Vehicles</a>
       </div>
       {% endif %}
 
