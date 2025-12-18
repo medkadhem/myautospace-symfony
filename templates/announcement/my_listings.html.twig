@@ -1,0 +1,824 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Listings - MyAutoSpace{% endblock %}
+
+{% block body %}
+    <div class="my-listings-container">
+        <!-- Header Section -->
+        <div class="listings-header">
+            <div class="header-content">
+                <h1>📋 My Listings</h1>
+                <p>Manage your vehicle listings and offers</p>
+            </div>
+            <a href="{{ path('app_announcement_new') }}" class="btn btn-primary btn-lg">+ Post New Listing</a>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="listings-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <div class="stat-label">Total Listings</div>
+                    <div class="stat-value">{{ announcements|length }}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <div class="stat-label">Active</div>
+                    <div class="stat-value">{{ announcements|filter(a => a.status in ['active', 'available'])|length }}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚫</div>
+                <div class="stat-info">
+                    <div class="stat-label">Sold</div>
+                    <div class="stat-value">{{ announcements|filter(a => a.status == 'sold')|length }}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-info">
+                    <div class="stat-label">Pending Offers</div>
+                    <div class="stat-value">
+                        {% set pendingOffersCount = 0 %}
+                        {% for announcement in announcements %}
+                            {% set pendingOffersCount = pendingOffersCount + (announcement.offers|filter(o => o.status == 'pending')|length) %}
+                        {% endfor %}
+                        {{ pendingOffersCount }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="listings-filters">
+            <button class="filter-btn active" onclick="filterListings('all')">All ({{ announcements|length }})</button>
+            <button class="filter-btn" onclick="filterListings('active')">
+                Active <span class="count">{{ announcements|filter(a => a.status in ['active', 'available'])|length }}</span>
+            </button>
+            <button class="filter-btn" onclick="filterListings('sold')">
+                Sold <span class="count">{{ announcements|filter(a => a.status == 'sold')|length }}</span>
+            </button>
+        </div>
+
+        <!-- Listings Table/Grid -->
+        {% if announcements is empty %}
+            <div class="empty-listings">
+                <div class="empty-icon">🚗</div>
+                <h3>No Listings Yet</h3>
+                <p>You haven't posted any listings yet. Start by creating your first listing!</p>
+                <a href="{{ path('app_announcement_new') }}" class="btn btn-primary">Create First Listing</a>
+            </div>
+        {% else %}
+            <div class="listings-table-wrapper">
+                <table class="listings-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Posted</th>
+                            <th>Offers</th>
+                            <th>Reviews</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for announcement in announcements %}
+                            <tr class="listing-row" data-status="{{ announcement.status }}">
+                                <td>
+                                    <div class="listing-info">
+                                        <div class="listing-image">
+                                            {% if announcement.mainPhoto %}
+                                                <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="Vehicle" onerror="this.src='https://via.placeholder.com/80x60?text=Vehicle'">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/80x60?text=Vehicle" alt="Vehicle">
+                                            {% endif %}
+                                        </div>
+                                        <div class="listing-details">
+                                            <div class="listing-name">{{ announcement.brand }} {{ announcement.model }}</div>
+                                            <div class="listing-meta">{{ announcement.year }} • {{ announcement.mileage|number_format(0, '.', ',') }} km</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price">€{{ announcement.price|number_format(2, ',', '.') }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ announcement.status|lower }}">
+                                        {% if announcement.status == 'sold' %}
+                                            🚫 Sold
+                                        {% elseif announcement.status in ['active', 'available'] %}
+                                            ✅ Active
+                                        {% else %}
+                                            {{ announcement.status|capitalize }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="date">{{ announcement.createdAt|date('d.m.Y') }}</span>
+                                </td>
+                                <td>
+                                    <div class="offers-info">
+                                        {% set totalOffers = announcement.offers|length %}
+                                        {% set pendingOffers = announcement.offers|filter(o => o.status == 'pending')|length %}
+                                        {% set acceptedOffers = announcement.offers|filter(o => o.status == 'accepted')|length %}
+                                        
+                                        <span class="offer-count total-offers">{{ totalOffers }} total</span>
+                                        {% if pendingOffers > 0 %}
+                                            <span class="offer-count pending-offers" title="Pending offers">{{ pendingOffers }} 🕐</span>
+                                        {% endif %}
+                                        {% if acceptedOffers > 0 %}
+                                            <span class="offer-count accepted-offers" title="Accepted offers">{{ acceptedOffers }} ✓</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if announcement.reviews|length > 0 %}
+                                        <div class="reviews-info">
+                                            <span class="stars">
+                                                {% for i in 1..5 %}
+                                                    <span class="star {% if i <= announcement.averageRating %}filled{% endif %}">★</span>
+                                                {% endfor %}
+                                            </span>
+                                            <span class="review-count">({{ announcement.reviewCount }})</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="no-reviews">No reviews</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_announcement_show', {'id': announcement.id}) }}" class="action-btn view-btn" title="View listing">👁️</a>
+                                        <a href="{{ path('app_announcement_edit', {'id': announcement.id}) }}" class="action-btn edit-btn" title="Edit listing">✏️</a>
+                                        {% if announcement.offers|filter(o => o.status == 'pending')|length > 0 %}
+                                            <a href="{{ path('app_offer_received') }}" class="action-btn offers-btn" title="Manage offers">💬</a>
+                                        {% endif %}
+                                        <form method="POST" action="{{ path('app_announcement_delete', {'id': announcement.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this listing? This action cannot be undone.');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ announcement.id) }}">
+                                            <button type="submit" class="action-btn delete-btn" title="Delete listing">🗑️</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Desktop View (Card Grid) -->
+            <div class="listings-grid-view">
+                {% for announcement in announcements %}
+                    <div class="listing-card" data-status="{{ announcement.status }}">
+                        <div class="card-image-section">
+                            {% if announcement.mainPhoto %}
+                                <img src="{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}" alt="Vehicle" onerror="this.src='https://via.placeholder.com/300x200?text=Vehicle'">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=Vehicle" alt="Vehicle">
+                            {% endif %}
+                            <span class="status-badge status-{{ announcement.status|lower }}">
+                                {% if announcement.status == 'sold' %}
+                                    🚫 SOLD
+                                {% elseif announcement.status in ['active', 'available'] %}
+                                    ✅ ACTIVE
+                                {% else %}
+                                    {{ announcement.status|upper }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="card-content">
+                            <h3 class="card-title">{{ announcement.brand }} {{ announcement.model }}</h3>
+                            <p class="card-meta">{{ announcement.year }} • {{ announcement.mileage|number_format(0, '.', ',') }} km • {{ announcement.fuelType }}</p>
+                            
+                            <div class="card-price">€{{ announcement.price|number_format(2, ',', '.') }}</div>
+
+                            <div class="card-stats">
+                                {% set totalOffers = announcement.offers|length %}
+                                {% set pendingOffers = announcement.offers|filter(o => o.status == 'pending')|length %}
+                                
+                                <div class="stat">
+                                    <span class="stat-icon">💬</span>
+                                    <span class="stat-text">{{ totalOffers }} offer{{ totalOffers != 1 ? 's' : '' }}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-icon">⭐</span>
+                                    <span class="stat-text">{{ announcement.averageRating|number_format(1) }}/5 ({{ announcement.reviewCount }})</span>
+                                </div>
+                            </div>
+
+                            {% if pendingOffers > 0 %}
+                                <div class="alert-badge">
+                                    🔔 {{ pendingOffers }} pending offer{{ pendingOffers != 1 ? 's' : '' }}
+                                </div>
+                            {% endif %}
+
+                            <div class="card-actions">
+                                <a href="{{ path('app_announcement_show', {'id': announcement.id}) }}" class="btn btn-sm btn-outline">View</a>
+                                <a href="{{ path('app_announcement_edit', {'id': announcement.id}) }}" class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .my-listings-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .listings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            margin: 0 0 8px;
+            font-weight: 700;
+        }
+
+        .header-content p {
+            color: var(--muted);
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 15px;
+        }
+
+        /* Stats Section */
+        .listings-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Filters */
+        .listings-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            border-radius: 24px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .filter-btn .count {
+            margin-left: 8px;
+            opacity: 0.7;
+        }
+
+        /* Empty State */
+        .empty-listings {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-listings h3 {
+            font-size: 24px;
+            margin: 0 0 12px;
+        }
+
+        .empty-listings p {
+            color: var(--muted);
+            margin: 0 0 24px;
+        }
+
+        /* Table View */
+        .listings-table-wrapper {
+            display: none;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .listings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .listings-table thead {
+            background: var(--bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .listings-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .listings-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .listing-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .listing-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .listing-image {
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .listing-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .listing-details {
+            min-width: 0;
+        }
+
+        .listing-name {
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .listing-meta {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .date {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-sold {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .status-active,
+        .status-available {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .offers-info {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .offer-count {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        .pending-offers {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .accepted-offers {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .reviews-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            font-size: 14px;
+            color: rgba(255, 193, 7, 0.3);
+        }
+
+        .star.filled {
+            color: #ffc107;
+        }
+
+        .review-count {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .no-reviews {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        .offers-btn:hover {
+            background: rgba(255, 193, 7, 0.2);
+        }
+
+        /* Grid View */
+        .listings-grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .listing-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .listing-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-image-section {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .card-image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .listing-card:hover .card-image-section img {
+            transform: scale(1.05);
+        }
+
+        .card-image-section .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        .card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-meta {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .card-price {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        .stat-text {
+            color: var(--muted);
+        }
+
+        .alert-badge {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 1024px) {
+            .listings-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .listings-grid-view {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .my-listings-container {
+                padding: 20px 12px;
+            }
+
+            .listings-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .listings-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-icon {
+                font-size: 24px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .listings-table-wrapper {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .listings-grid-view {
+                display: none;
+            }
+
+            .listings-table {
+                font-size: 13px;
+            }
+
+            .listings-table th,
+            .listings-table td {
+                padding: 12px 8px;
+            }
+
+            .action-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .listings-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .listings-grid-view {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .card-image-section {
+                height: 150px;
+            }
+        }
+    </style>
+
+    <script>
+        function filterListings(status) {
+            const rows = document.querySelectorAll('.listing-row');
+            const cards = document.querySelectorAll('.listing-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.filter-btn').classList.add('active');
+
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+{% endblock %}

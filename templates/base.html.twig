@@ -23,6 +23,7 @@
         <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offer_my_offers') }}" title="View your offers">💰 My Offers</a>
       {% endif %}
       {% if is_granted('ROLE_PROVIDER') %}
+        <a class="{{ app.request.attributes.get('_route') == 'app_announcement_my_listings' ? 'active' }}" href="{{ path('app_announcement_my_listings') }}" title="View and manage your listings">📋 My Listings</a>
         <a class="{{ app.request.attributes.get('_route') == 'app_offer_received' ? 'active' }}" href="{{ path('app_offer_received') }}" title="Offers received on your listings">📥 Received Offers</a>
       {% endif %}
       {% if is_granted('ROLE_ADMIN') %}

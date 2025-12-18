@@ -14,11 +14,7 @@
                 <div class="empty-state-icon">📬</div>
                 <h3>No Offers Yet</h3>
                 <p>You haven't received any offers on your listings. Share your listings and wait for offers to come in!</p>
-                {% if is_granted('ROLE_PROVIDER') %}
-                <a href="{{ path('app_announcement_index') }}" class="btn btn-primary mt-3">My Listings</a>
-                {% else %}
                 <a href="{{ path('app_marketplace') }}" class="btn btn-primary mt-3">Browse Listings</a>
-                {% endif %}
             </div>
         {% else %}
             <div class="received-filters mb-4">

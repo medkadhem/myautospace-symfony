@@ -46,7 +46,13 @@
             </div>
             <div class="detail-row">
               <span class="detail-label">Category:</span>
-              <span class="detail-value">{{ announcement.status }}</span>
+              {% if announcement.categories|length > 0 %}
+                {% for category in announcement.categories %}
+                  <span class="detail-value">{{ category.name }}</span>
+                {% endfor %}
+              {% else %}
+                N/A
+              {% endif %}
             </div>
           </div>
         </div>

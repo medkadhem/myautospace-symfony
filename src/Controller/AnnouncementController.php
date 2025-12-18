@@ -18,8 +18,19 @@ final class AnnouncementController extends AbstractController
     #[Route(name: 'app_announcement_index', methods: ['GET'])]
     public function index(AnnouncementRepository $announcementRepository): Response
     {
-        return $this->render('announcement/index.html.twig', [
+        return $this->render('announcement/my_listings.html.twig', [
             'announcements' => $announcementRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/my-listings', name: 'app_announcement_my_listings', methods: ['GET'])]
+    #[IsGranted('ROLE_PROVIDER')]
+    public function myListings(AnnouncementRepository $announcementRepository): Response
+    {
+        $announcements = $announcementRepository->findBy(['vendor' => $this->getUser()], ['createdAt' => 'DESC']);
+
+        return $this->render('announcement/my_listings.html.twig', [
+            'announcements' => $announcements,
         ]);
     }
 
