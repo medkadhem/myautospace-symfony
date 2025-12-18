@@ -19,6 +19,8 @@
           <a class="{{ app.request.attributes.get('_route') == 'app_marketplace' ? 'active' }}" href="{{ path('app_marketplace') }}">Marketplace</a>
           <a class="{{ app.request.attributes.get('_route') == 'app_services' or app.request.attributes.get('_route') starts with 'app_service' ? 'active' }}" href="{{ path('app_services') }}">Services</a>
           {% if is_granted('ROLE_USER') %}
+            <a class="{{ app.request.attributes.get('_route') starts with 'app_messages' ? 'active' }}" href="{{ path('app_messages') }}">💬 Messages</a>
+            <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offers') }}">💰 Offers</a>
             <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
             <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offer_my_offers') }}" title="View your offers">💰 My Offers</a>
           {% endif %}
