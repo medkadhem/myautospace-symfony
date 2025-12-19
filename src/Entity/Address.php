@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address
@@ -14,22 +15,32 @@ class Address
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Street address is required.')]
+    #[Assert\Length(max: 255, maxMessage: 'Street address cannot be longer than {{ limit }} characters.')]
     private ?string $street = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'City is required.')]
+    #[Assert\Length(max: 100, maxMessage: 'City name cannot be longer than {{ limit }} characters.')]
     private ?string $city = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'State/Province is required.')]
+    #[Assert\Length(max: 100, maxMessage: 'State/Province cannot be longer than {{ limit }} characters.')]
     private ?string $state = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Postal code is required.')]
+    #[Assert\Length(max: 20, maxMessage: 'Postal code cannot be longer than {{ limit }} characters.')]
     private ?string $postalCode = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Country is required.')]
+    #[Assert\Length(max: 100, maxMessage: 'Country name cannot be longer than {{ limit }} characters.')]
     private ?string $country = null;
 
-    #[ORM\OneToOne(inversedBy: 'address', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(inversedBy: 'address', cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?User $owner = null;
 
     public function getId(): ?int
@@ -107,5 +118,25 @@ class Address
         $this->owner = $owner;
 
         return $this;
+    }
+
+    /**
+     * Get full formatted address as a single string
+     */
+    public function getFullAddress(): string
+    {
+        return sprintf(
+            '%s, %s, %s %s, %s',
+            $this->street,
+            $this->city,
+            $this->state,
+            $this->postalCode,
+            $this->country
+        );
+    }
+
+    public function __toString(): string
+    {
+        return $this->getFullAddress();
     }
 }

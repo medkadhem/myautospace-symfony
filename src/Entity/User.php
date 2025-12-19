@@ -316,8 +316,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->address;
     }
 
-    public function setAddress(Address $address): static
+    public function setAddress(?Address $address): static
     {
+        // If setting to null, just clear the relationship
+        if ($address === null) {
+            $this->address = null;
+            return $this;
+        }
+
         // set the owning side of the relation if necessary
         if ($address->getOwner() !== $this) {
             $address->setOwner($this);

@@ -21,6 +21,7 @@
       {% if is_granted('ROLE_USER') %}
         <a class="{{ app.request.attributes.get('_route') == 'app_dashboard' ? 'active' }}" href="{{ path('app_dashboard') }}">Dashboard</a>
         <a class="{{ app.request.attributes.get('_route') starts with 'app_offer' ? 'active' }}" href="{{ path('app_offer_my_offers') }}" title="View your offers">My Offers</a>
+        <a class="{{ app.request.attributes.get('_route') starts with 'app_my_address' or app.request.attributes.get('_route') starts with 'app_address' ? 'active' }}" href="{{ path('app_my_address') }}" title="Manage your address">My Address</a>
       {% endif %}
       {% if is_granted('ROLE_ADMIN') %}
         <a class="{{ app.request.attributes.get('_route') starts with 'app_admin' ? 'active' }}" href="{{ path('app_admin_dashboard') }}">Admin</a>

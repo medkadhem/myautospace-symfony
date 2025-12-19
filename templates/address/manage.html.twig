@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Address - MyAutoSpace{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="margin-bottom: 10px;">My Address</h1>
+    <p style="color: var(--muted); margin-bottom: 30px;">
+        Manage your address for deliveries, meetups, and location-based services.
+    </p>
+
+    <div class="form" style=" border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        {{ form_start(form) }}
+
+        <div class="field">
+            {{ form_label(form.street) }}
+            {{ form_widget(form.street, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.street) }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="field">
+                {{ form_label(form.city) }}
+                {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.city) }}
+            </div>
+
+            <div class="field">
+                {{ form_label(form.state) }}
+                {{ form_widget(form.state, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.state) }}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="field">
+                {{ form_label(form.postalCode) }}
+                {{ form_widget(form.postalCode, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.postalCode) }}
+            </div>
+
+            <div class="field">
+                {{ form_label(form.country) }}
+                {{ form_widget(form.country, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.country) }}
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn yellow" style="flex: 1;">
+                💾 Save Address
+            </button>
+
+            {% if address.id %}
+                <button type="button" onclick="confirmDelete()" class="btn ghost" style="color: #dc3545; border-color: #dc3545;">
+                    🗑️ Delete
+                </button>
+            {% endif %}
+        </div>
+
+        {{ form_end(form) }}
+
+        {% if address.id %}
+        <div style="margin-top: 30px; padding: 20px; border-radius: 8px; border-left: 4px solid var(--yellow);">
+            <h3 style="margin: 0 0 10px 0; font-size: 16px; color: var(--text);">📍 Current Address</h3>
+            <p style="margin: 0; color: var(--muted); line-height: 1.6;">
+                {{ address.fullAddress }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if address.id %}
+    <form id="deleteForm" method="post" action="{{ path('app_address_delete') }}" style="display: none;">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_address') }}">
+    </form>
+    {% endif %}
+</div>
+
+<style>
+.field {
+    margin-bottom: 20px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.field input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+}
+
+.field .invalid-feedback {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .field,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<script>
+function confirmDelete() {
+    if (confirm('Are you sure you want to delete your address? This action cannot be undone.')) {
+        document.getElementById('deleteForm').submit();
+    }
+}
+</script>
+{% endblock %}
+
