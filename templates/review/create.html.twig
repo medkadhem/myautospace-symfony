@@ -53,37 +53,26 @@
       </div>
 
       <!-- Review Form -->
-      <form method="post" class="review-form">
-        <input type="hidden" name="_token" value="{{ csrf_token('create_review') }}">
+      {{ form_start(form, {'attr': {'class': 'review-form'}}) }}
 
         <!-- Rating -->
         <div class="form-group">
-          <label class="form-label">Your Rating <span class="required">*</span></label>
+          {{ form_label(form.rating, 'Your Rating', {'label_attr': {'class': 'form-label'}}) }} <span class="required">*</span>
           <div class="star-rating">
-            <input type="radio" name="rating" value="5" id="star5" required>
-            <label for="star5" title="5 stars">★</label>
-            <input type="radio" name="rating" value="4" id="star4">
-            <label for="star4" title="4 stars">★</label>
-            <input type="radio" name="rating" value="3" id="star3">
-            <label for="star3" title="3 stars">★</label>
-            <input type="radio" name="rating" value="2" id="star2">
-            <label for="star2" title="2 stars">★</label>
-            <input type="radio" name="rating" value="1" id="star1">
-            <label for="star1" title="1 star">★</label>
+            {% for choice in form.rating.vars.choices %}
+              {{ form_widget(form.rating[loop.index0]) }}
+              <label for="{{ form.rating[loop.index0].vars.id }}" title="{{ choice.label }}">★</label>
+            {% endfor %}
           </div>
+          {{ form_errors(form.rating) }}
           <div class="rating-text" id="ratingText">Click to rate</div>
         </div>
 
         <!-- Comment -->
         <div class="form-group">
-          <label for="comment" class="form-label">Your Review (optional)</label>
-          <textarea 
-            name="comment" 
-            id="comment" 
-            rows="5" 
-            class="form-control"
-            placeholder="Share your experience... What did you like? What could be improved?"
-          ></textarea>
+          {{ form_label(form.comment, null, {'label_attr': {'class': 'form-label'}}) }}
+          {{ form_widget(form.comment, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.comment) }}
           <small class="form-help">Your review helps others make informed decisions</small>
         </div>
 
@@ -92,7 +81,8 @@
           <button type="submit" class="btn yellow btn-lg">Submit Review</button>
           <a href="javascript:history.back()" class="btn ghost">Cancel</a>
         </div>
-      </form>
+
+      {{ form_end(form) }}
     </div>
   </div>
 </div>

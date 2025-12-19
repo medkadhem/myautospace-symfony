@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Review;
+use App\Form\ReviewForm;
 use App\Repository\ReservationRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\ServiceRepository;
@@ -75,32 +76,21 @@ final class ReviewController extends AbstractController
             $review->setReviewer($reservation->getAnnouncement()->getVendor());
         }
 
-        if ($request->isMethod('POST')) {
-            $rating = (int) $request->request->get('rating');
-            $comment = $request->request->get('comment');
+        $form = $this->createForm(ReviewForm::class, $review);
+        $form->handleRequest($request);
 
-            if ($rating < 1 || $rating > 5) {
-                $this->addFlash('error', 'Invalid rating. Please select between 1 and 5 stars');
-            } else {
-                $review->setRating($rating);
-                $review->setComment($comment);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($review);
+            $entityManager->flush();
 
-                if (!$this->isCsrfTokenValid('create_review', $request->request->get('_token'))) {
-                    $this->addFlash('error', 'Invalid security token');
-                    return $this->redirectToRoute('app_review_create_from_reservation', ['reservationId' => $reservationId]);
-                }
-
-                $entityManager->persist($review);
-                $entityManager->flush();
-
-                $this->addFlash('success', '⭐ Review submitted successfully!');
-                return $this->redirectToRoute('app_reservation_index');
-            }
+            $this->addFlash('success', '⭐ Review submitted successfully!');
+            return $this->redirectToRoute('app_reservation_index');
         }
 
         return $this->render('review/create.html.twig', [
             'reservation' => $reservation,
             'review' => $review,
+            'form' => $form,
         ]);
     }
 
@@ -123,32 +113,21 @@ final class ReviewController extends AbstractController
         $review->setReviewer($service->getProvider());
         $review->setCreatedAt(new \DateTimeImmutable());
 
-        if ($request->isMethod('POST')) {
-            $rating = (int) $request->request->get('rating');
-            $comment = $request->request->get('comment');
+        $form = $this->createForm(ReviewForm::class, $review);
+        $form->handleRequest($request);
 
-            if ($rating < 1 || $rating > 5) {
-                $this->addFlash('error', 'Invalid rating. Please select between 1 and 5 stars');
-            } else {
-                $review->setRating($rating);
-                $review->setComment($comment);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($review);
+            $entityManager->flush();
 
-                if (!$this->isCsrfTokenValid('create_review', $request->request->get('_token'))) {
-                    $this->addFlash('error', 'Invalid security token');
-                    return $this->redirectToRoute('app_review_create_for_service', ['serviceId' => $serviceId]);
-                }
-
-                $entityManager->persist($review);
-                $entityManager->flush();
-
-                $this->addFlash('success', '⭐ Review submitted successfully!');
-                return $this->redirectToRoute('app_service_show', ['id' => $serviceId]);
-            }
+            $this->addFlash('success', '⭐ Review submitted successfully!');
+            return $this->redirectToRoute('app_service_show', ['id' => $serviceId]);
         }
 
         return $this->render('review/create.html.twig', [
             'service' => $service,
             'review' => $review,
+            'form' => $form,
         ]);
     }
 
@@ -171,32 +150,21 @@ final class ReviewController extends AbstractController
         $review->setReviewer($announcement->getVendor());
         $review->setCreatedAt(new \DateTimeImmutable());
 
-        if ($request->isMethod('POST')) {
-            $rating = (int) $request->request->get('rating');
-            $comment = $request->request->get('comment');
+        $form = $this->createForm(ReviewForm::class, $review);
+        $form->handleRequest($request);
 
-            if ($rating < 1 || $rating > 5) {
-                $this->addFlash('error', 'Invalid rating. Please select between 1 and 5 stars');
-            } else {
-                $review->setRating($rating);
-                $review->setComment($comment);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($review);
+            $entityManager->flush();
 
-                if (!$this->isCsrfTokenValid('create_review', $request->request->get('_token'))) {
-                    $this->addFlash('error', 'Invalid security token');
-                    return $this->redirectToRoute('app_review_create_for_announcement', ['announcementId' => $announcementId]);
-                }
-
-                $entityManager->persist($review);
-                $entityManager->flush();
-
-                $this->addFlash('success', '⭐ Review submitted successfully!');
-                return $this->redirectToRoute('app_announcement_show', ['id' => $announcementId]);
-            }
+            $this->addFlash('success', '⭐ Review submitted successfully!');
+            return $this->redirectToRoute('app_announcement_show', ['id' => $announcementId]);
         }
 
         return $this->render('review/create.html.twig', [
             'announcement' => $announcement,
             'review' => $review,
+            'form' => $form,
         ]);
     }
 
@@ -216,29 +184,19 @@ final class ReviewController extends AbstractController
             throw $this->createAccessDeniedException('You can only edit your own reviews');
         }
 
-        if ($request->isMethod('POST')) {
-            $rating = (int) $request->request->get('rating');
-            $comment = $request->request->get('comment');
+        $form = $this->createForm(ReviewForm::class, $review);
+        $form->handleRequest($request);
 
-            if ($rating < 1 || $rating > 5) {
-                $this->addFlash('error', 'Invalid rating. Please select between 1 and 5 stars');
-            } else {
-                if (!$this->isCsrfTokenValid('edit_review'.$review->getId(), $request->request->get('_token'))) {
-                    $this->addFlash('error', 'Invalid security token');
-                    return $this->redirectToRoute('app_review_edit', ['id' => $review->getId()]);
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
 
-                $review->setRating($rating);
-                $review->setComment($comment);
-                $entityManager->flush();
-
-                $this->addFlash('success', '✏️ Review updated successfully!');
-                return $this->redirectToRoute('app_review_index');
-            }
+            $this->addFlash('success', '✏️ Review updated successfully!');
+            return $this->redirectToRoute('app_review_index');
         }
 
         return $this->render('review/edit.html.twig', [
             'review' => $review,
+            'form' => $form,
         ]);
     }
 

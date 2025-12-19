@@ -19,8 +19,11 @@
         </div>
 
         <div class="form-section">
-            <h3>Date</h3>
-            {{ form_row(form.createdAt) }}
+            <h3>Date Information</h3>
+            <div class="form-group">
+                <label>Created At</label>
+                <p class="form-control-static">{{ review.createdAt ? review.createdAt|date('Y-m-d H:i:s') : 'N/A' }}</p>
+            </div>
         </div>
 
         <div class="form-actions">

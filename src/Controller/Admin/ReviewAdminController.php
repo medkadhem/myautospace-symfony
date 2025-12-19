@@ -34,7 +34,7 @@ class ReviewAdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $review->setCreatedAt(new \DateTime());
+            $review->setCreatedAt(new \DateTimeImmutable());
             $entityManager->persist($review);
             $entityManager->flush();
 
