@@ -57,6 +57,9 @@ final class AnnouncementController extends AbstractController
             }
 
             // Set default values for required fields
+            if (!$announcement->getCreatedAt()) {
+                $announcement->setCreatedAt(new \DateTimeImmutable());
+            }
             if (!$announcement->getPublishedAt()) {
                 $announcement->setPublishedAt(new \DateTimeImmutable());
             }
@@ -66,7 +69,10 @@ final class AnnouncementController extends AbstractController
             if (!$announcement->getEndDate()) {
                 $announcement->setEndDate(new \DateTimeImmutable('+30 days'));
             }
-            
+            if (!$announcement->getStatus()) {
+                $announcement->setStatus('active');
+            }
+
             // Set default values for removed fields
             $announcement->setIsSponsored(false);
             $announcement->setBudget(0);

@@ -22,6 +22,7 @@ class Category
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'subCategories')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?self $parent = null;
 
     /**

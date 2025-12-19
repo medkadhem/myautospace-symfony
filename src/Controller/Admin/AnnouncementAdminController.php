@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Announcement;
 use App\Form\AnnouncementForm;
 use App\Repository\AnnouncementRepository;
+use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +35,30 @@ class AnnouncementAdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Set required fields if not already set
+            if (!$announcement->getCreatedAt()) {
+                $announcement->setCreatedAt(new \DateTimeImmutable());
+            }
+            if (!$announcement->getPublishedAt()) {
+                $announcement->setPublishedAt(new \DateTimeImmutable());
+            }
+            if ($announcement->isSponsored() === null) {
+                $announcement->setIsSponsored(false);
+            }
+            if (!$announcement->getStartDate()) {
+                $announcement->setStartDate(new \DateTimeImmutable());
+            }
+            if (!$announcement->getEndDate()) {
+                // Default end date: 30 days from now
+                $announcement->setEndDate(new \DateTimeImmutable('+30 days'));
+            }
+            if ($announcement->getBudget() === null) {
+                $announcement->setBudget(0);
+            }
+            if (!$announcement->getStatus()) {
+                $announcement->setStatus('active');
+            }
+
             // Handle category selection
             $category = $form->get('category')->getData();
             if ($category) {

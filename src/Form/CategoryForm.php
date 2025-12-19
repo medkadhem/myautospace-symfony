@@ -18,12 +18,16 @@ class CategoryForm extends AbstractType
             ->add('description')
             ->add('parent', EntityType::class, [
                 'class' => Category::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
+                'required' => false,
+                'placeholder' => 'Select a parent category',
+                'label' => 'Parent Category',
             ])
             ->add('announcements', EntityType::class, [
                 'class' => Announcement::class,
                 'choice_label' => 'id',
                 'multiple' => true,
+                'required' => false,
             ])
         ;
     }

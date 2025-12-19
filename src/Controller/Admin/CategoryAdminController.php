@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Category;
-use App\Form\CategoryType;
+use App\Form\CategoryForm;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +30,7 @@ class CategoryAdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $category = new Category();
-        $form = $this->createForm(CategoryType::class, $category);
+        $form = $this->createForm(CategoryForm::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -62,7 +62,7 @@ class CategoryAdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $form = $this->createForm(CategoryType::class, $category);
+        $form = $this->createForm(CategoryForm::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -84,10 +84,31 @@ class CategoryAdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($category);
-            $entityManager->flush();
+            // Check if category has subcategories
+            if ($category->getSubCategories()->count() > 0) {
+                $this->addFlash('error', 'Cannot delete this category because it has ' . $category->getSubCategories()->count() . ' subcategories. Please delete or reassign the subcategories first.');
+                return $this->redirectToRoute('app_admin_category_index');
+            }
 
-            $this->addFlash('success', 'Category deleted successfully!');
+            // Check if category has services
+            if ($category->getServices()->count() > 0) {
+                $this->addFlash('error', 'Cannot delete this category because it has ' . $category->getServices()->count() . ' services associated with it. Please reassign or delete the services first.');
+                return $this->redirectToRoute('app_admin_category_index');
+            }
+
+            // Check if category has announcements
+            if ($category->getAnnouncements()->count() > 0) {
+                $this->addFlash('error', 'Cannot delete this category because it has ' . $category->getAnnouncements()->count() . ' announcements associated with it. Please reassign or delete the announcements first.');
+                return $this->redirectToRoute('app_admin_category_index');
+            }
+
+            try {
+                $entityManager->remove($category);
+                $entityManager->flush();
+                $this->addFlash('success', 'Category deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while deleting the category: ' . $e->getMessage());
+            }
         }
 
         return $this->redirectToRoute('app_admin_category_index');
