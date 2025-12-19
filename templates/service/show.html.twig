@@ -35,9 +35,17 @@
           <p>{{ service.description }}</p>
         </div>
 
-        {% if service.reviews|length > 0 %}
         <div class="reviews-section">
-          <h3>Customer Reviews ({{ service.reviews|length }})</h3>
+          <h3>⭐ Customer Reviews {% if service.reviews|length > 0 %}({{ service.reviews|length }} review{{ service.reviews|length > 1 ? 's' : '' }}){% endif %}</h3>
+          
+          {% if is_granted('ROLE_USER') and app.user and app.user.id != service.provider.id %}
+          <div class="leave-review-cta">
+            <p>Share your experience with this service</p>
+            <a href="{{ path('app_review_create_for_service', {serviceId: service.id}) }}" class="btn yellow">Write a Review</a>
+          </div>
+          {% endif %}
+
+          {% if service.reviews|length > 0 %}
           <div class="reviews-list">
             {% for review in service.reviews %}
             <div class="review-item">
@@ -61,8 +69,12 @@
             </div>
             {% endfor %}
           </div>
+          {% else %}
+          <div class="no-reviews">
+            <p>No reviews yet. Be the first to review this service!</p>
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
 
       <div class="service-sidebar">
@@ -316,13 +328,13 @@
     display: block;
   }
 
-  .description-card, .reviews-section {
+  .description-card {
     padding: 24px;
     background: var(--bg-secondary);
     border-radius: 12px;
   }
 
-  .description-card h3, .reviews-section h3 {
+  .description-card h3 {
     font-size: 18px;
     margin: 0 0 16px;
   }
@@ -333,23 +345,64 @@
     margin: 0;
   }
 
+  .reviews-section {
+    background: var(--bg-secondary);
+    padding: 32px;
+    border-radius: 12px;
+    margin-top: 24px;
+  }
+
+  .reviews-section h3 {
+    margin: 0 0 24px;
+    font-size: 22px;
+  }
+
+  .leave-review-cta {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .leave-review-cta p {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .no-reviews {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    background: var(--card);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .no-reviews p {
+    margin: 0;
+    font-size: 15px;
+  }
+
   .reviews-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
 
   .review-item {
-    padding: 16px;
-    background: var(--bg);
+    background: var(--card);
+    padding: 20px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .review-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: center;
     margin-bottom: 12px;
   }
 
@@ -360,47 +413,48 @@
   }
 
   .author-avatar {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--primary-dark));
     color: #000;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .author-name {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .review-date {
     font-size: 12px;
     color: var(--muted);
+    margin-top: 2px;
   }
 
   .review-rating {
     display: flex;
-    gap: 2px;
+    gap: 4px;
   }
 
   .star-filled {
     color: var(--accent);
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .star-empty {
-    color: rgba(255, 255, 255, 0.2);
-    font-size: 16px;
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 18px;
   }
 
   .review-comment {
     color: var(--muted);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     margin: 0;
   }
 
