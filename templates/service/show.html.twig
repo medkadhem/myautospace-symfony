@@ -74,7 +74,7 @@
         {% if not (is_granted('ROLE_USER') and app.user and app.user.id == service.provider.id) %}
           <div class="action-panel">
             <button class="btn yellow btn-block" onclick="openBookingModal()">📅 Book Now</button>
-            <button class="btn secondary btn-block">💬 Contact Provider</button>
+            <button class="btn secondary btn-block" onclick="openContactModal()">💬 Contact Provider</button>
           </div>
         {% endif %}
 
@@ -177,6 +177,42 @@
         <div class="modal-actions">
           <button type="submit" class="btn yellow btn-block">Confirm Booking</button>
           <button type="button" class="btn secondary btn-block" onclick="closeBookingModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Provider Modal -->
+<div id="contactModal" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content-booking">
+      <div class="modal-header-booking">
+        <h2>Contact Provider</h2>
+        <button class="modal-close-btn" onclick="closeContactModal()">&times;</button>
+      </div>
+      <form method="post" action="{{ path('app_message_send') }}" class="booking-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('send_message') }}">
+        <input type="hidden" name="providerId" value="{{ service.provider.id }}">
+        <input type="hidden" name="serviceId" value="{{ service.id }}">
+        
+        <div class="form-group">
+          <label for="contactSubject">Subject *</label>
+          <input type="text" id="contactSubject" name="subject" class="form-control" placeholder="What is this about?" required>
+        </div>
+
+        <div class="form-group">
+          <label for="contactMessage">Message *</label>
+          <textarea id="contactMessage" name="message" class="form-control" rows="4" placeholder="Your message here..." required></textarea>
+        </div>
+
+        <div class="provider-info-contact">
+          <strong>Sending to:</strong> {{ service.provider.fullName ?? service.provider.email }}
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn yellow btn-block">Send Message</button>
+          <button type="button" class="btn secondary btn-block" onclick="closeContactModal()">Cancel</button>
         </div>
       </form>
     </div>
@@ -475,6 +511,15 @@
     border-color: rgba(231, 76, 60, 0.3);
   }
 
+  .provider-info-contact {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    color: var(--muted);
+  }
+
   /* Modal Styles */
   .modal {
     display: none;
@@ -673,10 +718,31 @@
     document.body.style.overflow = 'auto';
   }
 
+  function openContactModal() {
+    {% if is_granted('ROLE_USER') %}
+      document.getElementById('contactModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    {% else %}
+      alert('Please login to contact the provider');
+      window.location.href = '{{ path('app_login') }}';
+    {% endif %}
+  }
+
+  function closeContactModal() {
+    document.getElementById('contactModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
   // Close modal on outside click
   document.getElementById('bookingModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
       closeBookingModal();
+    }
+  });
+
+  document.getElementById('contactModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeContactModal();
     }
   });
 </script>

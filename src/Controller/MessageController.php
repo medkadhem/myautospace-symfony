@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Message;
 use App\Entity\Announcement;
+use App\Entity\Service;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,16 +22,16 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
         $messages = $messageRepo->findUserConversations($user);
-        
+
         // Group messages by conversation
         $conversations = [];
         foreach ($messages as $message) {
-            $otherUser = $message->getSender() === $user 
-                ? $message->getReceiver() 
+            $otherUser = $message->getSender() === $user
+                ? $message->getReceiver()
                 : $message->getSender();
             $announcementId = $message->getAnnouncement()->getId();
             $key = $otherUser->getId() . '_' . $announcementId;
-            
+
             if (!isset($conversations[$key])) {
                 $conversations[$key] = [
                     'otherUser' => $otherUser,
@@ -44,9 +45,9 @@ class MessageController extends AbstractController
                 $conversations[$key]['lastMessage'] = $message;
             }
         }
-        
+
         // Sort by last message date
-        usort($conversations, function($a, $b) {
+        usort($conversations, function ($a, $b) {
             return $b['lastMessage']->getCreatedAt() <=> $a['lastMessage']->getCreatedAt();
         });
 
@@ -57,12 +58,13 @@ class MessageController extends AbstractController
 
     #[Route('/conversation/{announcementId}/{userId}', name: 'app_messages_conversation', methods: ['GET', 'POST'])]
     public function conversation(
-        int $announcementId,
-        int $userId,
-        Request $request,
+        int                    $announcementId,
+        int                    $userId,
+        Request                $request,
         EntityManagerInterface $em,
-        MessageRepository $messageRepo
-    ): Response {
+        MessageRepository      $messageRepo
+    ): Response
+    {
         $currentUser = $this->getUser();
         $announcement = $em->getRepository(Announcement::class)->find($announcementId);
         $otherUser = $em->getRepository(\App\Entity\User::class)->find($userId);
@@ -73,7 +75,7 @@ class MessageController extends AbstractController
 
         // Get conversation
         $messages = $messageRepo->findConversation($currentUser, $otherUser, $announcement);
-        
+
         // Mark messages as read
         foreach ($messages as $message) {
             if ($message->getReceiver() === $currentUser && !$message->isRead()) {
@@ -91,7 +93,7 @@ class MessageController extends AbstractController
                 $message->setReceiver($otherUser);
                 $message->setAnnouncement($announcement);
                 $message->setContent($content);
-                
+
                 $em->persist($message);
                 $em->flush();
 
@@ -112,12 +114,13 @@ class MessageController extends AbstractController
 
     #[Route('/send/{announcementId}', name: 'app_messages_send', methods: ['POST'])]
     public function send(
-        int $announcementId,
-        Request $request,
+        int                    $announcementId,
+        Request                $request,
         EntityManagerInterface $em
-    ): Response {
+    ): Response
+    {
         $announcement = $em->getRepository(Announcement::class)->find($announcementId);
-        
+
         if (!$announcement) {
             throw $this->createNotFoundException();
         }
@@ -129,7 +132,7 @@ class MessageController extends AbstractController
             $message->setReceiver($announcement->getVendor());
             $message->setAnnouncement($announcement);
             $message->setContent($content);
-            
+
             $em->persist($message);
             $em->flush();
 
@@ -137,5 +140,45 @@ class MessageController extends AbstractController
         }
 
         return $this->redirectToRoute('app_announcement_show', ['id' => $announcementId]);
+    }
+
+    #[Route('/contact-provider', name: 'app_message_send', methods: ['POST'])]
+    public function contactProvider(
+        Request                $request,
+        EntityManagerInterface $em
+    ): Response
+    {
+        $providerId = $request->request->get('providerId');
+        $serviceId = $request->request->get('serviceId');
+        $subject = $request->request->get('subject');
+        $messageContent = $request->request->get('message');
+
+        $provider = $em->getRepository(\App\Entity\User::class)->find($providerId);
+        $service = $em->getRepository(\App\Entity\Service::class)->find($serviceId);
+
+        if (!$provider || !$service) {
+            $this->addFlash('error', 'Service or provider not found.');
+            return $this->redirectToRoute('app_services');
+        }
+
+        if ($messageContent && $subject) {
+            // Create a message with subject line included in content
+            $fullMessage = "Subject: " . $subject . "\n\n" . $messageContent;
+
+            $message = new Message();
+            $message->setSender($this->getUser());
+            $message->setReceiver($provider);
+            $message->setAnnouncement($service->getProvider()->getAnnouncements()->first() ?? null);
+            $message->setContent($fullMessage);
+
+            $em->persist($message);
+            $em->flush();
+
+            $this->addFlash('success', 'Message sent to provider successfully!');
+        } else {
+            $this->addFlash('error', 'Subject and message are required.');
+        }
+
+        return $this->redirectToRoute('app_service_show', ['id' => $serviceId]);
     }
 }

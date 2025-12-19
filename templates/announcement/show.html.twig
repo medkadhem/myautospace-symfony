@@ -98,7 +98,7 @@
             <h3>Additional Photos ({{ announcement.photos|length }})</h3>
             <div class="photo-gallery">
               {% for photo in announcement.photos %}
-                <div class="gallery-item" onclick="openLightbox({{ loop.index }})">
+                <div class="gallery-item" onclick="openLightbox({{ loop.index0 + 1 }})">
                   <img src="{{ asset('uploads/announcements/' ~ photo) }}" alt="Vehicle photo {{ loop.index }}" onerror="this.src='https://via.placeholder.com/200x150?text=Photo'">
                   <div class="gallery-overlay">
                     <i class="fas fa-search-plus"></i>
@@ -843,7 +843,7 @@
   let currentImageIndex = 0;
   const images = [
     {% if announcement.mainPhoto %}'{{ asset('uploads/announcements/' ~ announcement.mainPhoto) }}',{% endif %}
-    {% if announcement.photos %}
+    {% if announcement.photos and announcement.photos|length > 0 %}
       {% for photo in announcement.photos %}
         '{{ asset('uploads/announcements/' ~ photo) }}'{% if not loop.last %},{% endif %}
       {% endfor %}
@@ -851,6 +851,7 @@
   ];
 
   function openLightbox(index) {
+    if (images.length === 0) return;
     currentImageIndex = index;
     const lightbox = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
@@ -878,7 +879,9 @@
 
   function updateCounter() {
     const counter = document.getElementById('lightbox-counter');
-    counter.textContent = `${currentImageIndex + 1} / ${images.length}`;
+    if (images.length > 0) {
+      counter.textContent = `${currentImageIndex + 1} / ${images.length}`;
+    }
   }
 
   // Keyboard navigation
