@@ -18,8 +18,18 @@ final class ServiceController extends AbstractController
     #[Route(name: 'app_service_index', methods: ['GET'])]
     public function index(ServiceRepository $serviceRepository): Response
     {
+        $user = $this->getUser();
+
+        // If user is a provider, show only their services
+        if ($user && $this->isGranted('ROLE_PROVIDER')) {
+            $services = $serviceRepository->findBy(['provider' => $user], ['createdAt' => 'DESC']);
+        } else {
+            // For other users (or guests), show all active services
+            $services = $serviceRepository->findBy(['isActive' => true], ['createdAt' => 'DESC']);
+        }
+
         return $this->render('service/index.html.twig', [
-            'services' => $serviceRepository->findAll(),
+            'services' => $services,
         ]);
     }
 
