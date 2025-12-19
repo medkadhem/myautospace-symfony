@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Optional;
 
 class AnnouncementForm extends AbstractType
 {
@@ -95,10 +96,12 @@ class AnnouncementForm extends AbstractType
                 'required' => false,
                 'attr' => ['accept' => 'image/*'],
                 'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WebP)',
+                    new Optional([
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                            'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WebP)',
+                        ])
                     ])
                 ],
             ])
@@ -109,11 +112,13 @@ class AnnouncementForm extends AbstractType
                 'multiple' => true,
                 'attr' => ['accept' => 'image/*'],
                 'constraints' => [
-                    new All([
-                        new File([
-                            'maxSize' => '5M',
-                            'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                            'mimeTypesMessage' => 'Please upload valid images (JPEG, PNG, WebP)',
+                    new Optional([
+                        new All([
+                            new File([
+                                'maxSize' => '5M',
+                                'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                                'mimeTypesMessage' => 'Please upload valid images (JPEG, PNG, WebP)',
+                            ])
                         ])
                     ])
                 ],

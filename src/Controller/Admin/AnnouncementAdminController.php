@@ -3,9 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Announcement;
-use App\Form\AnnouncementType;
+use App\Form\AnnouncementForm;
 use App\Repository\AnnouncementRepository;
-use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,12 +25,12 @@ class AnnouncementAdminController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_announcement_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $announcement = new Announcement();
-        $form = $this->createForm(AnnouncementType::class, $announcement);
+        $form = $this->createForm(AnnouncementForm::class, $announcement);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -45,19 +44,39 @@ class AnnouncementAdminController extends AbstractController
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
             if ($mainPhotoFile) {
-                $mainPhotoFilename = $fileUploader->upload($mainPhotoFile, 'announcements');
-                $announcement->setMainPhoto($mainPhotoFilename);
+                $newFilename = uniqid().'.'.$mainPhotoFile->guessExtension();
+                try {
+                    $mainPhotoFile->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                        $newFilename
+                    );
+                    $announcement->setMainPhoto($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Failed to upload main photo');
+                }
             }
 
             // Handle additional photos upload
             $photoFiles = $form->get('photoFiles')->getData();
-            if ($photoFiles) {
+            if ($photoFiles && is_iterable($photoFiles)) {
                 $photos = [];
                 foreach ($photoFiles as $photoFile) {
-                    $photoFilename = $fileUploader->upload($photoFile, 'announcements');
-                    $photos[] = $photoFilename;
+                    if ($photoFile) {
+                        $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                        try {
+                            $photoFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                                $newFilename
+                            );
+                            $photos[] = $newFilename;
+                        } catch (\Exception $e) {
+                            // Continue with other photos
+                        }
+                    }
                 }
-                $announcement->setPhotos($photos);
+                if (!empty($photos)) {
+                    $announcement->setPhotos($photos);
+                }
             }
 
             $entityManager->persist($announcement);
@@ -84,17 +103,14 @@ class AnnouncementAdminController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_admin_announcement_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Announcement $announcement, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function edit(Request $request, Announcement $announcement, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $oldMainPhoto = $announcement->getMainPhoto();
-        $oldPhotos = $announcement->getPhotos();
 
         // Set the current category for the form
         $currentCategory = $announcement->getCategories()->first() ?: null;
 
-        $form = $this->createForm(AnnouncementType::class, $announcement);
+        $form = $this->createForm(AnnouncementForm::class, $announcement);
         
         // Set the category field value
         if ($currentCategory) {
@@ -113,29 +129,37 @@ class AnnouncementAdminController extends AbstractController
             // Handle main photo upload
             $mainPhotoFile = $form->get('mainPhotoFile')->getData();
             if ($mainPhotoFile) {
-                if ($oldMainPhoto) {
-                    $fileUploader->remove($oldMainPhoto);
+                $newFilename = uniqid().'.'.$mainPhotoFile->guessExtension();
+                try {
+                    $mainPhotoFile->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                        $newFilename
+                    );
+                    $announcement->setMainPhoto($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Failed to upload main photo');
                 }
-                $mainPhotoFilename = $fileUploader->upload($mainPhotoFile, 'announcements');
-                $announcement->setMainPhoto($mainPhotoFilename);
             }
 
             // Handle additional photos upload
             $photoFiles = $form->get('photoFiles')->getData();
-            if ($photoFiles) {
-                // Remove old photos
-                if ($oldPhotos) {
-                    foreach ($oldPhotos as $oldPhoto) {
-                        $fileUploader->remove($oldPhoto);
+            if ($photoFiles && is_iterable($photoFiles)) {
+                $existingPhotos = $announcement->getPhotos() ?? [];
+                foreach ($photoFiles as $photoFile) {
+                    if ($photoFile) {
+                        $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                        try {
+                            $photoFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                                $newFilename
+                            );
+                            $existingPhotos[] = $newFilename;
+                        } catch (\Exception $e) {
+                            // Continue with other photos
+                        }
                     }
                 }
-
-                $photos = [];
-                foreach ($photoFiles as $photoFile) {
-                    $photoFilename = $fileUploader->upload($photoFile, 'announcements');
-                    $photos[] = $photoFilename;
-                }
-                $announcement->setPhotos($photos);
+                $announcement->setPhotos($existingPhotos);
             }
 
             $entityManager->flush();

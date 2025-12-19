@@ -12,8 +12,10 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class ServiceAdminType extends AbstractType
 {
@@ -57,6 +59,24 @@ class ServiceAdminType extends AbstractType
                 'label' => 'Category',
                 'attr' => ['class' => 'form-control'],
             ])
+            ->add('photoFile', FileType::class, [
+                'label' => 'Service Photo',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/jpg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
+                    ])
+                ],
+                'attr' => ['accept' => 'image/*', 'class' => 'form-control'],
+            ])
         ;
     }
 
@@ -67,3 +87,4 @@ class ServiceAdminType extends AbstractType
         ]);
     }
 }
+

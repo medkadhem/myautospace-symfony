@@ -18,6 +18,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Optional;
 
 class AnnouncementType extends AbstractType
 {
@@ -122,15 +124,17 @@ class AnnouncementType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/jpg',
-                            'image/png',
-                            'image/webp',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
+                    new Optional([
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'image/jpeg',
+                                'image/jpg',
+                                'image/png',
+                                'image/webp',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
+                        ])
                     ])
                 ],
                 'attr' => ['class' => 'form-control', 'accept' => 'image/*'],
@@ -141,15 +145,19 @@ class AnnouncementType extends AbstractType
                 'required' => false,
                 'multiple' => true,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/jpg',
-                            'image/png',
-                            'image/webp',
-                        ],
-                        'mimeTypesMessage' => 'Please upload valid images (JPEG, PNG, WEBP)',
+                    new Optional([
+                        new All([
+                            new File([
+                                'maxSize' => '5M',
+                                'mimeTypes' => [
+                                    'image/jpeg',
+                                    'image/jpg',
+                                    'image/png',
+                                    'image/webp',
+                                ],
+                                'mimeTypesMessage' => 'Please upload valid images (JPEG, PNG, WEBP)',
+                            ])
+                        ])
                     ])
                 ],
                 'attr' => ['class' => 'form-control', 'accept' => 'image/*'],

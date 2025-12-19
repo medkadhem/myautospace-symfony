@@ -88,21 +88,25 @@ final class AnnouncementController extends AbstractController
 
             // Handle additional photos upload
             $photoFiles = $form->get('photoFiles')->getData();
-            if ($photoFiles) {
+            if ($photoFiles && is_iterable($photoFiles)) {
                 $photos = [];
                 foreach ($photoFiles as $photoFile) {
-                    $newFilename = uniqid().'.'.$photoFile->guessExtension();
-                    try {
-                        $photoFile->move(
-                            $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
-                            $newFilename
-                        );
-                        $photos[] = $newFilename;
-                    } catch (\Exception $e) {
-                        // Continue with other photos
+                    if ($photoFile) {
+                        $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                        try {
+                            $photoFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                                $newFilename
+                            );
+                            $photos[] = $newFilename;
+                        } catch (\Exception $e) {
+                            // Continue with other photos
+                        }
                     }
                 }
-                $announcement->setPhotos($photos);
+                if (!empty($photos)) {
+                    $announcement->setPhotos($photos);
+                }
             }
 
             $entityManager->persist($announcement);
@@ -166,18 +170,20 @@ final class AnnouncementController extends AbstractController
 
             // Handle additional photos upload
             $photoFiles = $form->get('photoFiles')->getData();
-            if ($photoFiles) {
+            if ($photoFiles && is_iterable($photoFiles)) {
                 $existingPhotos = $announcement->getPhotos() ?? [];
                 foreach ($photoFiles as $photoFile) {
-                    $newFilename = uniqid().'.'.$photoFile->guessExtension();
-                    try {
-                        $photoFile->move(
-                            $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
-                            $newFilename
-                        );
-                        $existingPhotos[] = $newFilename;
-                    } catch (\Exception $e) {
-                        // Continue with other photos
+                    if ($photoFile) {
+                        $newFilename = uniqid().'.'.$photoFile->guessExtension();
+                        try {
+                            $photoFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/announcements',
+                                $newFilename
+                            );
+                            $existingPhotos[] = $newFilename;
+                        } catch (\Exception $e) {
+                            // Continue with other photos
+                        }
                     }
                 }
                 $announcement->setPhotos($existingPhotos);
