@@ -1,48 +1,480 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Services - MyAutoSpace{% endblock %}
+{% block title %}My Services - MyAutoSpace{% endblock %}
 
 {% block body %}
-<div class="marketplace-container">
-  <div class="marketplace-header">
-    <h1>Available Services</h1>
-    <p>{{ services | length }} services available</p>
-  </div>
-
-  <div class="vehicles-grid">
-    {% for service in services %}
-      <div class="vehicle-card">
-        <div class="card-header">
-          <div class="card-image" style="background: linear-gradient(135deg, var(--yellow) 0%, var(--primary-dark) 100%); display: flex; align-items: center; justify-content: center; font-size: 40px;">
-            🔧
-          </div>
-          <button class="favorite-btn" aria-label="Add to favorites">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="card-content">
-          <div class="card-price">{{ service.price }} TND</div>
-          <h3 class="card-title">{{ service.title }}</h3>
-          <p class="card-location">{{ service.category.name }}</p>
-          <div class="card-footer">
-            <div class="card-rating">
-              <span>⏱️ {{ service.duration }}min</span>
+    <div class="services-container">
+        <!-- Header Section -->
+        <div class="services-header">
+            <div class="header-content">
+                <h1>🔧 My Services</h1>
+                <p>Manage your automotive services</p>
             </div>
-            <button class="action-btn" onclick="window.location.href='{{ path('app_service_show', {id: service.id}) }}'">•</button>
-          </div>
+            <a href="{{ path('app_service_new') }}" class="btn btn-primary btn-lg">+ Add New Service</a>
         </div>
-      </div>
-    {% else %}
-      <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px;">
-        <p style="color: var(--muted);">No services available</p>
-        {% if is_granted('ROLE_USER') %}
-          <a href="{{ path('app_service_new') }}" class="btn yellow" style="margin-top: 16px;">Create a Service</a>
+
+        <!-- Stats Section -->
+        <div class="services-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <div class="stat-label">Total Services</div>
+                    <div class="stat-value">{{ services|length }}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <div class="stat-label">Average Price</div>
+                    <div class="stat-value">
+                        {% if services|length > 0 %}
+                            {{ (services|reduce((carry, item) => carry + item.price, 0) / services|length)|number_format(0, '.', ' ') }} TND
+                        {% else %}
+                            0 TND
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-info">
+                    <div class="stat-label">Avg Duration</div>
+                    <div class="stat-value">
+                        {% if services|length > 0 %}
+                            {{ (services|reduce((carry, item) => carry + item.duration, 0) / services|length)|round }} min
+                        {% else %}
+                            0 min
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-info">
+                    <div class="stat-label">Categories</div>
+                    <div class="stat-value">
+                        {% set categories = [] %}
+                        {% for service in services %}
+                            {% if service.category.name not in categories %}
+                                {% set categories = categories|merge([service.category.name]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ categories|length }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        {% if services is empty %}
+            <div class="empty-services">
+                <div class="empty-icon">🔧</div>
+                <h3>No Services Yet</h3>
+                <p>You haven't added any services yet. Start by creating your first service!</p>
+                <a href="{{ path('app_service_new') }}" class="btn btn-primary">Create First Service</a>
+            </div>
+        {% else %}
+            <div class="services-grid-wrapper">
+                <div class="grid-header">
+                    <h2>Services ({{ services|length }})</h2>
+                </div>
+                <div class="services-grid">
+                    {% for service in services %}
+                        <div class="service-card">
+                            <div class="card-image-section">
+                                {% if service.photo %}
+                                    <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="{{ service.title }}">
+                                {% else %}
+                                    <div class="card-image-placeholder">
+                                        🔧
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-content">
+                                <h3 class="card-title">{{ service.title }}</h3>
+                                <p class="card-description">{{ service.description|length > 80 ? service.description|slice(0, 80) ~ '...' : service.description }}</p>
+                                
+                                <div class="card-meta">
+                                    <span class="meta-badge category-badge">{{ service.category.name }}</span>
+                                    <span class="meta-badge duration-badge">⏱️ {{ service.duration }} min</span>
+                                </div>
+
+                                <div class="card-price-section">
+                                    <div class="price">{{ service.price|number_format(0, '.', ' ') }} TND</div>
+                                </div>
+
+                                <div class="card-actions">
+                                    <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn btn-sm btn-outline">View</a>
+                                    <a href="{{ path('app_service_edit', {id: service.id}) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                    <form method="POST" action="{{ path('app_service_delete', {id: service.id}) }}" style="flex: 1;" onsubmit="return confirm('Delete this service? This action cannot be undone.');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" style="width: 100%;">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         {% endif %}
-      </div>
-    {% endfor %}
-  </div>
-</div>
+    </div>
+
+    <style>
+        .services-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .services-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            margin: 0 0 8px;
+            font-weight: 700;
+        }
+
+        .header-content p {
+            color: var(--muted);
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 15px;
+        }
+
+        /* Stats Section */
+        .services-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Empty State */
+        .empty-services {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-services h3 {
+            font-size: 24px;
+            margin: 0 0 12px;
+        }
+
+        .empty-services p {
+            color: var(--muted);
+            margin: 0 0 24px;
+        }
+
+        /* Grid Section */
+        .services-grid-wrapper {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .grid-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-header h2 {
+            font-size: 22px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .service-card {
+            background: var(--bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(248, 231, 28, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .card-image-section {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-dark) 100%);
+        }
+
+        .card-image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover .card-image-section img {
+            transform: scale(1.05);
+        }
+
+        .card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-dark) 100%);
+        }
+
+        .card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-description {
+            margin: 0;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 8px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .meta-badge {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .category-badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .duration-badge {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+
+        .card-price-section {
+            margin: 8px 0;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .services-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .services-container {
+                padding: 20px 12px;
+            }
+
+            .services-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .services-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-icon {
+                font-size: 24px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .grid-header {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .services-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 {% endblock %}

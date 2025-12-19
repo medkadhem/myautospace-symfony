@@ -56,7 +56,7 @@ class Service
     /**
      * @var Collection<int, Reservation>
      */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'service')]
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'service', cascade: ['remove'])]
     private Collection $reservations;
 
     public function __construct()

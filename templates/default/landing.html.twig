@@ -93,70 +93,40 @@
   </section>
   {% endif %}
 
+  {% if featuredServices|length > 0 %}
   <section class="services-section">
     <h2>🔧 Professional Services</h2>
     
-    {% if featuredServices|length > 0 %}
-      {% for service in featuredServices %}
-        <div class="service-item {{ loop.index is even ? 'reverse' : '' }}">
-          <div class="service-image">
-            {% if service.photo %}
-              <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="{{ service.title }}">
-            {% else %}
-              <img src="https://images.unsplash.com/photo-{{ ['1552555238-6461a8b80e71', '1517420879524-86d64ac2aea8', '1625231724288-e22032e19fff'][loop.index0 % 3] }}?w=500&q=80" alt="{{ service.title }}">
+    {% for service in featuredServices %}
+      <div class="service-item {{ loop.index is even ? 'reverse' : '' }}">
+        <div class="service-image">
+          {% if service.photo %}
+            <img src="{{ asset('uploads/services/' ~ service.photo) }}" alt="{{ service.title }}">
+          {% else %}
+            <img src="https://images.unsplash.com/photo-{{ ['1552555238-6461a8b80e71', '1517420879524-86d64ac2aea8', '1625231724288-e22032e19fff'][loop.index0 % 3] }}?w=500&q=80" alt="{{ service.title }}">
+          {% endif %}
+        </div>
+        <div class="service-content">
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description|length > 200 ? service.description|slice(0, 200) ~ '...' : service.description }}</p>
+          <div class="service-pricing">
+            <span class="service-price">{{ service.price|number_format(0, '.', ',') }} TND</span>
+            {% if service.duration %}
+              <span class="service-duration">⏱️ {{ service.duration }} min</span>
             {% endif %}
           </div>
-          <div class="service-content">
-            <h3>{{ service.title }}</h3>
-            <p>{{ service.description|length > 200 ? service.description|slice(0, 200) ~ '...' : service.description }}</p>
-            <div class="service-pricing">
-              <span class="service-price">{{ service.price|number_format(0, '.', ',') }} TND</span>
-              {% if service.duration %}
-                <span class="service-duration">⏱️ {{ service.duration }} min</span>
-              {% endif %}
-            </div>
-            <div class="service-action">
-              <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow">View Details →</a>
-            </div>
+          <div class="service-action">
+            <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn yellow">View Details →</a>
           </div>
         </div>
-      {% endfor %}
-      
-      <div style="text-align: center; margin-top: 60px;">
-        <a href="{{ path('app_services') }}" class="btn secondary">View All Services →</a>
       </div>
-    {% else %}
-      <div class="service-item">
-        <div class="service-image">
-          <img src="https://images.unsplash.com/photo-1552555238-6461a8b80e71?w=500&q=80" alt="Car Maintenance">
-        </div>
-        <div class="service-content">
-          <h3>Car Maintenance</h3>
-          <p>Professional car maintenance and servicing to keep your vehicle running smoothly. From oil changes to brake inspections, our certified technicians ensure your car receives the best care possible.</p>
-        </div>
-      </div>
-
-      <div class="service-item reverse">
-        <div class="service-image">
-          <img src="https://images.unsplash.com/photo-1517420879524-86d64ac2aea8?w=500&q=80" alt="Car Repair">
-        </div>
-        <div class="service-content">
-          <h3>Repair Services</h3>
-          <p>Expert repair services for all types of vehicles. Our skilled mechanics diagnose and fix issues quickly and efficiently, using quality parts and modern equipment to restore your vehicle to perfect condition.</p>
-        </div>
-      </div>
-
-      <div class="service-item">
-        <div class="service-image">
-          <img src="https://images.unsplash.com/photo-1625231724288-e22032e19fff?w=500&q=80" alt="Car Detailing">
-        </div>
-        <div class="service-content">
-          <h3>Detailing & Cleaning</h3>
-          <p>Premium car detailing services that make your vehicle look brand new. Interior and exterior cleaning, polishing, waxing, and protection treatments to maintain your car's appearance and value.</p>
-        </div>
-      </div>
-    {% endif %}
+    {% endfor %}
+    
+    <div style="text-align: center; margin-top: 60px;">
+      <a href="{{ path('app_services') }}" class="btn secondary">View All Services →</a>
+    </div>
   </section>
+  {% endif %}
 
   <section class="stats-section">
     <h2>📊 Our Impact</h2>
