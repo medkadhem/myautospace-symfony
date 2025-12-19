@@ -80,7 +80,12 @@
       <span class="card-icon">📧</span>
       <h3>Messages</h3>
       <p>Chat with clients about listings</p>
-      <a href="{{ path('app_messages') }}" class="btn secondary btn-block">Inbox</a>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="{{ path('app_messages') }}" class="btn secondary btn-block">Inbox</a>
+        {% if unreadMessages > 0 %}
+          <span class="unread-badge">{{ unreadMessages }}</span>
+        {% endif %}
+      </div>
     </div>
 
     <div class="dashboard-card">
@@ -646,6 +651,21 @@
     .table {
       min-width: 800px;
     }
+  }
+
+  .unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background: #ffc107;
+    color: #1a1a1a;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
   }
 </style>
 {% endblock %}

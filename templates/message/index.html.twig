@@ -25,7 +25,7 @@
                     <a href="{{ path('app_messages_conversation', {
                         announcementId: conversation.announcement.id,
                         userId: conversation.otherUser.id
-                    }) }}" class="conversation-item">
+                    }) }}" class="conversation-item {% if not conversation.lastMessage.isRead and conversation.lastMessage.receiver.id == app.user.id %}has-unread{% endif %}">
                         <div class="conversation-avatar">{{ conversation.otherUser.fullName|upper|first }}</div>
                         
                         <div class="conversation-info">
@@ -40,7 +40,7 @@
                                 {% if conversation.lastMessage.sender.id == app.user.id %}
                                     <span class="preview-label">You:</span>
                                 {% endif %}
-                                {{ conversation.lastMessage.content}}
+                                {{ conversation.lastMessage.content }}
                             </p>
                         </div>
 
@@ -152,15 +152,21 @@
     }
 
     .conversation-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s ease;
-        position: relative;
+        display: flex !important;
+        align-items: center !important;
+        gap: 16px !important;
+        padding: 16px 20px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        text-decoration: none !important;
+        color: inherit !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+    }
+
+    .conversation-item.has-unread {
+        background: rgba(255, 193, 7, 0.05) !important;
+        border-left: 3px solid #ffc107 !important;
+        padding-left: 17px !important;
     }
 
     .conversation-item:last-child {
@@ -168,83 +174,96 @@
     }
 
     .conversation-item:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.05) !important;
     }
 
     .conversation-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: var(--accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 20px;
-        color: var(--bg);
-        flex-shrink: 0;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        background: #ffc107 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 700 !important;
+        font-size: 20px !important;
+        color: #1a1a1a !important;
+        flex-shrink: 0 !important;
     }
 
     .conversation-info {
-        flex: 1;
-        min-width: 0;
+        flex: 1 !important;
+        min-width: 0 !important;
     }
 
     .conversation-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 4px;
-        gap: 16px;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 4px !important;
+        gap: 16px !important;
     }
 
     .conversation-name {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
+        margin: 0 !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
     }
 
     .message-time {
-        font-size: 12px;
-        color: var(--muted);
-        white-space: nowrap;
+        font-size: 12px !important;
+        color: var(--muted) !important;
+        white-space: nowrap !important;
     }
 
     .conversation-listing {
-        margin: 0 0 6px;
-        font-size: 12px;
-        color: var(--muted);
+        margin: 0 0 6px !important;
+        font-size: 12px !important;
+        color: var(--muted) !important;
     }
 
     .conversation-preview {
-        margin: 0;
-        font-size: 14px;
-        color: var(--text);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        margin: 0 !important;
+        font-size: 14px !important;
+        color: var(--text) !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
     }
 
     .preview-label {
-        color: var(--muted);
-        font-weight: 500;
+        color: var(--muted) !important;
+        font-weight: 500 !important;
     }
 
     .unread-badge {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--accent);
-        flex-shrink: 0;
+        width: 12px !important;
+        height: 12px !important;
+        border-radius: 50% !important;
+        background: #ffc107 !important;
+        flex-shrink: 0 !important;
+        animation: pulse 2s infinite !important;
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.6) !important;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.6;
+            transform: scale(0.9);
+        }
     }
 
     .conversation-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--muted);
-        margin-left: 8px;
-        flex-shrink: 0;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: var(--muted) !important;
+        margin-left: 8px !important;
+        flex-shrink: 0 !important;
     }
 
     @media (max-width: 768px) {

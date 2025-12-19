@@ -7,6 +7,7 @@ use App\Repository\ServiceRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\UserRepository;
 use App\Repository\ReviewRepository;
+use App\Repository\MessageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,7 +20,8 @@ final class DashboardController extends AbstractController
         private readonly ServiceRepository $serviceRepo,
         private readonly ReservationRepository $reservationRepo,
         private readonly UserRepository $userRepo,
-        private readonly ReviewRepository $reviewRepo
+        private readonly ReviewRepository $reviewRepo,
+        private readonly MessageRepository $messageRepo
     ) {
     }
 
@@ -69,11 +71,16 @@ final class DashboardController extends AbstractController
             // Get recent reservations (last 5)
             $recentReservations = array_slice($reservations, 0, 5);
             
+            // Get unread messages
+            $allMessages = $this->messageRepo->findBy(['receiver' => $user], ['createdAt' => 'DESC']);
+            $unreadMessages = count(array_filter($allMessages, fn($m) => !$m->isRead()));
+            
         } catch (\Exception $e) {
             $reservations = [];
             $activeReservations = 0;
             $completedReservations = 0;
             $recentReservations = [];
+            $unreadMessages = 0;
         }
         
         return $this->render('dashboard/client.html.twig', [
@@ -82,6 +89,7 @@ final class DashboardController extends AbstractController
             'totalReservations' => count($reservations),
             'reservations' => $reservations,
             'recentReservations' => $recentReservations,
+            'unreadMessages' => $unreadMessages,
         ]);
     }
 
@@ -146,6 +154,15 @@ final class DashboardController extends AbstractController
             $recentReservations = [];
             $services = [];
             $announcements = [];
+            $unreadMessages = 0;
+        }
+        
+        // Get unread messages
+        try {
+            $allMessages = $this->messageRepo->findBy(['receiver' => $user], ['createdAt' => 'DESC']);
+            $unreadMessages = count(array_filter($allMessages, fn($m) => !$m->isRead()));
+        } catch (\Exception $e) {
+            $unreadMessages = 0;
         }
         
         return $this->render('dashboard/provider.html.twig', [
@@ -159,6 +176,7 @@ final class DashboardController extends AbstractController
             'recentReservations' => $recentReservations,
             'announcements' => $announcements,
             'services' => $services,
+            'unreadMessages' => $unreadMessages,
         ]);
     }
 
