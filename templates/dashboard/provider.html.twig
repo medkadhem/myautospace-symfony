@@ -77,6 +77,18 @@
     </div>
 
     <div class="dashboard-card">
+      <span class="card-icon">💬</span>
+      <h3>Offers Received</h3>
+      <p>View and manage offers on your listings</p>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="{{ path('app_offer_received') }}" class="btn secondary btn-block">View Offers</a>
+        {% if pendingOffers > 0 %}
+          <span class="unread-badge">{{ pendingOffers }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="dashboard-card">
       <span class="card-icon">📧</span>
       <h3>Messages</h3>
       <p>Chat with clients about listings</p>

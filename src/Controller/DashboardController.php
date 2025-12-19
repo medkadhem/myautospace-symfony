@@ -109,6 +109,16 @@ final class DashboardController extends AbstractController
             $activeListings = count(array_filter($announcements, fn($a) => in_array($a->getStatus(), ['active', 'available'])));
             $totalValue = array_sum(array_map(fn($a) => $a->getPrice() ?? 0, $announcements));
             
+            // Offers statistics
+            $allOffers = [];
+            foreach ($announcements as $announcement) {
+                foreach ($announcement->getOffers() as $offer) {
+                    $allOffers[] = $offer;
+                }
+            }
+            $pendingOffers = count(array_filter($allOffers, fn($o) => $o->getStatus() === 'pending'));
+            $totalOffers = count($allOffers);
+            
             // Get all reservations and filter by provider's services/announcements
             $allReservations = $this->reservationRepo->findAll();
             $providerReservations = array_filter($allReservations, function($r) use ($user) {
@@ -155,6 +165,8 @@ final class DashboardController extends AbstractController
             $services = [];
             $announcements = [];
             $unreadMessages = 0;
+            $pendingOffers = 0;
+            $totalOffers = 0;
         }
         
         // Get unread messages
@@ -177,6 +189,8 @@ final class DashboardController extends AbstractController
             'announcements' => $announcements,
             'services' => $services,
             'unreadMessages' => $unreadMessages,
+            'pendingOffers' => $pendingOffers,
+            'totalOffers' => $totalOffers,
         ]);
     }
 
