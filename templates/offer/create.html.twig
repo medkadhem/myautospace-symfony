@@ -23,7 +23,7 @@
                             <span class="detail-icon">💰</span>
                             <div>
                                 <span class="detail-label">Asking Price</span>
-                                <span class="detail-value">€{{ announcement.price|number_format(2, ',', '.') }}</span>
+                                <span class="detail-value">{{ announcement.price|number_format(0, '.', ' ') }} TND</span>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -60,15 +60,15 @@
                 
                     <div class="form-section">
                         <label class="form-label">Your Offer Price</label>
-                        <div class="price-input-wrapper">
-                            <span class="currency">€</span>
+                        <div class="price-input-wrapper {% if form.price.vars.errors|length > 0 %}has-error{% endif %}">
+                            <span class="currency">TND</span>
                             {{ form_widget(form.price, {'attr': {
                                 'class': 'form-control price-input',
-                                'placeholder': announcement.price|number_format(2, ',', '.'),
+                                'placeholder': announcement.price|number_format(0, '.', ' '),
                                 'min': '1'
                             }}) }}
                         </div>
-                        {% if form.price.vars.errors %}
+                        {% if form.price.vars.errors|length > 0 %}
                             <div class="form-error">
                                 {% for error in form.price.vars.errors %}
                                     <span>{{ error.message }}</span>
@@ -79,7 +79,7 @@
                         <div class="price-comparison">
                             <div class="comparison-row">
                                 <span>Asking Price:</span>
-                                <strong>€{{ announcement.price|number_format(2, ',', '.') }}</strong>
+                                <strong>{{ announcement.price|number_format(0, '.', ' ') }} TND</strong>
                             </div>
                             <div class="comparison-row" id="differenceRow" style="display: none;">
                                 <span>Your Difference:</span>
@@ -95,7 +95,7 @@
                             'placeholder': 'Tell the seller why you think this is a fair offer...',
                             'rows': '5'
                         }}) }}
-                        {% if form.message.vars.errors %}
+                        {% if form.message.vars.errors|length > 0 %}
                             <div class="form-error">
                                 {% for error in form.message.vars.errors %}
                                     <span>{{ error.message }}</span>
@@ -192,24 +192,45 @@
             display: flex;
             align-items: flex-start;
             gap: 12px;
+            padding: 8px 0;
+        }
+
+        .detail-item > div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
         }
 
         .detail-icon {
-            font-size: 20px;
+            font-size: 24px;
             flex-shrink: 0;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
         }
 
         .detail-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--muted);
-            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            line-height: 1.2;
         }
 
         .detail-value {
             display: block;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.4;
         }
 
         .description-box {
@@ -290,13 +311,14 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--accent);
+            pointer-events: none;
         }
 
         .price-input {
-            padding-left: 40px !important;
+            padding-left: 60px !important;
         }
 
         .form-control {
@@ -315,6 +337,15 @@
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        }
+
+        .has-error .form-control {
+            border-color: #dc3545;
+        }
+
+        .has-error .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
         }
 
         .message-input {
@@ -470,30 +501,36 @@
     </style>
 
     <script>
-        const priceInput = document.querySelector('[name*="price"]');
-        const askingPrice = {{ announcement.price|json_encode() }};
+        (function() {
+            const priceInput = document.querySelector('[name*="price"]');
+            const askingPrice = {{ announcement.price|json_encode() }};
 
-        function updatePriceDifference() {
-            const offerPrice = parseFloat(priceInput.value);
-            const differenceRow = document.getElementById('differenceRow');
-            const differenceValue = document.getElementById('differenceValue');
+            function updatePriceDifference() {
+                const offerPrice = parseFloat(priceInput.value);
+                const differenceRow = document.getElementById('differenceRow');
+                const differenceValue = document.getElementById('differenceValue');
 
-            if (offerPrice && !isNaN(offerPrice)) {
-                differenceRow.style.display = 'flex';
-                const difference = offerPrice - askingPrice;
-                const formattedDiff = (difference < 0 ? '-' : '+') + 
-                    '€' + Math.abs(difference).toFixed(2).replace('.', ',');
-                
-                differenceValue.textContent = formattedDiff;
-                differenceValue.style.color = difference < 0 ? '#28a745' : '#ffc107';
-            } else {
-                differenceRow.style.display = 'none';
+                if (!differenceRow || !differenceValue) {
+                    return;
+                }
+
+                if (offerPrice && !isNaN(offerPrice)) {
+                    differenceRow.style.display = 'flex';
+                    const difference = offerPrice - askingPrice;
+                    const formattedDiff = (difference < 0 ? '-' : '+') + 
+                        Math.abs(difference).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' TND';
+                    
+                    differenceValue.textContent = formattedDiff;
+                    differenceValue.style.color = difference < 0 ? '#28a745' : '#ffc107';
+                } else {
+                    differenceRow.style.display = 'none';
+                }
             }
-        }
 
-        if (priceInput) {
-            priceInput.addEventListener('input', updatePriceDifference);
-        }
+            if (priceInput) {
+                priceInput.addEventListener('input', updatePriceDifference);
+            }
+        })();
     </script>
 {% endblock %}
 
