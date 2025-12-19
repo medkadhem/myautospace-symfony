@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class RegistrationFormType extends AbstractType
 {
@@ -19,6 +20,16 @@ class RegistrationFormType extends AbstractType
             ->add('email', EmailType::class)
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Please enter a password.',
+                    ]),
+                    new Assert\Length([
+                        'min' => 6,
+                        'minMessage' => 'Your password should be at least {{ limit }} characters.',
+                        'max' => 4096,
+                    ]),
+                ],
             ])
             ->add('phone', TelType::class, [
                 'required' => false,
@@ -30,6 +41,11 @@ class RegistrationFormType extends AbstractType
                     'I want to provide services & sell listings' => 'ROLE_PROVIDER',
                 ],
                 'placeholder' => 'Choose your account type',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Please select an account type.',
+                    ]),
+                ],
             ]);
     }
 

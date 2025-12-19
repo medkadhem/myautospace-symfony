@@ -7,6 +7,15 @@
     <h2>Create Your Account</h2>
     <p>Join MyAutoSpace to buy, sell, and discover automotive services</p>
 
+    {# Display general form errors #}
+    {% if not registrationForm.vars.valid %}
+      {% for error in registrationForm.vars.errors %}
+        <div class="alert error" style="margin-bottom: 20px;">
+          <small>{{ error.message }}</small>
+        </div>
+      {% endfor %}
+    {% endif %}
+
     {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
       
       <div class="field">
@@ -36,11 +45,25 @@
       <div class="field">
         {{ form_label(registrationForm.phone, 'Phone Number') }}
         {{ form_widget(registrationForm.phone, {'attr': {'placeholder': '+216 XX XXX XXX', 'class': 'form-control'}}) }}
+        {% if registrationForm.phone.vars.errors %}
+          <div class="alert error" style="margin-top: 8px; margin-bottom: 0;">
+            {% for error in registrationForm.phone.vars.errors %}
+              <small>{{ error.message }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
 
       <div class="field">
         {{ form_label(registrationForm.role, 'Account Type') }}
         {{ form_widget(registrationForm.role, {'attr': {'class': 'form-control'}}) }}
+        {% if registrationForm.role.vars.errors %}
+          <div class="alert error" style="margin-top: 8px; margin-bottom: 0;">
+            {% for error in registrationForm.role.vars.errors %}
+              <small>{{ error.message }}</small>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
 
       <div class="actions">
