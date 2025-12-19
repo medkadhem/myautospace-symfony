@@ -63,7 +63,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Ubuntu
 @media (min-width:1300px){.sidebar-marketplace{display:block}}
 
 /* Main Content */
-.main-content{padding:40px 20px;margin:0 auto;max-width:1400px;width:100%}
+.main-content{padding:40px 20px;margin:auto;max-width:1400px;width:100%}
 
 /* Dashboard */
 .dashboard-container{padding:0;max-width:1600px;margin:0 auto;width:100%}
@@ -560,8 +560,8 @@ select option{background:#000!important;color:#fff!important}
 @media (min-width:1200px){.sidebar-marketplace{display:block}}
 
 /* Main Content */
-.main-content{padding:30px 20px;margin-left:0}
-@media (min-width:1200px){.main-content{margin-left:240px}}
+.main-content{padding:30px 20px;margin:auto}
+@media (min-width:1200px){}
 
 /* Dashboard */
 .dashboard-container{padding:20px 0}
