@@ -26,3 +26,8 @@
 .idea
 /UI/
 /public/uploads/
+/compose.override.yaml
+/compose.yaml
+/deploy.sh
+/docker-compose.yml
+/Dockerfile
