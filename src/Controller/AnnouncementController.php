@@ -199,11 +199,19 @@ final class AnnouncementController extends AbstractController
     #[IsGranted('ROLE_PROVIDER')]
     public function delete(Request $request, Announcement $announcement, EntityManagerInterface $entityManager): Response
     {
+        // Verify user owns this announcement
+        if ($announcement->getVendor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('You cannot delete this listing.');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$announcement->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($announcement);
             $entityManager->flush();
+            $this->addFlash('success', 'Listing deleted successfully!');
+        } else {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
         }
 
-        return $this->redirectToRoute('app_announcement_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_announcement_my_listings', [], Response::HTTP_SEE_OTHER);
     }
 }

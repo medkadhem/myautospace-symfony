@@ -26,7 +26,12 @@ class AdminController extends AbstractController
         $totalUsers = $userRepo->count([]);
         $activeUsers = $userRepo->count(['isActive' => true]);
         $allAnnouncements = $announcementRepo->count([]);
-        $activeListings = $announcementRepo->count(['status' => 'active']);
+        $activeListings = $announcementRepo->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.status IN (:statuses)')
+            ->setParameter('statuses', ['active', 'available'])
+            ->getQuery()
+            ->getSingleScalarResult();
         $allServices = $serviceRepo->count([]);
         $activeServices = $serviceRepo->count(['isActive' => true]);
         $totalReservations = $reservationRepo->count([]);
@@ -95,7 +100,7 @@ class AdminController extends AbstractController
             ],
             'announcements' => [
                 'total' => count($allAnnouncements),
-                'active' => count(array_filter($allAnnouncements, fn($a) => $a->getStatus() === 'active')),
+                'active' => count(array_filter($allAnnouncements, fn($a) => in_array($a->getStatus(), ['active', 'available']))),
                 'sponsored' => count(array_filter($allAnnouncements, fn($a) => $a->isSponsored())),
             ],
             'services' => [

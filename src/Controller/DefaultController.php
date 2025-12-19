@@ -39,7 +39,12 @@ final class DefaultController extends AbstractController
 
         // Get statistics
         $totalAnnouncements = $announcementRepo->count([]);
-        $activeAnnouncements = $announcementRepo->count(['status' => 'active']);
+        $activeAnnouncements = $announcementRepo->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.status IN (:statuses)')
+            ->setParameter('statuses', ['active', 'available'])
+            ->getQuery()
+            ->getSingleScalarResult();
         $totalServices = $serviceRepo->count(['isActive' => true]);
         
         // Get total users count

@@ -85,20 +85,26 @@ class Announcement
     /**
      * @var Collection<int, Reservation>
      */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'announcement')]
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'announcement', cascade: ['remove'])]
     private Collection $reservations;
 
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'announcement')]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'announcement', cascade: ['remove'])]
     private Collection $reviews;
 
     /**
      * @var Collection<int, Offer>
      */
-    #[ORM\OneToMany(targetEntity: Offer::class, mappedBy: 'announcement')]
+    #[ORM\OneToMany(targetEntity: Offer::class, mappedBy: 'announcement', cascade: ['remove'])]
     private Collection $offers;
+
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'announcement', cascade: ['remove'])]
+    private Collection $messages;
 
     public function __construct()
     {
@@ -106,6 +112,7 @@ class Announcement
         $this->reservations = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->offers = new ArrayCollection();
+        $this->messages = new ArrayCollection();
         $this->photos = [];
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -492,6 +499,35 @@ class Announcement
         if ($this->offers->removeElement($offer)) {
             if ($offer->getAnnouncement() === $this) {
                 $offer->setAnnouncement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setAnnouncement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            if ($message->getAnnouncement() === $this) {
+                $message->setAnnouncement(null);
             }
         }
 
