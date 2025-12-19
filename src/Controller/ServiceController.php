@@ -112,9 +112,27 @@ final class ServiceController extends AbstractController
     #[IsGranted('ROLE_PROVIDER')]
     public function delete(Request $request, Service $service, EntityManagerInterface $entityManager): Response
     {
+        // Check if user is the provider of this service
+        if ($service->getProvider() !== $this->getUser()) {
+            $this->addFlash('error', 'You can only delete your own services.');
+            return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+        }
+
         if ($this->isCsrfTokenValid('delete'.$service->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($service);
-            $entityManager->flush();
+            // Check if service has active reservations
+            if ($service->getReservations()->count() > 0) {
+                $this->addFlash('error', 'Cannot delete this service because it has ' . $service->getReservations()->count() . ' reservations. Please cancel or complete the reservations first.');
+                return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            try {
+                // Reviews will be automatically deleted due to cascade: ['remove']
+                $entityManager->remove($service);
+                $entityManager->flush();
+                $this->addFlash('success', 'Service and all associated reviews deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while deleting the service. Please try again.');
+            }
         }
 
         return $this->redirectToRoute('app_service_index', [], Response::HTTP_SEE_OTHER);

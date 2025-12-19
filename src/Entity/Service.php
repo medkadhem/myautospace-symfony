@@ -50,7 +50,7 @@ class Service
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'service')]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'service', cascade: ['remove'])]
     private Collection $reviews;
 
     /**

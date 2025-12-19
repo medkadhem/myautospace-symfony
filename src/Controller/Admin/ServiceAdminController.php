@@ -114,10 +114,20 @@ class ServiceAdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($this->isCsrfTokenValid('delete'.$service->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($service);
-            $entityManager->flush();
+            // Check if service has reservations
+            if ($service->getReservations()->count() > 0) {
+                $this->addFlash('error', 'Cannot delete this service because it has ' . $service->getReservations()->count() . ' reservations. Please delete or complete the reservations first.');
+                return $this->redirectToRoute('app_admin_service_index');
+            }
 
-            $this->addFlash('success', 'Service deleted successfully!');
+            try {
+                // Reviews will be automatically deleted due to cascade: ['remove']
+                $entityManager->remove($service);
+                $entityManager->flush();
+                $this->addFlash('success', 'Service and all associated reviews deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while deleting the service: ' . $e->getMessage());
+            }
         }
 
         return $this->redirectToRoute('app_admin_service_index');
